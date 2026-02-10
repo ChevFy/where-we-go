@@ -10,33 +10,33 @@ namespace WhereWeGo.Models
     {
         [Key]
         [Required]
-        public required Guid NotificationId {get; set;}
-        
+        public required Guid NotificationId { get; set; }
+
         [ForeignKey("UserId")]
-        public required string UserId {get; set;}
+        public required string UserId { get; set; }
 
-        public virtual User User {get; set;} = null!;
-        
+        public virtual User User { get; set; } = null!;
+
         [ForeignKey("PostId")]
-        public required string PostId {get; set;}
-        
-        public virtual Post Post {get; set;} = null!;
+        public required Guid PostId { get; set; }
 
-        public string? Content {get; set;}
+        public virtual Post Post { get; set; } = null!;
 
-        public DateTime DateCreated {get; set;}
+        public string? Content { get; set; }
 
-        public bool isRead {get; set;}
+        public DateTime DateCreated { get; set; }
 
-        public string? Type {get; set;}
+        public bool isRead { get; set; }
+
+        public string? Type { get; set; }
 
         public Notification()
         {
-            DateCreated = DateTime.Now ;
+            DateCreated = DateTime.Now;
             isRead = false;
             Type = null;
         }
-        
+
     }
-    
+
 }

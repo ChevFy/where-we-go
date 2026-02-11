@@ -17,27 +17,13 @@ namespace WhereWeGo
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            // Construct database connection string
-            var dbHost = Environment.GetEnvironmentVariable(GlobalConfig.DbHost)
-                ?? throw new InvalidOperationException("Database host not found in environment variables.");
-            var dbPort = Environment.GetEnvironmentVariable(GlobalConfig.DbPort)
-                ?? throw new InvalidOperationException("Database port not found in environment variables.");
-            var dbName = Environment.GetEnvironmentVariable(GlobalConfig.DbName)
-                ?? throw new InvalidOperationException("Database name not found in environment variables.");
-            var dbUser = Environment.GetEnvironmentVariable(GlobalConfig.DbUser)
-                ?? throw new InvalidOperationException("Database user not found in environment variables.");
-            var dbPassword = Environment.GetEnvironmentVariable(GlobalConfig.DbPassword)
-                ?? throw new InvalidOperationException("Database password not found in environment variables.");
-
-            var connectionString = $"Host={dbHost};Port={dbPort};Database={dbName};Username={dbUser};Password={dbPassword}";
+            var connectionString = GlobalConfig.GetDBConnectionString();
 
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
-            var googleClientId = Environment.GetEnvironmentVariable(GlobalConfig.GoogleClientId)
-                ?? throw new InvalidOperationException("Google Client ID not found in environment variables.");
-            var googleClientSecret = Environment.GetEnvironmentVariable(GlobalConfig.GoogleClientSecret)
-                ?? throw new InvalidOperationException("Google Client Secret not found in environment variables.");
+            var googleClientId = GlobalConfig.GetRequiredEnv(GlobalConfig.GoogleClientId);
+            var googleClientSecret = GlobalConfig.GetRequiredEnv(GlobalConfig.GoogleClientSecret);
 
             builder.Services
             .AddAuthentication(options =>

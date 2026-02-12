@@ -12,9 +12,14 @@ public class AuthController(IAuthService authService) : Controller
 {
     private IAuthService _authService { get; init; } = authService;
 
+    public IActionResult LoginPage()
+    {
+        return View();
+    }
+
     public IActionResult Login()
     {
-        var properties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleResponse") };
+        var properties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleResponse", "Auth") };
         return Challenge(properties, GoogleDefaults.AuthenticationScheme);
     }
 

@@ -1,15 +1,26 @@
 
 <nav class="nav-bar">
     <div class="nav-left-container">
+        <a asp-controller="Home">
         <img src="/images/wherewego-logo.svg" class="logo-icon">
+        </a>
     </div>
     <div class="search-container">
         <input class="search-input" id="search-context" type="text" placeholder="ค้นหากิจกรรม">
         <button class="search-submit-btn">search</button>
     </div>
     <div class="login-container">
-        <img src="/images/non-profile-login.svg" class="login-icon" />
-        <a href="#" class="login-link">ลงชื่อเข้าใช้</a>
+        @if (ViewBag.isAuth)
+        {
+            <img src="/images/user-profile.svg" class="login-icon" />
+            <span class="user-name">@ViewBag.UserName</span>
+            <a asp-controller="Auth" asp-action="Logout" class="login-link">ออกจากระบบ</a>
+        }
+        else
+        {
+            <img src="/images/non-profile-login.svg" class="login-icon" />
+            <a asp-controller="Auth" asp-action="LoginPage" class="login-link">ลงชื่อเข้าใช้</a>
+        }
     </div>
 </nav>
 

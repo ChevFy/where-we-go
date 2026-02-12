@@ -1,0 +1,53 @@
+@import url('site.css');
+
+.login-bg-container{
+  width: 100%;
+  height: 100vh;
+  background-image: url('/images/background-desktop.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  }
+
+.login-bg-container .login-main-text{
+    font-size: var(--font-size-medium);
+    color: var(--option-color);
+ }
+
+ .login-bg-container .login-card
+ {
+    margin: 20px;
+    background-color: var(--bg-color);
+    border-radius: 20px ;
+    width: 30rem;
+    height: 30rem;
+    filter: drop-shadow(0px 10px 10px rgba(0,0,0, 0.6)) grayscale(20%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+
+ }
+
+.login-input{
+   width: 100%;
+   gap: 25px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   flex-direction: column;
+}
+
+.oauth-button{
+   width: 75%;
+   align-items: center;
+   justify-content: center;
+   flex-direction: column;
+}
+ 

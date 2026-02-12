@@ -1,0 +1,20 @@
+<button class="main-button"
+        style="
+          --btn-color: @ViewBag.Color;
+          --text-color: @ViewBag.TextColor;
+          --btn-hover-color: @ViewBag.HoverColor;
+          --btn-drop-shadow: rgba(0,0,0,0.6);
+          --height : 50px;
+          --width : @ViewBag.Width;
+          --font-size : 20px;
+        ">
+    @if (ViewBag.ImageUrl != null)
+    {
+        <img src="@ViewBag.ImageUrl" 
+             style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;" 
+             alt="icon" />
+    }
+    <span>
+      @ViewBag.Text
+    </span>
+</button>

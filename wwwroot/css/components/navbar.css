@@ -1,0 +1,122 @@
+
+.nav-left-container {
+    display: flex;
+    align-items: center; 
+    height: 100%;
+}
+
+.logo-icon {
+    height: 10rem; 
+    width: auto;   
+    object-fit: contain;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.logo-icon:hover {
+    transform: scale(1.05); 
+}
+
+.nav-bar
+{
+    background-color: #0077B6;
+    overflow: hidden;
+    height: 3.5em;
+    width: 100%;
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.5rem;
+    margin: 0;
+    box-sizing: border-box;
+    position: fixed;
+    z-index: 100;
+  }
+  
+
+  
+.search-container {
+  height: 2.2rem; 
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  position: relative; 
+}
+
+.search-input {
+  width: 100%; 
+  height: 100%; 
+  box-sizing: border-box; 
+  outline: none;
+  border-radius: 25px;
+  border: 2px solid black;
+  padding: 0 3rem 0 1.2rem; 
+  font-family: 'Itim', cursive;
+}
+
+.search-submit-btn {
+  position: absolute;
+  right: 5px;   
+  top: 50%;     
+  transform: translateY(-50%);
+  color: rgb(0, 0, 0);
+  border: none;
+  border-radius: 10rem; 
+  width: 3rem;
+  height: 1.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+/* login-register*/
+.login-container {
+  display: flex;
+  align-items: center; 
+  justify-content: flex-end; 
+  gap: 8px; 
+  height: 100%; 
+  cursor: pointer;
+}
+
+.login-icon {
+  height: 3rem; 
+  width: auto;
+  opacity: 0.9;
+}
+
+.login-link {
+  text-decoration: none;
+  color: white; 
+  font-size: 0.95rem;
+  white-space: nowrap; 
+  transition: 0.3s;
+}
+
+.login-link:hover {
+  color: #CAF0F8; 
+}
+
+
+@media (max-width: 768px) {
+    .login-icon {
+        display: none; 
+    }
+
+    .login-container {
+        width: auto;
+        justify-content: center;
+    }
+
+    .logo-icon {
+    height: 7rem; 
+    width: auto;   
+    object-fit: contain;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+}

@@ -1,8 +1,32 @@
-﻿@{
+﻿@using System.Xml.Serialization
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+@section Styles {
+  <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+
+  @* Import component css *@
+  <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+
+}
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
+
+
+<div class="home-bg-container">
+  <div class="main-text">
+    Where We Go
+  </div>
+  <div class="sub-text">
+    <p>
+    เช็กอินความสุข บุกทุกพิกัดลับ
+    ให้ทุกการเดินทางมีความหมายมากกว่าที่เคยสัมผัส 
+    พร้อมเปิดวาร์ปสถานที่ใหม่ๆ
+    </p>
+  </div>
+    @await Component.InvokeAsync("MainButton", new {  targetId = "started",  buttonType = "submit",  text = "เริ่มต้นใช้งาน"  })
 </div>
+

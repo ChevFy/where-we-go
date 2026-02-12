@@ -1,0 +1,16 @@
+.main-button {
+  background-color: var(--btn-color);
+  color: var(--text-color);
+  width: var(--width);
+  height: var(--height);
+  border: none;
+  transition: 0.3s ease;
+  font-size: var(--font-size);
+  border-radius: 42px;
+  cursor: pointer;
+}
+
+.main-button:hover {
+  background-color: var(--btn-hover-color);
+  filter: drop-shadow(0px 10px 10px var(--btn-drop-shadow));
+}

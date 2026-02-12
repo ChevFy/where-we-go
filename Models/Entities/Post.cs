@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
 
-namespace WhereWeGo.Models
+namespace where_we_go.Models
 {
     [Table("Posts")]
     public class Post

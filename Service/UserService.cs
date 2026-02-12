@@ -1,10 +1,10 @@
 
 using Microsoft.EntityFrameworkCore;
-using WhereWeGo.Database;
-using WhereWeGo.DTO;
-using WhereWeGo.Models;
+using where_we_go.Database;
+using where_we_go.DTO;
+using where_we_go.Models;
 
-namespace WhereWeGo.Service
+namespace where_we_go.Service
 {
     public interface IUserService
     {

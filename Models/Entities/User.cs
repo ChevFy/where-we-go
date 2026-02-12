@@ -3,7 +3,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WhereWeGo.Models
+namespace where_we_go.Models
 {
     [Table("Users")]
     public class User : IdentityUser

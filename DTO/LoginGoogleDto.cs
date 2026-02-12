@@ -1,4 +1,4 @@
-namespace WhereWeGo.DTO
+namespace where_we_go.DTO
 {
     public class LoginGoogleDto
     {

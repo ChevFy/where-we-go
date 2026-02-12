@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using WhereWeGo.Models;
+using where_we_go.Models;
 
-namespace WhereWeGo.Database
+namespace where_we_go.Database
 {
     public class AppDbContext : IdentityDbContext<User>
     {

@@ -2,9 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
-using WhereWeGo.Models;
+using where_we_go.Models;
 
-namespace WhereWeGo.Database;
+namespace where_we_go.Database;
 
 public static class SeedData
 {

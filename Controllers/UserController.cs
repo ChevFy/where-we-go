@@ -2,7 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WhereWeGo.Service;
+using where_we_go.Service;
 
 namespace where_we_go.Controllers;
 

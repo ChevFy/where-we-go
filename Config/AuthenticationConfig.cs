@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 
-namespace WhereWeGo.Config
+namespace where_we_go.Config
 {
     public static class AuthenticationConfig
     {

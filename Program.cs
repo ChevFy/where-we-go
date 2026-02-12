@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using dotenv.net;
-using WhereWeGo.Database;
-using WhereWeGo.Config;
-using WhereWeGo.Service;
+using where_we_go.Database;
+using where_we_go.Config;
+using where_we_go.Service;
 
-namespace WhereWeGo
+namespace where_we_go
 {
     public class Program
     {

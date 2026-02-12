@@ -1,7 +1,7 @@
-using WhereWeGo.Models;
-using WhereWeGo.DTO;
+using where_we_go.Models;
+using where_we_go.DTO;
 
-namespace WhereWeGo.Service
+namespace where_we_go.Service
 {
     public interface IAuthService
     {

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace WhereWeGo.Models
+namespace where_we_go.Models
 {
     [Table("Categories")]
     public class Category

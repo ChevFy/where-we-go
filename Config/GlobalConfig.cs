@@ -1,4 +1,4 @@
-namespace WhereWeGo.Config
+namespace where_we_go.Config
 {
     /// <summary>
     /// Global configuration constants for environment variable keys

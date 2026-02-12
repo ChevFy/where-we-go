@@ -1,6 +1,6 @@
-using WhereWeGo.Models;
+using where_we_go.Models;
 
-namespace WhereWeGo.DTO
+namespace where_we_go.DTO
 {
     public class UserResponseDto(User user)
     {

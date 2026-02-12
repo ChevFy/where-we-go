@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "My Profile";
+    var user = ViewData["User"] as WhereWeGo.DTO.UserResponseDto;
+}
+
+<h1>My Profile</h1>
+<div>
+    <p>Email: @user?.Email</p>
+    <p>Username: @user?.UserName</p>
+    <p>Role: @user?.Role</p>
+</div>

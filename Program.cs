@@ -2,8 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using dotenv.net;
 using WhereWeGo.Database;
 using WhereWeGo.Config;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
+using WhereWeGo.Service;
 
 namespace WhereWeGo
 {
@@ -22,23 +21,12 @@ namespace WhereWeGo
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
-            var googleClientId = GlobalConfig.GetRequiredEnv(GlobalConfig.GoogleClientId);
-            var googleClientSecret = GlobalConfig.GetRequiredEnv(GlobalConfig.GoogleClientSecret);
-
-            builder.Services
-            .AddAuthentication(options =>
-            {
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-            })
-            .AddCookie()
-            .AddGoogle(options =>
-            {
-                options.ClientId = googleClientId;
-                options.ClientSecret = googleClientSecret;
-            });
+            builder.Services.AddAuthenticationConfig();
 
             builder.Services.AddRazorPages();
+
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
 
             var app = builder.Build();
 
@@ -50,8 +38,8 @@ namespace WhereWeGo
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseHttpsRedirection();
 
             // authentication & authorization
             app.UseAuthentication();

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using where_we_go.Models;
 
@@ -11,7 +12,8 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Privacy()
+    [Authorize]
+    public async Task<IActionResult> Privacy()
     {
         return View();
     }

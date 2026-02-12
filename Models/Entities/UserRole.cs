@@ -1,10 +1,10 @@
 
 namespace WhereWeGo.Models
 {
-    public static class UserRole
+    public enum UserRoleEnum
     {
-    public const string Admin = "Admin";
-    public const string User = "User";
+        Admin,
+        User
     }
-    
+
 }

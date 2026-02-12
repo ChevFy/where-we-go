@@ -26,7 +26,7 @@ public static class SeedData
                     Email = "admin@example.com",
                     Firstname = "Admin",
                     Lastname = "User",
-                    Role = UserRole.Admin,
+                    Role = UserRoleEnum.Admin,
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow
                 },
@@ -36,7 +36,7 @@ public static class SeedData
                     Email = "john@example.com",
                     Firstname = "John",
                     Lastname = "Doe",
-                    Role = UserRole.User,
+                    Role = UserRoleEnum.User,
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow
                 },
@@ -46,7 +46,7 @@ public static class SeedData
                     Email = "jane@example.com",
                     Firstname = "Jane",
                     Lastname = "Smith",
-                    Role = UserRole.User,
+                    Role = UserRoleEnum.User,
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow
                 }

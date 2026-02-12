@@ -12,7 +12,7 @@ using WhereWeGo.Database;
 namespace where_we_go.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260210152409_InitialCreate")]
+    [Migration("20260212143332_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

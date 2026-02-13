@@ -18,8 +18,7 @@
         </div>
         
         <div class="register-input">
-            @await Component.InvokeAsync("InputBar", new { targetId = "firstName", inputType = "text", placeHolder = "FirstName", width = "75%" })
-            @await Component.InvokeAsync("InputBar", new { targetId = "lastName", inputType = "text", placeHolder = "LastName", width = "75%" })
+            @await Component.InvokeAsync("InputBar", new { targetId = "Name", inputType = "text", placeHolder = "YourName", width = "75%" })
             @await Component.InvokeAsync("InputBar", new { targetId = "username", inputType = "text", placeHolder = "Username", width = "75%" })
             @await Component.InvokeAsync("InputBar", new { targetId = "email", inputType = "email", placeHolder = "Email", width = "75%" })
             @await Component.InvokeAsync("InputBar", new { targetId = "password", inputType = "text", placeHolder = "Password", width = "75%" })

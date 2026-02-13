@@ -32,7 +32,6 @@ namespace where_we_go
             builder.Services.AddRazorPages();
 
             builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IAuthService, AuthService>();
 
             var app = builder.Build();
 

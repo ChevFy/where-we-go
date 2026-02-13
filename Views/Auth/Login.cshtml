@@ -1,0 +1,80 @@
+@model where_we_go.DTO.LoginDto
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/loginpage.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
+}
+
+
+
+<div class="login-bg-container">
+    <div class="login-card">
+        <div class="login-main-text">
+            ลงชื่อเข้าใช้
+        </div>
+
+        <form style="width: 100%; gap : 1.5rem ; display :flex ; align-items : center ; justify-content : center ; flex-direction : column" method="post" asp-action="Login" asp-controller="Auth" >
+            <div class="login-input">
+                @await Component.InvokeAsync("InputBar", new { 
+                    targetId = "Email", 
+                    inputType = "email", 
+                    placeHolder = "Email", 
+                    width = "75%" 
+                })
+                @await Component.InvokeAsync("InputBar", new { 
+                    targetId = "Password", 
+                    inputType = "password", 
+                    placeHolder = "Password", 
+                    width = "75%" 
+                })
+            </div>
+            <div class="login-button">
+                @await Component.InvokeAsync("MainButton", new { 
+                    targetId = "submit-login", 
+                    buttonType = "submit", 
+                    text = "ลงชื่อเข้าใช้" ,
+                    width = "75%"
+                })
+            </div>
+        </form>
+
+
+        <div class="oauth-button">
+            <form method="post" asp-action="ExternalLogin" asp-controller="Auth">
+                <input type="hidden" name="provider" value="Google" />
+                @await Component.InvokeAsync("MainButton", new { 
+                    targetId = "google-oauth", 
+                    imageUrl = "/images/google.svg", 
+                    buttonType = "submit", 
+                    width = "100%", 
+                    text = "เข้าสู่ระบบด้วย Google", 
+                    color = "var(--tertiary-color)", 
+                    textColor = "var(--option-color)" 
+                })
+            </form>
+        </div>
+        <div>
+            ยังไม่มีบัญชีใช่ไหม? <a asp-controller="Auth" asp-action="Register">ลงทะเบียน</a> เลย!
+        </div>
+    </div>
+</div>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                var errors = string.Join("\\n", ViewData.ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage));
+                <script>
+                    alert("@Html.Raw(errors)");
+                </script>
+            }
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

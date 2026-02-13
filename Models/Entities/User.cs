@@ -10,11 +10,7 @@ namespace where_we_go.Models
     {
         [Required]
         [StringLength(100, MinimumLength = 1)]
-        public required string Firstname { get; set; }
-
-        [Required]
-        [StringLength(100, MinimumLength = 1)]
-        public required string Lastname { get; set; }
+        public required string Name { get; set; }
 
         [Required]
         [EmailAddress]
@@ -44,8 +40,8 @@ namespace where_we_go.Models
         public User()
         {
             ProfileUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
-            DateCreated = DateTime.Now;
-            DateUpdated = DateTime.Now;
+            DateCreated = DateTime.UtcNow;
+            DateUpdated = DateTime.UtcNow;
             Role = UserRoleEnum.User;
         }
     }

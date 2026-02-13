@@ -18,8 +18,7 @@ namespace where_we_go.Service
                 {
                     Email = dto.Email,
                     UserName = dto.GivenName,
-                    Firstname = dto.Name.Split(' ')[0],
-                    Lastname = dto.Name.Split(' ')[1],
+                    Name = dto.Name,
                     OAuthId = dto.ProviderKey,
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow,

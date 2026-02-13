@@ -24,8 +24,7 @@ public static class SeedData
                 {
                     UserName = "admin@example.com",
                     Email = "admin@example.com",
-                    Firstname = "Admin",
-                    Lastname = "User",
+                    Name = "Admin",
                     Role = UserRoleEnum.Admin,
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow
@@ -34,8 +33,7 @@ public static class SeedData
                 {
                     UserName = "john@example.com",
                     Email = "john@example.com",
-                    Firstname = "John",
-                    Lastname = "Doe",
+                    Name = "John Doe",
                     Role = UserRoleEnum.User,
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow
@@ -44,8 +42,7 @@ public static class SeedData
                 {
                     UserName = "jane@example.com",
                     Email = "jane@example.com",
-                    Firstname = "Jane",
-                    Lastname = "Smith",
+                    Name = "Jane Smith",
                     Role = UserRoleEnum.User,
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow

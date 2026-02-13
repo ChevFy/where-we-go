@@ -1,0 +1,59 @@
+@model where_we_go.DTO.LoginDto
+
+@{
+    ViewData["Title"] = "Login";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/loginpage.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
+}
+
+<div class="login-bg-container">
+    <div class="login-card">
+        <div class="login-main-text">
+            ลงชื่อเข้าใช้
+        </div>
+
+        <form method="post" asp-action="Login" asp-controller="Auth">
+            <div class="login-input">
+                <input type="email" name="Email" asp-for="Email" placeholder="Email" required />
+                <span asp-validation-for="Email" class="text-danger"></span>
+
+                <input type="password" name="Password" asp-for="Password" placeholder="Password" required />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            @if (ViewData.ModelState.Any(x => x.Value?.Errors.Count > 0))
+            {
+                <div class="text-danger" style="text-align: center; margin: 10px 0;">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <p>@error.ErrorMessage</p>
+                    }
+                </div>
+            }
+
+            <div class="login-button">
+                <button type="submit" class="btn btn-primary">ลงชื่อเข้าใช้</button>
+                <a asp-action="Register" class="btn btn-secondary">ลงทะเบียน</a>
+            </div>
+        </form>
+
+        <div class="oauth-button">
+            <form method="post" asp-action="ExternalLogin" asp-controller="Auth">
+                <input type="hidden" name="provider" value="Google" />
+                <button type="submit" class="btn btn-google">
+                    <img src="/images/google.svg" alt="Google" />
+                    เข้าสู่ระบบด้วย Google
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

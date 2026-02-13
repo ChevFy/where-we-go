@@ -11,8 +11,13 @@ namespace where_we_go.Config
             var googleClientId = GlobalConfig.GetRequiredEnv(GlobalConfig.GoogleClientId);
             var googleClientSecret = GlobalConfig.GetRequiredEnv(GlobalConfig.GoogleClientSecret);
 
-            // services.AddIdentity<Models.User, IdentityRole>()
-            //     .AddEntityFrameworkStores<Database.AppDbContext>().AddDefaultTokenProviders();
+            services.AddIdentity<Models.User, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+            }
+            )
+                .AddEntityFrameworkStores<Database.AppDbContext>()
+                .AddDefaultTokenProviders();
 
             services
             .AddAuthentication(options =>
@@ -25,8 +30,8 @@ namespace where_we_go.Config
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SameSite = SameSiteMode.Lax;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-                options.LoginPath = "/auth/login";
-                options.LogoutPath = "/auth/logout";
+                options.LoginPath = "/Auth/Login";
+                options.LogoutPath = "/Auth/Logout";
                 options.AccessDeniedPath = "/";
             })
             .AddGoogle(options =>

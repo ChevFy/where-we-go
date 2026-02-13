@@ -1,0 +1,60 @@
+@model where_we_go.DTO.RegisterDto
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/registerpage.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
+}
+
+<div class="register-bg-container">
+    <div class="register-card">
+        <div class="register-main-text">
+            ลงทะเบียน
+        </div>
+
+        <form method="post" asp-action="Register" asp-controller="Auth">
+            <div class="register-input">
+                <input type="text" name="Firstname" asp-for="Firstname" placeholder="First Name" required />
+                <span asp-validation-for="Firstname" class="text-danger"></span>
+
+                <input type="text" name="Lastname" asp-for="Lastname" placeholder="Last Name" required />
+                <span asp-validation-for="Lastname" class="text-danger"></span>
+
+                <input type="email" name="Email" asp-for="Email" placeholder="Email" required />
+                <span asp-validation-for="Email" class="text-danger"></span>
+
+                <input type="password" name="Password" asp-for="Password" placeholder="Password" required />
+                <span asp-validation-for="Password" class="text-danger"></span>
+
+                <input type="password" name="ConfirmPassword" asp-for="ConfirmPassword" placeholder="Confirm Password"
+                       required />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            @if (ViewData.ModelState.Any(x => x.Value?.Errors.Count > 0))
+            {
+                <div class="text-danger" style="text-align: center; margin: 10px 0;">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <p>@error.ErrorMessage</p>
+                    }
+                </div>
+            }
+
+            <div class="register-button">
+                <button type="submit" class="btn btn-primary">ลงทะเบียน</button>
+                <a asp-action="Login" asp-controller="Auth" class="btn btn-secondary">กลับไปหน้าเข้าสู่ระบบ</a>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

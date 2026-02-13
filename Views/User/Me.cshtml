@@ -1,11 +1,36 @@
+@model where_we_go.Models.User
+
 @{
     ViewData["Title"] = "My Profile";
-    var user = ViewData["User"] as where_we_go.DTO.UserResponseDto;
 }
 
 <h1>My Profile</h1>
-<div>
-    <p>Email: @user?.Email</p>
-    <p>Username: @user?.UserName</p>
-    <p>Role: @user?.Role</p>
-</div>
+
+@if (Model != null)
+{
+    <div class="">
+        <div class="">
+            <img src="@Model.ProfileUrl" alt="Profile Picture" width="100px" />
+            <h2>@Model.Name</h2>
+        </div>
+
+        <div class="">
+            <p><strong>Id:</strong> @Model.Id</p>
+            <p><strong>Email:</strong> @Model.Email</p>
+            <p><strong>Username:</strong> @Model.UserName</p>
+            <p><strong>Bio:</strong> @(Model.Bio ?? "No bio yet")</p>
+            <p><strong>Role:</strong> @Model.Role</p>
+            <p><strong>Member Since:</strong> @Model.DateCreated.ToString("MMMM dd, yyyy")</p>
+            <p><strong>Last Updated:</strong> @Model.DateUpdated.ToString("MMMM dd, yyyy")</p>
+        </div>
+
+        @if (Model.OAuthId != null)
+        {
+            <p class="oauth-info">Connected via OAuth</p>
+        }
+    </div>
+}
+else
+{
+    <p>User not found or not logged in.</p>
+}

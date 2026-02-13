@@ -1,0 +1,36 @@
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+@section Styles {
+  <link rel="stylesheet" href="~/css/registerpage.css" asp-append-version="true" />
+ <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+  <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
+
+}
+
+<div class="register-bg-container">
+    <div class="register-card">
+        <div class="register-main-text">
+            ลงทะเบียน
+        </div>
+        
+        <div class="register-input">
+            @await Component.InvokeAsync("InputBar", new { targetId = "firstName", inputType = "text", placeHolder = "FirstName", width = "75%" })
+            @await Component.InvokeAsync("InputBar", new { targetId = "lastName", inputType = "text", placeHolder = "LastName", width = "75%" })
+            @await Component.InvokeAsync("InputBar", new { targetId = "username", inputType = "text", placeHolder = "Username", width = "75%" })
+            @await Component.InvokeAsync("InputBar", new { targetId = "email", inputType = "email", placeHolder = "Email", width = "75%" })
+            @await Component.InvokeAsync("InputBar", new { targetId = "password", inputType = "text", placeHolder = "Password", width = "75%" })
+            @await Component.InvokeAsync("InputBar", new { targetId = "confirmPassword", inputType = "text", placeHolder = "ConfirmPassword", width = "75%" })
+
+        </div>
+
+        <div class="register-button">
+            @await Component.InvokeAsync("MainButton", new { targetId = "submit-login", buttonType = "submit", text = "ลงชื่อเข้าใช้" })
+            @await Component.InvokeAsync("MainButton", new { targetId = "register", buttonType = "submit", text = "ลงทะเบียน", color = "var(--option-color)" })
+        </div>
+
+    </div>
+</div>

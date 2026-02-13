@@ -1,3 +1,4 @@
+@using where_we_go.ViewComponents
 
 @{
     ViewData["Title"] = "Home Page";
@@ -6,10 +7,15 @@
   <link rel="stylesheet" href="~/css/registerpage.css" asp-append-version="true" />
  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
+@* Import css component *@
   <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
+   @* <link rel="stylesheet" href="~/css/components/dropdown.css" asp-append-version="true" /> *@
+  <link rel="stylesheet" href="~/css/components/select_dropdown.css" asp-append-version="true" />
+  
 
 }
+
 
 <div class="register-bg-container">
     <div class="register-card">
@@ -23,12 +29,21 @@
             @await Component.InvokeAsync("InputBar", new { targetId = "email", inputType = "email", placeHolder = "Email", width = "75%" })
             @await Component.InvokeAsync("InputBar", new { targetId = "password", inputType = "text", placeHolder = "Password", width = "75%" })
             @await Component.InvokeAsync("InputBar", new { targetId = "confirmPassword", inputType = "text", placeHolder = "ConfirmPassword", width = "75%" })
-
-        </div>
+            @* @await Component.InvokeAsync(name: "DropDown", new { targetId = "gender"}) *@
+            @await Component.InvokeAsync(name: "SelectDropdown", new { targetId = "gender" , mainText = "เพศ", width = "50%" , height = "30px",  
+            items = new List<SelectDropdownItem>{
+                new SelectDropdownItem {Text = "ชาย" , Value="male"},
+                new SelectDropdownItem {Text = "หญิง" , Value="female"},
+                new SelectDropdownItem {Text = "อื่นๆ" , Value="other"}
+                }
+            })
+        </div>  
 
         <div class="register-button">
-            @await Component.InvokeAsync("MainButton", new { targetId = "submit-login", buttonType = "submit", text = "ลงชื่อเข้าใช้" })
             @await Component.InvokeAsync("MainButton", new { targetId = "register", buttonType = "submit", text = "ลงทะเบียน", color = "var(--option-color)" })
+        </div>
+        <div>
+            หรือว่าคุณมีบัญชีแล้วหล่ะ? <a asp-controller="Auth" asp-action="LoginPage">ลงชื่อเข้าใช้</a>
         </div>
 
     </div>

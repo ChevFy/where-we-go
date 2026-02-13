@@ -5,6 +5,7 @@
   <link rel="stylesheet" href="~/css/loginpage.css" asp-append-version="true" />
  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
+    @* Import css component *@
   <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
 
@@ -23,11 +24,13 @@
 
         <div class="login-button">
             @await Component.InvokeAsync("MainButton", new { targetId = "submit-login", buttonType = "submit", text = "ลงชื่อเข้าใช้" })
+            <a asp-controller="Account" asp-action="RegisterPage">
             @await Component.InvokeAsync("MainButton", new { targetId = "register", buttonType = "submit", text = "ลงทะเบียน", color = "var(--option-color)" })
+            </a>
         </div>
 
         <div class="oauth-button">
-            <a href="/Auth/Login">
+            <a asp-controller="Auth" asp-action="Login">
             @await Component.InvokeAsync("MainButton", new { 
                 targetId = "google-oauth", 
                 imageUrl = "/images/google.svg", 

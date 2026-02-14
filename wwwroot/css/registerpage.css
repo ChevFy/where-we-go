@@ -1,6 +1,6 @@
 @import url('site.css');
 
-.login-bg-container{
+.register-bg-container{
   width: 100%;
   height: 100vh;
   background-image: url('/images/background-desktop.jpg');
@@ -14,18 +14,18 @@
   align-items: center;
   }
 
-.login-bg-container .login-main-text{
+.register-bg-container .register-main-text{
     font-size: var(--font-size-medium);
     color: var(--option-color);
  }
 
- .login-bg-container .login-card
+ .register-bg-container .register-card
  {
     margin: 20px;
     background-color: var(--bg-color);
     border-radius: 20px ;
     width: 30rem;
-    height: 30rem;
+    height: 40rem;
     filter: drop-shadow(0px 10px 10px rgba(0,0,0, 0.6)) grayscale(20%);
     display: flex;
     flex-direction: column;
@@ -35,7 +35,7 @@
 
  }
 
-.login-input{
+.register-input{
    width: 100%;
    gap: 25px;
    display: flex;
@@ -44,18 +44,10 @@
    flex-direction: column;
 }
 
-.login-button{
+.register-button{
    width: 100%;
    display: flex;
    align-items: center;
    justify-content: center;
    flex-direction: column;
 }
-
-.oauth-button{
-   width: 75%;
-   align-items: center;
-   justify-content: center;
-   flex-direction: column;
-}
- 

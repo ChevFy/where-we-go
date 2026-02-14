@@ -3,6 +3,7 @@ using dotenv.net;
 using where_we_go.Database;
 using where_we_go.Config;
 using where_we_go.Service;
+using Microsoft.AspNetCore.Identity;
 
 namespace where_we_go
 {
@@ -21,12 +22,16 @@ namespace where_we_go
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
+
+            builder.Services.AddIdentity<Models.User, IdentityRole>()
+                .AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
             builder.Services.AddAuthenticationConfig();
+
 
             builder.Services.AddRazorPages();
 
             builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IAuthService, AuthService>();
 
             var app = builder.Build();
 

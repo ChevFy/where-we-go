@@ -1,0 +1,16 @@
+.select-dropdown {
+    background-color: var(--tertiary-color);
+    border-radius: 25px;
+    border: 0;
+    padding: 0 15px; 
+    cursor: pointer; 
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.select-dropdown:hover {
+    background-color: var(--option-color);
+    color: white; 
+    transform: translateY(-2px); 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}

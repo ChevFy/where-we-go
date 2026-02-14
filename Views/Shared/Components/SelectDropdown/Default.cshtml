@@ -1,0 +1,11 @@
+
+<select class="select-dropdown"name="gender" id="gender-select"
+  style="width: @ViewBag.width; 
+        height : @ViewBag.height;"
+>
+  <option value="">@ViewBag.mainText</option>
+  @foreach(var item in Model)
+  {
+      <option value=@item.Value>@item.Text</option>
+  }
+</select>

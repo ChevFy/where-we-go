@@ -1,11 +1,11 @@
+@model where_we_go.DTO.UserResponseDto
 @{
     ViewData["Title"] = "My Profile";
-    var user = ViewData["User"] as where_we_go.DTO.UserResponseDto;
 }
 
 <h1>My Profile</h1>
 <div>
-    <p>Email: @user?.Email</p>
-    <p>Username: @user?.UserName</p>
-    <p>Role: @user?.Role</p>
+    <p>Email: @Model.Email</p>
+    <p>Username: @Model.UserName</p>
+    <p>Role: @Model.Role</p>
 </div>

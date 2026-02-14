@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using where_we_go.DTO;
 using where_we_go.Models;
 
 namespace where_we_go.Controllers;
@@ -18,7 +19,12 @@ public class UserController(UserManager<User> userManager) : Controller
         if (string.IsNullOrEmpty(userId))
             return RedirectToAction("Login", "Auth");
         var user = await _userManager.FindByIdAsync(userId);
-        return View(user);
+        if (user == null)
+        {
+            return RedirectToAction("Login", "Auth");
+        }
+        var userReponse = new UserResponseDto(user);
+        return View(userReponse);
     }
 
 }

@@ -1,26 +1,57 @@
-
 <nav class="nav-bar">
     <div class="nav-left-container">
         <a asp-controller="Home">
-        <img src="/images/wherewego-logo.svg" class="logo-icon">
+            <img src="/images/wherewego-logo.svg" class="logo-icon">
         </a>
+        <div class="nav-menu">
+            <ul class="nav-list">
+                @if (ViewBag.isAuth)
+                {
+                    <li class="nav-item"><a href="/" class="nav-link">กิจกรรม</a></li>
+                    <li class="nav-item"><a href="/" class="nav-link">แจ้งเตือน</a></li>
+                }
+            </ul>
+        </div>
+        <div class="hbg-wrapper">
+            @if(ViewBag.isAuth)
+            {
+            @await Component.InvokeAsync("HamburgerMenu", new { 
+                items = new List<where_we_go.ViewComponents.NavItem> {
+                    new() { Text = "หน้าแรก", Href = "/" },
+                     new() { Text = "บัญชี", Href = "/Account" },
+                    new() { Text = "ออกจากระบบ", Href = "/Auth/Logout" },
+                    
+                } 
+            })
+            }
+        </div>
     </div>
+
     <div class="search-container">
         <input class="search-input" id="search-context" type="text" placeholder="ค้นหากิจกรรม">
         <button class="search-submit-btn">search</button>
     </div>
-    <div class="login-container">
-        @if (ViewBag.isAuth)
-        {
-            <img src="/images/user-profile.svg" class="login-icon" />
-            <span class="user-name">@Model.Name</span>
-            <a asp-controller="Auth" asp-action="Logout" class="login-link">ออกจากระบบ</a>
-        }
-        else
-        {
-            <img src="/images/non-profile-login.svg" class="login-icon" />
-            <a asp-controller="Auth" asp-action="Login" class="login-link">ลงชื่อเข้าใช้</a>
-        }
-    </div>
-</nav>
 
+    <div class="login-container">
+
+                @if (ViewBag.isAuth)
+                {
+                    <img src="@Model.ProfileUrl" class="login-icon" />
+                     <div class="login-text"">
+                    <span class="user-name">@Model.Name</span>
+                    <a asp-controller="Auth" asp-action="Logout">ออกจากระบบ</a>
+                    </div>
+                    
+                }
+                else
+                {
+                    <img src="/images/non-profile-login.svg" class="login-icon" />
+                    <a asp-controller="Auth" asp-action="Login" class="login-link">ลงชื่อเข้าใช้</a>
+                }
+
+
+
+
+    </div>
+
+</nav>

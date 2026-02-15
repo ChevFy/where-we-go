@@ -1,0 +1,28 @@
+@model List<where_we_go.ViewComponents.NavItem>
+
+<div class="hbg-component">
+    <input type="checkbox" id="hbg-toggle" class="hbg-input">
+    
+    <label for="hbg-toggle" class="hbg-button">
+        <span class="hbg-line"></span>
+        <span class="hbg-line"></span>
+        <span class="hbg-line"></span>
+    </label>
+
+    <div class="hbg-sidebar">
+        <div class="hbg-header">
+            <span>เมนู</span>
+            <label for="hbg-toggle" class="hbg-close">&times;</label>
+        </div>
+        <ul class="hbg-list">
+            @foreach (var item in Model)
+            {
+                <li class="hbg-item">
+                    <a href="@item.Href" class="hbg-link">@item.Text</a>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <label for="hbg-toggle" class="hbg-overlay"></label>
+</div>

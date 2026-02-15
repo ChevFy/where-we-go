@@ -9,12 +9,15 @@
   @* Import component css *@
   <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
 }
 <header>
     @await Component.InvokeAsync("Navbar")
 </header>
 
 
+@if(!ViewBag.isAuth)
+{
 <div class="home-bg-container">
   <div class="main-text">
     Where We Go
@@ -26,13 +29,12 @@
     พร้อมเปิดวาร์ปสถานที่ใหม่ๆ
     </p>
   </div>
-    @if (!ViewBag.isAuth)
-    {
       <a asp-controller="Auth" asp-action="Login">
           @await Component.InvokeAsync("MainButton", new {  targetId = "started",  buttonType = "submit",  text = "เริ่มต้นใช้งาน"  })   
       </a>
-    }
   </div>
+
+}
   
 <div class="home-post-container">
   test

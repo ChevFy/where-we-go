@@ -51,3 +51,14 @@
    justify-content: center;
    flex-direction: column;
 }
+
+
+@media (max-width: 768px) {
+    .register-bg-container .register-card
+    {
+        width: 80%;
+        margin: 50%;
+        min-height: auto;
+        padding: 40px 20px;
+    }
+}

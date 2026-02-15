@@ -8,16 +8,11 @@ using where_we_go.Models;
 
 namespace where_we_go.Controllers;
 
-public class HomeController : Controller
+public class HomeController(UserManager<User> userManager) : Controller
 {
-
-    private readonly UserManager<User> _userManager;
-
-    public HomeController(UserManager<User> userManager)
-    {
-        _userManager = userManager;
-    }
-
+    private UserManager<User> _userManager { get; init; } = userManager;
+    
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         bool IsAuth = User.Identity?.IsAuthenticated ?? false;

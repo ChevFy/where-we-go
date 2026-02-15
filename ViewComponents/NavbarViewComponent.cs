@@ -7,15 +7,10 @@ using where_we_go.DTO;
 
 namespace where_we_go.ViewComponents
 {
-    public class NavbarViewComponent : ViewComponent
+    public class NavbarViewComponent(UserManager<User> userManager) : ViewComponent
     {
 
-        private readonly UserManager<User> _userManager;
-
-        public NavbarViewComponent(UserManager<User> userManager)
-        {
-            _userManager = userManager;
-        }
+        private UserManager<User> _userManager { get; init; } = userManager;
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
@@ -23,8 +18,8 @@ namespace where_we_go.ViewComponents
             bool IsAuth = User.Identity?.IsAuthenticated ?? false;
             ViewBag.IsAuth = IsAuth;
             
-            var userId = _userManager.GetUserId(userPrincipal);
-            var user = await _userManager.FindByIdAsync(userId);
+   
+            var user = await _userManager.GetUserAsync(userPrincipal);
             if (user == null)
                     return View(null);
             var userReponse = new UserResponseDto(user);

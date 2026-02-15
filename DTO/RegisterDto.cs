@@ -4,13 +4,10 @@ namespace where_we_go.DTO
 {
     public class RegisterDto
     {
-        [Required(ErrorMessage = "First name is required")]
-        [StringLength(100, MinimumLength = 1, ErrorMessage = "First name must be between 1 and 100 characters")]
-        public string Firstname { get; set; } = string.Empty;
+        [Required(ErrorMessage = "Name is required")]
+        [StringLength(100, MinimumLength = 1, ErrorMessage = "Name must be between 1 and 100 characters")]
+        public string Name { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Last name is required")]
-        [StringLength(100, MinimumLength = 1, ErrorMessage = "Last name must be between 1 and 100 characters")]
-        public string Lastname { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]
@@ -26,5 +23,6 @@ namespace where_we_go.DTO
         [Compare("Password", ErrorMessage = "Passwords do not match")]
         [DataType(DataType.Password)]
         public string ConfirmPassword { get; set; } = string.Empty;
+
     }
 }

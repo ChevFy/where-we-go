@@ -1,20 +1,36 @@
 using System.Diagnostics;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using where_we_go.DTO;
 using where_we_go.Models;
 
 namespace where_we_go.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
+
+    private readonly UserManager<User> _userManager;
+
+    public HomeController(UserManager<User> userManager)
     {
+        _userManager = userManager;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        bool IsAuth = User.Identity?.IsAuthenticated ?? false;
+        ViewBag.IsAuth = IsAuth;
+       
         return View();
+
     }
 
     [Authorize]
     public async Task<IActionResult> Privacy()
     {
+        bool IsAuth = User.Identity?.IsAuthenticated ?? false;
         return View();
     }
 

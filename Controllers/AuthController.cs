@@ -73,7 +73,7 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
         {
             UserName = model.Email,
             Email = model.Email,
-            Name = $"{model.Firstname} {model.Lastname}",
+            Name = model.Name
         };
 
         var result = await _userManager.CreateAsync(user, model.Password);

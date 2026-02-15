@@ -22,12 +22,11 @@
 
         <form style="width: 100%; gap : 1.5rem ; display :flex ; align-items : center ; justify-content : center ; flex-direction : column" method="post" asp-action="Register" asp-controller="Auth">
             <div class="register-input">                
-                @await Component.InvokeAsync("InputBar", new { targetId = "Firstname", inputType = "text", placeHolder = "First Name", width = "75%" })
-                @await Component.InvokeAsync("InputBar", new { targetId = "Lastname", inputType = "text", placeHolder = "Last Name", width = "75%" })
+                @await Component.InvokeAsync("InputBar", new { targetId = "Name", inputType = "text", placeHolder = "Name", width = "75%" })
                 @await Component.InvokeAsync("InputBar", new { targetId = "Email", inputType = "email", placeHolder = "Email", width = "75%" })
                 @await Component.InvokeAsync("InputBar", new { targetId = "Password", inputType = "password", placeHolder = "Password", width = "75%" })
                 @await Component.InvokeAsync("InputBar", new { targetId = "ConfirmPassword", inputType = "password", placeHolder = "Confirm Password", width = "75%" })
-                @await Component.InvokeAsync("SelectDropdown", new { 
+                @* @await Component.InvokeAsync("SelectDropdown", new { 
                     targetId = "Gender", 
                     mainText = "เพศ", 
                     width = "75%", 
@@ -37,7 +36,7 @@
                         new SelectDropdownItem {Text = "หญิง" , Value="female"},
                         new SelectDropdownItem {Text = "อื่นๆ" , Value="other"}
                     }
-                })
+                }) *@
             </div>
 
            @if (!ViewData.ModelState.IsValid)

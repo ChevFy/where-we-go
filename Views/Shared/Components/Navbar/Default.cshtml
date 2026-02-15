@@ -13,7 +13,7 @@
         @if (ViewBag.isAuth)
         {
             <img src="/images/user-profile.svg" class="login-icon" />
-            <span class="user-name">@ViewBag.UserName</span>
+            <span class="user-name">@Model.Name</span>
             <a asp-controller="Auth" asp-action="Logout" class="login-link">ออกจากระบบ</a>
         }
         else

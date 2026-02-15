@@ -27,3 +27,11 @@
     width: 65%;
     color: var(--tertiary-color);
 }
+
+.home-post-contianer
+{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+}

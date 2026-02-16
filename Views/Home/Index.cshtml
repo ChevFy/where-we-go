@@ -16,7 +16,7 @@
 </header>
 
 
-@if(!ViewBag.isAuth)
+@if( !ViewBag.isAuth)
 {
 <div class="home-bg-container">
   <div class="main-text">
@@ -33,10 +33,100 @@
           @await Component.InvokeAsync("MainButton", new {  targetId = "started",  buttonType = "submit",  text = "เริ่มต้นใช้งาน"  })   
       </a>
   </div>
-
 }
-  
+
+@if (ViewBag.isAuth)
+{
+  <style>
+    .home-post-container
+    {
+      padding-top : 5rem;
+    }
+  </style>
+}
+
+
 <div class="home-post-container">
-  test
+<div class="post-card">
+    <div class="post-img">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s" alt="Thumbnail">
+    </div>
+    
+    <div class="post-content">
+      <div class="post-content-1">
+        <h2 style="color: var(--option-color); margin: 0;"> Title </h2>
+        <div class="post-category">
+          <span>category1</span>
+          <span>category2</span>
+          <span>category3</span>
+        </div>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque debitis neque labore nihil dignissimos autem aliquid delectus voluptatibus ipsam amet quo, blanditiis dicta eaque. Ipsum debitis expedita fugit quo vel.
+        </p>
+      </div>
+
+      <div class="post-content-2" style="white-space: nowrap; text-align: right;">
+          <p style="color: black; font-size : var(--font-size-base); margin: 0;">18/02/2026</p>
+          <p style="color: black; font-size : var(--font-size-base); margin: 0;">17:00</p>
+          <p style="color: black; font-size : var(--font-size-base); margin: 0;">1 day</p>
+      </div>
+      
+    </div>
+</div>
+
+<div class="post-card">
+    <div class="post-img">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s" alt="Thumbnail">
+    </div>
+    
+    <div class="post-content">
+      <div class="post-content-1">
+        <h2 style="color: var(--option-color); margin: 0;"> Title </h2>
+        <div class="post-category">
+          <span>category1</span>
+          <span>category2</span>
+          <span>category3</span>
+        </div>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque debitis neque labore nihil dignissimos autem aliquid delectus voluptatibus ipsam amet quo, blanditiis dicta eaque. Ipsum debitis expedita fugit quo vel.
+        </p>
+      </div>
+
+      <div class="post-content-2" style="white-space: nowrap; text-align: right;">
+          <p style="color: black; font-size : var(--font-size-base); margin: 0;">18/02/2026</p>
+          <p style="color: black; font-size : var(--font-size-base); margin: 0;">17:00</p>
+          <p style="color: black; font-size : var(--font-size-base); margin: 0;">1 day</p>
+      </div>
+      
+    </div>
+</div>
+
+<div class="post-card">
+    <div class="post-img">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s" alt="Thumbnail">
+    </div>
+    
+    <div class="post-content">
+      <div class="post-content-1">
+        <h2 style="color: var(--option-color); margin: 0;"> Title </h2>
+        <div class="post-category">
+          <span>category1</span>
+          <span>category2</span>
+          <span>category3</span>
+        </div>
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque debitis neque labore nihil dignissimos autem aliquid delectus voluptatibus ipsam amet quo, blanditiis dicta eaque. Ipsum debitis expedita fugit quo vel.
+        </p>
+      </div>
+
+      <div class="post-content-2" style="white-space: nowrap; text-align: right;">
+          <p style="color: black; font-size : var(--font-size-base); margin: 0;">18/02/2026</p>
+          <p style="color: black; font-size : var(--font-size-base); margin: 0;">17:00</p>
+          <p style="color: black; font-size : var(--font-size-base); margin: 0;">1 day</p>
+      </div>
+      
+    </div>
+</div>
+
 </div>
 

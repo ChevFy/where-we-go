@@ -58,4 +58,19 @@
    justify-content: center;
    flex-direction: column;
 }
- 
+
+
+@media (max-width: 768px) {
+    .login-bg-container .login-card {
+        width: 80%;
+        margin: 50%;
+        min-height: auto;
+        padding: 40px 20px;
+    }
+
+
+
+    .oauth-button {
+        width: 80%;
+    }
+}

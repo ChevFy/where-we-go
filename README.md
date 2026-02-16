@@ -6,6 +6,14 @@
 - Docker and Docker Compose
 
 
+## Quick Start (How to run)
+
+```
+docker-compose up -d
+dotnet ef database update
+dotnet watch run
+```
+
 ## Docker Compose Commands
 
 ### 1. Start All Services (Run Database)
@@ -13,15 +21,6 @@
 docker-compose up -d
 ```
 
-### 2. View Service Logs
-```bash
-docker-compose logs -f
-```
-
-### 3. View Database Logs Only
-```bash
-docker-compose logs -f db
-```
 
 ### 4. Stop All Services
 ```bash

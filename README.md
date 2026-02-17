@@ -1,106 +1,68 @@
-# Where We Go
+# 🚀 Where We Go
 
-## Prerequisites
+Project Web application Developement [CE-KMITL] with .NET 10
+
+## 🛠 Prerequisites
+
 
 - .NET 10.0 SDK
-- Docker and Docker Compose
+- Docker Desktop (สำหรับรัน Database)
+- Entity Framework Core Tools (ติดตั้งผ่านคำสั่ง: `dotnet tool install --global dotnet-ef`)
 
+## ⚡ Quick Start
 
-## Quick Start (How to run)
+รัน 3 คำสั่งนี้เพื่อเริ่มใช้งานโปรเจกต์ทันที:
 
-```
+```bash
+# 1. Start Database
 docker-compose up -d
+
+#ถ้ายังไม่มี migrations
+dotnet ef migrations add
+
+# 2. Update Database Schema
 dotnet ef database update
+
+# 3. Run Project (Watch Mode)
 dotnet watch run
 ```
 
-## Docker Compose Commands
+## Project Commands
 
-### 1. Start All Services (Run Database)
-```bash
-docker-compose up -d
-```
+### Database Management (EF Core)
+
+- **Create Migration**: `dotnet ef migrations add <Name>`
+- **Update Database**: `dotnet ef database update`
+- **Remove Migration**: `dotnet ef migrations remove`
+
+### Running Project
+
+- **Build Project**: `dotnet build`
+- **Run Project**: `dotnet run`
+- **Hot Reload** (Recommended): `dotnet watch run`
+- **Clean Project**: `dotnet clean`
 
 
-### 4. Stop All Services
-```bash
-docker-compose down
-```
+## Setup Step-by-Step
 
-### 5. Stop and Remove Volumes (Delete Database Data)
-```bash
-docker-compose down -v
-```
+1. **เตรียม environemnt**: ก็อปปี้ `.env.example` แล้วเปลี่ยนชื่อเป็น `.env` จากนั้นในไฟล์ จะมี DB_PASSWORD ให้เปลี่ยนเป็นของคุณ 
 
-### 6. Restart Services
-```bash
-docker-compose restart
-```
+1. **เตรียม Database **: ใช้คำสั่ง `docker-compose up -d` เพื่อเปิดใช้งาน Database container (รอประมาณ 5-10 วินาทีเพื่อให้ระบบภายในพร้อมทำงาน)
 
-### 7. Check Service Status
-```bash
-docker-compose ps
-```
+2. **ตรวจสอบการเชื่อมต่อ**: หากต้องการเช็คสถานะ Database ให้ใช้คำสั่ง `docker-compose ps`
 
-### 8. Access Database Container
-```bash
-docker exec -it where_we_go_db psql -U postgres -d where_we_go_db
-```
+3. **เตรียม Schema**: รัน `dotnet ef database update` เพื่อสร้าง Table ต่างๆ ใน Database
 
-## Command for Project
+4. **เริ่มพัฒนา**: ใช้ `dotnet watch run` เพื่อเริ่มรันโปรแกรม โดยระบบจะรีโหลดให้อัตโนมัติเมื่อมีการแก้ไข Code
 
-### 1. Restore Dependencies
-```bash
-dotnet restore
-```
+## Member
 
-### 2. Build Project 
-```bash
-dotnet build
-```
-
-### 3. Run Project
-```bash
-dotnet run
-```
-
-### 4. Run in Watch Mode (Auto-reload)
-```bash
-dotnet watch run
-```
-
-### 5. Clean Build Files 
-```bash
-dotnet clean
-```
-
-### 6. Database Migrations
-```bash
-# Create new migration
-dotnet ef migrations add MigrationName
-
-# Update database
-dotnet ef database update
-
-# Remove last migration
-dotnet ef migrations remove
-```
-
-## Running the Complete Project
-
-1. Start Database with Docker Compose:
-   ```bash
-   docker-compose up -d
-   ```
-
-2. Wait for Database to be ready (approximately 5-10 seconds)
-
-3. Update Database schema:
-   ```bash
-   dotnet ef database update
-   ```
-
-4. Run the application:
-   ```bash
-   dotnet run
-   ```
+<a href="https://github.com/paaw-potsawee">@paaw-potsawee</a>
+<br>
+<a href="https://github.com/Nanach1ll">@Nanach1ll </a>
+<br>
+<a href="https://github.com/Bokutosimp">@Bokutosimp </a>
+<br>
+<a href="https://github.com/ChevFy">@ChevFy </a>
+<br>
+<a href="https://github.com/Meridian6792">@Merdian6792</a>

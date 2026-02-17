@@ -18,6 +18,15 @@
     --font-size-small: 14px;  
 }
 
+@media (max-width: 768px) {
+    :root {
+        --font-size-big: 48px;      
+        --font-size-medium: 24px;   
+        --font-size-base: 15px;     
+        --font-size-small: 13px;   
+    }
+}
+
 body
 {
     margin: 0;

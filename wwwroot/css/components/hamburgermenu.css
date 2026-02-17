@@ -26,18 +26,19 @@
 .hbg-line {
     width: 25px;
     height: 3px;
-    background-color: var(--option-color);
+    background-color: white;
     border-radius: 2px;
     transition: 0.3s;
 }
 
 .hbg-sidebar {
     position: fixed;
-    top: 0;
-    left: -300px;
-    right: auto;
-    width: 300px;
-    height: 100vh;
+    top: -100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
     background: var(--bg-color);
     z-index: 9999;
     transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -47,7 +48,7 @@
 }
 
 .hbg-input:checked ~ .hbg-sidebar {
-    left: 0;
+    top: 0;
 }
 
 .hbg-overlay {

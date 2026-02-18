@@ -1,0 +1,51 @@
+@using System.Xml.Serialization
+@{
+    ViewData["Title"] = "Create Post";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/postcreate.css" asp-append-version="true" />
+
+    @* Import component css *@
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+}
+
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
+
+<div class="post-bg-container">
+    <div class="post-container">
+        <h2 class="post-title">Create New Post</h2>
+        <form asp-action="Create" asp-controller="Post" method="post">
+            <div class="form-group">
+                <label for="Title">Title</label>
+                <input type="text" id="Title" name="Title" required />
+            </div>
+            <div class="form-group">
+                <label for="Description">Description</label>
+                <textarea id="Description" name="Description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="LocationName">Location</label>
+                <input type="text" id="LocationName" name="LocationName" required />
+            </div>
+            <div class="form-group">
+                <label for="DateDeadline">Event Date</label>
+                <input type="date" id="DateDeadline" name="DateDeadline" required />
+            </div>
+            <div class="form-group">
+                <label for="MinParticipants">Min Participants</label>
+                <input type="number" id="MinParticipants" name="MinParticipants" required />
+            </div>
+            <div class="form-group">
+                <label for="MaxParticipants">Max Participants</label>
+                <input type="number" id="MaxParticipants" name="MaxParticipants" required />
+            </div>
+            <button type="submit" class="main-button">Create Post</button>
+        </form>
+    </div>
+</div>

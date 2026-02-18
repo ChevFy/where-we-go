@@ -22,7 +22,7 @@
                     new() { Text = "กิจกรรม", Href = "/" },
                     new() { Text = "แชทกลุ่ม", Href = "/" },
                      new() { Text = "แจ้งเตือน", Href = "/" },
-                    new() { Text = "ออกจากระบบ", Href = "/Auth/Logout" },
+                    @* new() { Text = "ออกจากระบบ", Href = "/Auth/Logout" }, *@
                     
                 } 
             })
@@ -34,11 +34,13 @@
 
                 @if (ViewBag.isAuth)
                 {
+                    <a asp-controller="User" asp-action="UserProfile">
                     <img src="@Model.ProfileUrl" class="login-icon" />
                      <div class="login-text"">
                     <span class="user-name">@Model.Name</span>
-                    <a asp-controller="Auth" asp-action="Logout">ออกจากระบบ</a>
+                    @* <a asp-controller="Auth" asp-action="Logout">ออกจากระบบ</a> *@
                     </div>
+                    </a>
                     
                 }
                 else

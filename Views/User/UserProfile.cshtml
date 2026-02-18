@@ -1,0 +1,35 @@
+@model where_we_go.DTO.UserResponseDto
+@{
+    ViewData["Title"] = "My Profile";
+}
+
+@section Styles {
+  <link rel="stylesheet" href="~/css/userprofile.css" asp-append-version="true" />
+
+  @* Import component css *@
+  <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+}
+<header>
+
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
+
+<div class="profile-container">
+    <div class="profile-card">
+        <a asp-controller="auth" asp-action="logout">
+       @await Component.InvokeAsync("MainButton", new { 
+                    targetId = "Logout", 
+                    imageUrl = "/images/logout.svg", 
+                    buttonType = "submit", 
+                    width = "100%", 
+                    text = "ออกจากระบบ", 
+                    color = "var(--tertiary-color)", 
+                    textColor = "var(--option-color)" 
+                })
+        </a>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+@import url("site.css");
+
+.profile-container
+{
+    padding: 25rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile-card
+{
+    background-color: var(--tertiary-color);
+    width: 75%;
+    height: auto;
+    border-radius: 25px;
+}

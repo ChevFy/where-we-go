@@ -13,7 +13,7 @@ public class UserController(UserManager<User> userManager) : Controller
     private UserManager<User> _userManager { get; init; } = userManager;
 
     [Authorize]
-    public async Task<IActionResult> Me()
+    public async Task<IActionResult> UserProfile()
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
@@ -24,6 +24,7 @@ public class UserController(UserManager<User> userManager) : Controller
             return RedirectToAction("Login", "Auth");
         }
         var userReponse = new UserResponseDto(user);
+        Console.WriteLine(userReponse);
         return View(userReponse);
     }
 

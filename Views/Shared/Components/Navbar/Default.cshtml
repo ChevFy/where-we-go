@@ -8,6 +8,7 @@
                 @if (ViewBag.isAuth)
                 {
                     <li class="nav-item"><a href="/" class="nav-link">กิจกรรม</a></li>
+                    <li class="nav-item"><a href="/" class="nav-link">แชทกลุ่ม</a></li>
                     <li class="nav-item"><a href="/" class="nav-link">แจ้งเตือน</a></li>
                 }
             </ul>
@@ -18,18 +19,15 @@
             @await Component.InvokeAsync("HamburgerMenu", new { 
                 items = new List<where_we_go.ViewComponents.NavItem> {
                     new() { Text = "หน้าแรก", Href = "/" },
-                     new() { Text = "บัญชี", Href = "/Account" },
+                    new() { Text = "กิจกรรม", Href = "/" },
+                    new() { Text = "แชทกลุ่ม", Href = "/" },
+                     new() { Text = "แจ้งเตือน", Href = "/" },
                     new() { Text = "ออกจากระบบ", Href = "/Auth/Logout" },
                     
                 } 
             })
             }
         </div>
-    </div>
-
-    <div class="search-container">
-        <input class="search-input" id="search-context" type="text" placeholder="ค้นหากิจกรรม">
-        <button class="search-submit-btn">search</button>
     </div>
 
     <div class="login-container">

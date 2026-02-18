@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
 }
 <header>
     @await Component.InvokeAsync("Navbar")
@@ -114,7 +115,7 @@
           <span>category2</span>
           <span>category3</span>
         </div>
-        <p>
+        <p> 
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque debitis neque labore nihil dignissimos autem aliquid delectus voluptatibus ipsam amet quo, blanditiis dicta eaque. Ipsum debitis expedita fugit quo vel.
         </p>
       </div>
@@ -130,3 +131,6 @@
 
 </div>
 
+ <footer>
+    @await Component.InvokeAsync(name:"Footer")
+ </footer>

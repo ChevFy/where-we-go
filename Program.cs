@@ -23,6 +23,7 @@ namespace where_we_go
                 options.UseNpgsql(connectionString));
 
 
+
             builder.Services.AddIdentity<Models.User, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 

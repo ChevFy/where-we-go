@@ -3,6 +3,8 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using where_we_go.DTO;
 using where_we_go.Models;
 
@@ -27,9 +29,10 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         var role = (await _userManager.GetRolesAsync(user)).ToArray();
         var userReponse = new UserResponseDto(user, role);
         var userReponse = new UserResponseDto(user);
-        Console.WriteLine(userReponse);
+        // Console.WriteLine(userReponse);
         return View(userReponse);
     }
+
 
 }
 

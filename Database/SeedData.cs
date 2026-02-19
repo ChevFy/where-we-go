@@ -1,7 +1,5 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
 using where_we_go.Models;
 
 namespace where_we_go.Database;
@@ -15,17 +13,34 @@ public static class SeedData
                 DbContextOptions<AppDbContext>>()))
         {
             Console.WriteLine("Seeding initial data...");
+
+            var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            var roles = new[] { "Admin", "User" };
+
+            foreach (var role in roles)
+            {
+                var roleName = role.ToString();
+                if (!roleManager.RoleExistsAsync(roleName).Result)
+                {
+                    roleManager.CreateAsync(new IdentityRole(roleName)).Wait();
+                }
+            }
+
             if (context.Users.Any())
             {
                 return;
             }
-            context.Users.AddRange(
+
+            var users = new[]
+            {
                 new User
                 {
                     UserName = "admin@example.com",
                     Email = "admin@example.com",
                     Name = "Admin",
-                    Role = UserRoleEnum.Admin,
+                    EmailConfirmed = true,
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow
                 },
@@ -34,7 +49,7 @@ public static class SeedData
                     UserName = "john@example.com",
                     Email = "john@example.com",
                     Name = "John Doe",
-                    Role = UserRoleEnum.User,
+                    EmailConfirmed = true,
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow
                 },
@@ -43,11 +58,28 @@ public static class SeedData
                     UserName = "jane@example.com",
                     Email = "jane@example.com",
                     Name = "Jane Smith",
-                    Role = UserRoleEnum.User,
+                    EmailConfirmed = true,
                     DateCreated = DateTime.UtcNow,
                     DateUpdated = DateTime.UtcNow
                 }
-            );
+            };
+
+            var passwords = new[] { "AdminPassword123!", "JohnPassword123!", "JanePassword123!" };
+            var roleNames = new[] { "Admin", "User", "User" };
+
+            for (int i = 0; i < users.Length; i++)
+            {
+                var result = userManager.CreateAsync(users[i], passwords[i]).Result;
+                if (!result.Succeeded)
+                {
+                    Console.WriteLine($"Failed to create user {users[i].UserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+                else
+                {
+                    userManager.AddToRoleAsync(users[i], roleNames[i]).Wait();
+                }
+            }
+
             // Seed Categories
             context.Categories.AddRange(
                 new Category

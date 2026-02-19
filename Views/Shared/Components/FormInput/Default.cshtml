@@ -1,0 +1,15 @@
+<div class="@ViewBag.CssClass">
+    <label for="@ViewBag.Id">@ViewBag.Label</label>
+    <input type="@ViewBag.Type"      id="@ViewBag.Id"           name="@ViewBag.Name"          @if (ViewBag.Required) {
+    <text>required</text>
+}
+@if (!string.IsNullOrEmpty(ViewBag.Placeholder))
+{
+    <text>placeholder="@ViewBag.Placeholder"</text>
+}
+@if (!string.IsNullOrEmpty(ViewBag.Value))
+{
+    <text>value="@ViewBag.Value"</text>
+}
+/>
+</div>

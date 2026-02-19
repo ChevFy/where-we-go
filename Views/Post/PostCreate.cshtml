@@ -1,4 +1,6 @@
 @using System.Xml.Serialization
+@using where_we_go.DTO
+@model PostCreateDto
 @{
     ViewData["Title"] = "Create Post";
 }
@@ -11,6 +13,7 @@
     <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/forminput.css" asp-append-version="true" />
 }
 
 <header>
@@ -21,31 +24,65 @@
     <div class="post-container">
         <h2 class="post-title">Create New Post</h2>
         <form asp-action="Create" asp-controller="Post" method="post">
-            <div class="form-group">
-                <label for="Title">Title</label>
-                <input type="text" id="Title" name="Title" required />
-            </div>
-            <div class="form-group">
-                <label for="Description">Description</label>
-                <textarea id="Description" name="Description" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="LocationName">Location</label>
-                <input type="text" id="LocationName" name="LocationName" required />
-            </div>
-            <div class="form-group">
-                <label for="DateDeadline">Event Date</label>
-                <input type="date" id="DateDeadline" name="DateDeadline" required />
-            </div>
-            <div class="form-group">
-                <label for="MinParticipants">Min Participants</label>
-                <input type="number" id="MinParticipants" name="MinParticipants" required />
-            </div>
-            <div class="form-group">
-                <label for="MaxParticipants">Max Participants</label>
-                <input type="number" id="MaxParticipants" name="MaxParticipants" required />
-            </div>
-            <button type="submit" class="main-button">Create Post</button>
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "Title",
+                name = "Title",
+                label = "Title",
+                type = "text",
+                required = true
+            })
+
+            @await Component.InvokeAsync("FormTextarea", new
+            {
+                id = "Description",
+                name = "Description",
+                label = "Description",
+                required = true
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "LocationName",
+                name = "LocationName",
+                label = "Location",
+                type = "text",
+                required = true
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "DateDeadline",
+                name = "DateDeadline",
+                label = "Event Date",
+                type = "date",
+                required = true
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "MinParticipants",
+                name = "MinParticipants",
+                label = "Min Participants",
+                type = "number",
+                required = true
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "MaxParticipants",
+                name = "MaxParticipants",
+                label = "Max Participants",
+                type = "number",
+                required = true
+            })
+
+            @await Component.InvokeAsync("MainButton", new
+            {
+                targetId = "submit-btn",
+                buttonType = "submit",
+                text = "Create Post"
+            })
         </form>
     </div>
 </div>

@@ -25,11 +25,11 @@ public class PostController(AppDbContext dbContext) : Controller
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Create(Post model)
+    public async Task<IActionResult> Create(PostCreateDto dto)
     {
         if (!ModelState.IsValid)
         {
-            return View(model);
+            return View(dto);
         }
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -38,13 +38,24 @@ public class PostController(AppDbContext dbContext) : Controller
             return Unauthorized();
         }
 
-        model.UserId = userId;
-        model.DateCreated = DateTime.UtcNow;
-        model.Status = "Active";
-        model.CurrentParticipants = 0;
+        var post = new Post
+        {
+            PostId = Guid.NewGuid(),
+            UserId = userId,
+            Title = dto.Title,
+            Description = dto.Description,
+            LocationName = dto.LocationName,
+            DateDeadline = dto.DateDeadline,
+            MinParticipants = dto.MinParticipants,
+            MaxParticipants = dto.MaxParticipants,
+            DateCreated = DateTime.UtcNow,
+            Status = "Active",
+            CurrentParticipants = 0,
+            InviteCode = Guid.NewGuid().ToString().Substring(0, 8).ToUpper() // Generate simple invite code
+        };
 
         // TODO: Save to database later
-        // _dbContext.Posts.Add(model);
+        // _dbContext.Posts.Add(post);
         // await _dbContext.SaveChangesAsync();
 
         // For now, just redirect

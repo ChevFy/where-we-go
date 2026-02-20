@@ -1,0 +1,47 @@
+@import url('site.css');
+
+.post-bg-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 5rem 0 2rem;
+}
+
+.post-container {
+    padding: 1rem;
+    width: 60%;
+    background-color: var(--tertiary-color);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.post-title {
+    font-size: var(--font-size-large);
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-group textarea {
+    height: 100px;
+    resize: vertical;
+}

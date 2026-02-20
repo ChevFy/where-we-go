@@ -1,0 +1,47 @@
+@using System.Xml.Serialization
+@{
+    ViewData["Title"] = "Post Page";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/postview.css" asp-append-version="true" />
+
+    @* Import component css *@
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+}
+
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
+
+<div class="post-bg-container">
+    <div class="post-container">
+        <img class="post-thumbnail"
+             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s"
+             alt="Thumbnail">
+        <h2 class="post-title">ชื่อโพสต์</h2>
+        <div class="post-location">
+            <p>สถานที่</p>
+        </div>
+        <div class="post-date">
+            <p>วันที่จัดงาน</p>
+        </div>
+        <div class="post-population">
+            <p>จำนวนคน</p>
+        </div>
+        <div class="post-category">
+            <ul>
+                <li>หมวดหมู่ 1</li>
+                <li>หมวดหมู่ 2</li>
+                <li>หมวดหมู่ 3</li>
+            </ul>
+        </div>
+        <div class="post-description">
+            <p>รายละเอียดโพสต์</p>
+        </div>
+
+    </div>
+</div>

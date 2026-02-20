@@ -1,6 +1,6 @@
 <nav class="nav-bar">
     <div class="nav-left-container">
-        <a asp-controller="Home">
+        <a asp-controller="Home" asp-action="Index">
             <img src="/images/wherewego-logo.svg" class="logo-icon">
         </a>
         <div class="nav-menu">
@@ -21,7 +21,7 @@
                     new() { Text = "หน้าแรก", Href = "/" },
                     new() { Text = "กิจกรรม", Href = "/" },
                     new() { Text = "แชทกลุ่ม", Href = "/" },
-                     new() { Text = "แจ้งเตือน", Href = "/" },
+                    new() { Text = "แจ้งเตือน", Href = "/" },
                     @* new() { Text = "ออกจากระบบ", Href = "/Auth/Logout" }, *@
                     
                 } 
@@ -35,11 +35,11 @@
                 @if (ViewBag.isAuth)
                 {
                     <a asp-controller="User" asp-action="UserProfile">
-                    <img src="@Model.ProfileUrl" class="login-icon" />
                      <div class="login-text"">
-                    <span class="user-name">@Model.Name</span>
+                    @* <span class="user-name">@Model.Name</span> *@
                     @* <a asp-controller="Auth" asp-action="Logout">ออกจากระบบ</a> *@
                     </div>
+                    <img src="@Model.ProfileUrl" class="login-icon" />
                     </a>
                     
                 }

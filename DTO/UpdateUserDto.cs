@@ -10,7 +10,7 @@ namespace where_we_go.DTO
 
         [StringLength(100, MinimumLength = 1)]
         public string? Name { get; set; } = user.Name;
-        [StringLength(150)]
+        [StringLength(50)]
         public string? Bio { get; set; } = user.Bio;
         public string? ProfileUrl { get; set; } = user.ProfileUrl;
     }

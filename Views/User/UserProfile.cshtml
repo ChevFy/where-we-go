@@ -20,7 +20,16 @@
 
 <div class="profile-container">
     <div class="profile-card">
-        <a asp-controller="auth" asp-action="logout">
+        <div class="profile-top">
+            <img src=@Model.ProfileUrl>
+            <div class="profile-content">
+                <p style=" color : var(--option-color);font-size: var(--font-size-medium);">@Model.Name</p>
+                <p>
+                @Model.Bio 
+                </p>
+            </div>
+        </div>
+        @* <a asp-controller="auth" asp-action="logout">
        @await Component.InvokeAsync("MainButton", new { 
                     targetId = "Logout", 
                     imageUrl = "/images/logout.svg", 
@@ -30,6 +39,6 @@
                     color = "var(--tertiary-color)", 
                     textColor = "var(--option-color)" 
                 })
-        </a>
+        </a> *@
     </div>
 </div>

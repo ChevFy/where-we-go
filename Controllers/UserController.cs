@@ -26,7 +26,17 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         var roles = (await _userManager.GetRolesAsync(targetUser)).ToArray();
         var userResponse = new UserResponseDto(targetUser, roles);
         
+        bool IsAuth = User.Identity?.IsAuthenticated ?? false;
+        ViewBag.IsAuth = IsAuth;
+
         return View(userResponse);
+    }
+
+    [Authorize]
+    public async Task<IActionResult> UserEdit()
+    {
+        
+        return View();
     }
 
 

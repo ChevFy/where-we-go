@@ -22,23 +22,66 @@
     <div class="profile-card">
         <div class="profile-top">
             <img src=@Model.ProfileUrl>
-            <div class="profile-content">
+            <div class="profile-top-content">
                 <p style=" color : var(--option-color);font-size: var(--font-size-medium);">@Model.Name</p>
                 <p>
                 @Model.Bio 
                 </p>
             </div>
         </div>
-        @* <a asp-controller="auth" asp-action="logout">
-       @await Component.InvokeAsync("MainButton", new { 
-                    targetId = "Logout", 
-                    imageUrl = "/images/logout.svg", 
-                    buttonType = "submit", 
-                    width = "100%", 
-                    text = "ออกจากระบบ", 
-                    color = "var(--tertiary-color)", 
-                    textColor = "var(--option-color)" 
-                })
-        </a> *@
+       <hr style="border: 0; border-top: 2px solid rgba(0,0,0,0.4); margin: 20px auto; width: 75%;"/>
+       <div class="profile-below">
+    <div class="profile-info-group">
+        <div class="info-row">
+            <div class="info-label">
+                <i class="fas fa-user"></i> <span>Username</span>
+            </div>
+            <div class="info-value">@Model.UserName</div> 
+        </div>
+
+        <div class="info-row">
+            <div class="info-label">
+                <i class="fas fa-envelope"></i>
+                <span>Email</span>
+            </div>
+            <div class="info-value">@Model.Email</div>
+        </div>
+        
+        </div>
+    </div>
+        
+        
+
+        <div class="profile-actions">
+            @if(ViewBag.isAuth)
+            {
+                <div class="profile-button">
+                <a asp-controller="User" asp-action="UserEdit" class="edit-wrapper">
+                    @await Component.InvokeAsync("MainButton", new { 
+                        targetId = "Logout", 
+                        @* imageUrl = "/images/logout.svg",  *@
+                        buttonType = "submit", 
+                        width = "100%", 
+                        text = "แก้ไขข้อมูล", 
+                        @* color = "#fef2f2", 
+                        hoverColor = "#fee2e2",
+                        textColor = "#ef4444"  *@
+                    })
+                </a>
+                 <a asp-controller="auth" asp-action="logout" class="logout-wrapper">
+                    @await Component.InvokeAsync("MainButton", new { 
+                        targetId = "Logout", 
+                        imageUrl = "/images/logout.svg", 
+                        buttonType = "submit", 
+                        width = "100%", 
+                        text = "ออกจากระบบ", 
+                        color = "#fef2f2", 
+                        hoverColor = "#fee2e2",
+                        textColor = "#ef4444" 
+                    })
+                </a>
+                </div>
+            }
+        </div>
     </div>
 </div>

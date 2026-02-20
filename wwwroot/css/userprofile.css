@@ -1,28 +1,24 @@
 @import url("site.css");
 
-.profile-container
-{
+.profile-container {
     padding: 5em;
     display: flex;
     justify-content: center;
 }
 
-.profile-card
-{
+.profile-card {
     background-color: var(--tertiary-color);
-    width: 65%;
-    height: 30rem;
+    width: 60em;
+    height: auto;
     border-radius: 25px;
 }
 
-.profile-top
-{
+.profile-top {
     display: flex;
     flex-direction: row;
 }
 
-.profile-img
-{
+.profile-img {
     margin: 20px;
     width: auto;
     display: flex;
@@ -30,23 +26,153 @@
     align-items: center;
 }
 
-.profile-top img
-{
+.profile-top img {
     width: 12em;
     margin: 25px;
     height: 12em;
     border-radius: 25px;
 }
 
-.profile-content
-{
+.profile-top-content {
     margin: 25px 25px 25px 0;
 }
 
-.profile-content p
-{
-display: -webkit-box;
-  -webkit-line-clamp: 3;           /* อยากให้โชว์กี่บรรทัดใส่เลขไปเลย */
-  -webkit-box-orient: vertical;  
-  overflow: hidden;
+.profile-top-contentp {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    /* อยากให้โชว์กี่บรรทัดใส่เลขไปเลย */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.profile-below {
+    padding: 10px 15%;
+}
+
+.profile-info-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 8px;
+}
+
+.info-label {
+    flex: 0 0 120px;
+    font-weight: bold;
+    color: var(--option-color);
+    opacity: 0.7;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-value {
+    flex: 1;
+    word-break: break-all;
+    color: #333;
+    font-weight: 500;
+}
+
+.profile-actions {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0 30px 0;
+    width: 100%;
+}
+
+.logout-wrapper {
+    width: 50%;
+    text-decoration: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+
+.profile-button {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px 15%;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.logout-wrapper,.edit-wrapper {
+    flex: 1;
+    max-width: 200px;
+    text-decoration: none;
+    transition: transform 0.2s ease;
+}
+
+.logout-wrapper:hover,.edit-wrapper:hover {
+    transform: translateY(-3px);
+}
+
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 5em 1em;
+    }
+
+    .profile-card {
+        width: 100%;
+        height: auto;
+        padding-bottom: 20px;
+        min-height: unset;
+    }
+
+    .profile-top {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-top img {
+        width: 10em;
+        height: 10em;
+        margin: 30px 0 0 0;
+    }
+
+    .profile-top-content {
+        margin: 10px 20px;
+    }
+
+    .profile-below {
+        padding: 10px 8%;
+    }
+
+    .info-row {
+        gap: 10px;
+    }
+
+    .info-label {
+        flex: 0 0 100px;
+    }
+
+    .info-value {
+        font-size: var(--font-size-small);
+    }
+
+    .logout-wrapper {
+        width: 80%;
+    }
+
+    .profile-button {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 10%;
+    }
+
+    .logout-wrapper,
+    .edit-wrapper {
+        width: 100%;
+        /* จอมือถือให้ปุ่มกว้างเต็มพื้นที่ไปเลย */
+        max-width: none;
+    }
 }

@@ -28,7 +28,6 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         }
         var role = (await _userManager.GetRolesAsync(user)).ToArray();
         var userReponse = new UserResponseDto(user, role);
-        var userReponse = new UserResponseDto(user);
         // Console.WriteLine(userReponse);
         return View(userReponse);
     }

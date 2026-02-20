@@ -17,12 +17,14 @@ namespace where_we_go.ViewComponents
             var userPrincipal = HttpContext.User;
             bool IsAuth = User.Identity?.IsAuthenticated ?? false;
             ViewBag.IsAuth = IsAuth;
-            
-   
+
+
             var user = await _userManager.GetUserAsync(userPrincipal);
             if (user == null)
-                    return View(null);
-            var userReponse = new UserResponseDto(user);
+                return View(null);
+
+            var role = (await _userManager.GetRolesAsync(user)).ToArray();
+            var userReponse = new UserResponseDto(user, role);
             return View(userReponse);
         }
     }

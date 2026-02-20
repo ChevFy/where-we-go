@@ -1,0 +1,11 @@
+<div class="@ViewBag.CssClass">
+    <label for="@ViewBag.Id">@ViewBag.Label</label>
+    <textarea id="@ViewBag.Id"  name="@ViewBag.Name"    rows="@ViewBag.Rows"     @if (ViewBag.Required) {
+    <text>required</text>
+}
+@if (!string.IsNullOrEmpty(ViewBag.Placeholder))
+{
+    <text>placeholder="@ViewBag.Placeholder"</text>
+}
+>@ViewBag.Value</textarea>
+</div>

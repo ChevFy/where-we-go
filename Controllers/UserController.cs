@@ -8,9 +8,10 @@ using where_we_go.Models;
 
 namespace where_we_go.Controllers;
 
-public class UserController(UserManager<User> userManager) : Controller
+public class UserController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager) : Controller
 {
     private UserManager<User> _userManager { get; init; } = userManager;
+    private RoleManager<IdentityRole> _roleManager { get; init; } = roleManager;
 
     [Authorize]
     public async Task<IActionResult> Me()
@@ -23,7 +24,8 @@ public class UserController(UserManager<User> userManager) : Controller
         {
             return RedirectToAction("Login", "Auth");
         }
-        var userReponse = new UserResponseDto(user);
+        var role = (await _userManager.GetRolesAsync(user)).ToArray();
+        var userReponse = new UserResponseDto(user, role);
         return View(userReponse);
     }
 

@@ -1,0 +1,88 @@
+@using System.Xml.Serialization
+@using where_we_go.DTO
+@model PostCreateDto
+@{
+    ViewData["Title"] = "Create Post";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/postcreate.css" asp-append-version="true" />
+
+    @* Import component css *@
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/forminput.css" asp-append-version="true" />
+}
+
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
+
+<div class="post-bg-container">
+    <div class="post-container">
+        <h2 class="post-title">Create New Post</h2>
+        <form asp-action="Create" asp-controller="Post" method="post">
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "Title",
+                name = "Title",
+                label = "Title",
+                type = "text",
+                required = true
+            })
+
+            @await Component.InvokeAsync("FormTextarea", new
+            {
+                id = "Description",
+                name = "Description",
+                label = "Description",
+                required = true
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "LocationName",
+                name = "LocationName",
+                label = "Location",
+                type = "text",
+                required = true
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "DateDeadline",
+                name = "DateDeadline",
+                label = "Event Date",
+                type = "date",
+                required = true
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "MinParticipants",
+                name = "MinParticipants",
+                label = "Min Participants",
+                type = "number",
+                required = true
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "MaxParticipants",
+                name = "MaxParticipants",
+                label = "Max Participants",
+                type = "number",
+                required = true
+            })
+
+            @await Component.InvokeAsync("MainButton", new
+            {
+                targetId = "submit-btn",
+                buttonType = "submit",
+                text = "Create Post"
+            })
+        </form>
+    </div>
+</div>

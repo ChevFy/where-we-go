@@ -74,6 +74,13 @@
                     alert("@Html.Raw(errors)");
                 </script>
             }
+            
+            @if (TempData["BanMessage"] != null)
+            {
+                <script>
+                    alert("@Html.Raw(TempData["BanMessage"])");
+                </script>
+            }
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

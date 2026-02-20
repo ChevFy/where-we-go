@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Identity;
+using where_we_go.Models;
 
 namespace where_we_go.Config
 {
@@ -24,6 +27,27 @@ namespace where_we_go.Config
                 options.LoginPath = "/auth/login";
                 options.LogoutPath = "/auth/logout";
                 options.AccessDeniedPath = "/";
+                
+                // Validate cookie on every request to check if user is banned
+                options.Events = new CookieAuthenticationEvents
+                {
+                    OnValidatePrincipal = async context =>
+                    {
+                        var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
+                        var userId = context.Principal?.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+                        
+                        if (!string.IsNullOrEmpty(userId))
+                        {
+                            var user = await userManager.FindByIdAsync(userId);
+                            if (user != null && user.IsBanned && user.BanExpiresAt > DateTime.UtcNow)
+                            {
+                                context.RejectPrincipal();
+                                await context.HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                                context.Response.Redirect("/auth/login?banned=true");
+                            }
+                        }
+                    }
+                };
             })
             .AddGoogle(options =>
             {

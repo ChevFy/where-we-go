@@ -15,6 +15,11 @@ public class HomeController(UserManager<User> userManager) : Controller
     {
         bool IsAuth = User.Identity?.IsAuthenticated ?? false;
         ViewBag.IsAuth = IsAuth;
+        
+        if (IsAuth && User.IsInRole("Admin"))
+        {
+            return RedirectToAction("Index", "Admin");
+        }
 
         return View();
 

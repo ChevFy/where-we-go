@@ -40,7 +40,6 @@
 .profile-top-contentp {
     display: -webkit-box;
     -webkit-line-clamp: 3;
-    /* อยากให้โชว์กี่บรรทัดใส่เลขไปเลย */
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -172,7 +171,6 @@
     .logout-wrapper,
     .edit-wrapper {
         width: 100%;
-        /* จอมือถือให้ปุ่มกว้างเต็มพื้นที่ไปเลย */
         max-width: none;
     }
 }

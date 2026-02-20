@@ -27,7 +27,9 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         var userResponse = new UserResponseDto(targetUser, roles);
         
         bool IsAuth = User.Identity?.IsAuthenticated ?? false;
-        ViewBag.IsAuth = IsAuth;
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        bool isOwner = IsAuth && currentUserId == targetUser.Id;
+        ViewBag.isOwner = isOwner;
 
         return View(userResponse);
     }

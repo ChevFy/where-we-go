@@ -34,7 +34,7 @@
 
                 @if (ViewBag.isAuth)
                 {
-                    <a asp-controller="User" asp-action="UserProfile">
+                    <a asp-controller="User" asp-action="UserProfile" asp-route-username=@Model.UserName >
                      <div class="login-text"">
                     @* <span class="user-name">@Model.Name</span> *@
                     @* <a asp-controller="Auth" asp-action="Logout">ออกจากระบบ</a> *@

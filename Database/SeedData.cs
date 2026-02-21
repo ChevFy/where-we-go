@@ -67,29 +67,60 @@ public static class SeedData
                 context.SaveChanges();
             }
 
-            if (!context.Posts.Any())
+            if (context.Posts.Count() < 3)
             {
-                var anyUser = context.Users.FirstOrDefault();
-
-                if (anyUser != null)
+                var author = context.Users.FirstOrDefault();
+                if (author != null)
                 {
-                    context.Posts.Add(new Post
-                    {
-                        PostId = Guid.NewGuid(),
-                        UserId = anyUser.Id,
-                        Title = "Minimal Test Post",
-                        Description = "Just testing if posts work.",
-                        LocationName = "Bangkok",
-                        DateDeadline = DateTime.UtcNow.AddDays(7),
-                        MinParticipants = 2,
-                        MaxParticipants = 5,
-                        DateCreated = DateTime.UtcNow,
-                        Status = "Active",
-                        CurrentParticipants = 1,
-                        InviteCode = "TESTCODE"
-                    });
+                    // Clear existing if you want a fresh start, or just add more
+                    context.Posts.AddRange(
+                        new Post
+                        {
+                            PostId = Guid.NewGuid(),
+                            UserId = author.Id,
+                            Title = "Mountain Trip",
+                            Description = "Hiking adventure in the north.",
+                            LocationName = "Chiang Mai",
+                            DateDeadline = DateTime.UtcNow.AddDays(7),
+                            MinParticipants = 2,
+                            MaxParticipants = 5,
+                            DateCreated = DateTime.UtcNow,
+                            Status = "Active",
+                            CurrentParticipants = 1,
+                            InviteCode = "TRIP01"
+                        },
+                        new Post
+                        {
+                            PostId = Guid.NewGuid(),
+                            UserId = author.Id,
+                            Title = "Cafe Hopping",
+                            Description = "Exploring aesthetic cafes.",
+                            LocationName = "Bangkok",
+                            DateDeadline = DateTime.UtcNow.AddDays(3),
+                            MinParticipants = 2,
+                            MaxParticipants = 3,
+                            DateCreated = DateTime.UtcNow,
+                            Status = "Active",
+                            CurrentParticipants = 1,
+                            InviteCode = "CAFE02"
+                        },
+                        new Post
+                        {
+                            PostId = Guid.NewGuid(),
+                            UserId = author.Id,
+                            Title = "Beach Day",
+                            Description = "Sun, sand, and relaxing vibes.",
+                            LocationName = "Phuket",
+                            DateDeadline = DateTime.UtcNow.AddDays(10),
+                            MinParticipants = 4,
+                            MaxParticipants = 10,
+                            DateCreated = DateTime.UtcNow,
+                            Status = "Active",
+                            CurrentParticipants = 1,
+                            InviteCode = "BEACH3"
+                        }
+                    );
                     context.SaveChanges();
-                    Console.WriteLine("Mock post added successfully.");
                 }
             }
         }

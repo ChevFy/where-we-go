@@ -1,4 +1,6 @@
 @using System.Xml.Serialization
+@model where_we_go.Models.Post
+
 @{
     ViewData["Title"] = "Post Page";
 }
@@ -22,26 +24,29 @@
         <img class="post-thumbnail"
              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s"
              alt="Thumbnail">
-        <h2 class="post-title">ชื่อโพสต์</h2>
+
+        <h2 class="post-title">@Model.Title</h2>
+
         <div class="post-location">
-            <p>สถานที่</p>
-        </div>
-        <div class="post-date">
-            <p>วันที่จัดงาน</p>
-        </div>
-        <div class="post-population">
-            <p>จำนวนคน</p>
-        </div>
-        <div class="post-category">
-            <ul>
-                <li>หมวดหมู่ 1</li>
-                <li>หมวดหมู่ 2</li>
-                <li>หมวดหมู่ 3</li>
-            </ul>
-        </div>
-        <div class="post-description">
-            <p>รายละเอียดโพสต์</p>
+            <p>📍 @Model.LocationName</p>
         </div>
 
+        <div class="post-date">
+            <p>📅 @Model.DateDeadline.ToString("dd MMM yyyy")</p>
+        </div>
+
+        <div class="post-population">
+            <p>👥 @Model.CurrentParticipants / @Model.MaxParticipants People</p>
+        </div>
+
+        <div class="post-category">
+            <ul>
+                <li>Mock Category</li>
+            </ul>
+        </div>
+
+        <div class="post-description">
+            <p>@Model.Description</p>
+        </div>
     </div>
 </div>

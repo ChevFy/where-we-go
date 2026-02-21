@@ -11,10 +11,19 @@ public class PostController(AppDbContext dbContext) : Controller
 {
     private AppDbContext _dbContext { get; init; } = dbContext;
 
-    public IActionResult PostView()
+    public IActionResult PostView(Guid id)
     {
+        // Search the mock database for the post with this specific ID
+        var post = _dbContext.Posts.FirstOrDefault(p => p.PostId == id);
 
-        return View(); // จะหา Views/Post/PostView.cshtml
+        // If someone types a random ID in the URL that doesn't exist, return a 404 Not Found
+        if (post == null)
+        {
+            return NotFound();
+        }
+
+        // Pass post to the detail view
+        return View(post);
     }
 
     [HttpGet]

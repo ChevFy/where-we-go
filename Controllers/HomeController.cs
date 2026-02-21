@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using where_we_go.Models;
+using where_we_go.Database;
 
 namespace where_we_go.Controllers;
 
-public class HomeController(UserManager<User> userManager) : Controller
+public class HomeController(UserManager<User> userManager, AppDbContext dbContext) : Controller
 {
     private UserManager<User> _userManager { get; init; } = userManager;
+    private AppDbContext _dbContext { get; init; } = dbContext;
 
     [HttpGet]
     public async Task<IActionResult> Index()
@@ -16,7 +18,9 @@ public class HomeController(UserManager<User> userManager) : Controller
         bool IsAuth = User.Identity?.IsAuthenticated ?? false;
         ViewBag.IsAuth = IsAuth;
 
-        return View();
+        var posts = _dbContext.Posts.ToList();
+
+        return View(posts);
 
     }
 

@@ -1,136 +1,80 @@
-﻿@using System.Xml.Serialization
+﻿@model IEnumerable<where_we_go.Models.Post>
 @{
     ViewData["Title"] = "Home Page";
+    // Store the auth state in a variable to keep the HTML clean
+    var isAuthenticated = ViewBag.IsAuth ?? false;
 }
 
 @section Styles {
-  <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
 
-  @* Import component css *@
-  <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
-  <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
-  <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
-  <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+    @* Import component css *@
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
 }
+
 <header>
     @await Component.InvokeAsync("Navbar")
 </header>
 
-
-@if( !ViewBag.isAuth)
+@if (!isAuthenticated)
 {
-<div class="home-bg-container">
-  <div class="main-text">
-    Where We Go
-  </div>
-  <div class="sub-text">
-    <p>
-    เช็กอินความสุข บุกทุกพิกัดลับ
-    ให้ทุกการเดินทางมีความหมายมากกว่าที่เคยสัมผัส 
-    พร้อมเปิดวาร์ปสถานที่ใหม่ๆ
-    </p>
-  </div>
-      <a asp-controller="Auth" asp-action="Login">
-          @await Component.InvokeAsync("MainButton", new {  targetId = "started",  buttonType = "submit",  text = "เริ่มต้นใช้งาน"  })   
-      </a>
-  </div>
+    <div class="home-bg-container">
+        <div class="main-text">
+            Where We Go
+        </div>
+        <div class="sub-text">
+            <p>
+                เช็กอินความสุข บุกทุกพิกัดลับ
+                ให้ทุกการเดินทางมีความหมายมากกว่าที่เคยสัมผัส 
+                พร้อมเปิดวาร์ปสถานที่ใหม่ๆ
+            </p>
+        </div>
+        <a asp-controller="Auth" asp-action="Login">
+            @await Component.InvokeAsync("MainButton", new { targetId = "started", buttonType = "submit", text = "เริ่มต้นใช้งาน" })   
+        </a>
+    </div>
 }
 
-@if (ViewBag.isAuth)
-{
-  <style>
-    .home-post-container
+@* Apply the padding cleanly using an inline if-statement to avoid the <style> tag bug *@
+<div class="home-post-container" style="@(isAuthenticated ? "padding-top: 5rem;" : "")">
+    
+    @* Loop through your mock database posts *@
+    @foreach (var post in Model)
     {
-      padding-top : 5rem;
+        @* Wrap the whole card in an anchor tag that links to PostView and passes the PostId *@
+        <a asp-controller="Post" asp-action="PostView" asp-route-id="@post.PostId" style="text-decoration: none; color: inherit;">
+            <div class="post-card">
+                <div class="post-img">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s" alt="Thumbnail">
+                </div>
+                
+                <div class="post-content">
+                    <div class="post-content-1">
+                        <h2 style="color: var(--option-color); margin: 0;">@post.Title</h2>
+                        <div class="post-category">
+                            <span>Category</span>
+                            <span>Category</span>
+                            <span>Category</span>
+                        </div>
+                        <p>
+                            @post.Description
+                        </p>
+                    </div>
+
+                    <div class="post-content-2" style="white-space: nowrap; text-align: right;">
+                        <p style="color: black; font-size : var(--font-size-base); margin: 0;">@post.DateDeadline.ToString("dd/MM/yyyy")</p>
+                    </div>
+                </div>
+            </div>
+        </a>
     }
-  </style>
-}
-
-
-<div class="home-post-container">
-<div class="post-card">
-    <div class="post-img">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s" alt="Thumbnail">
-    </div>
-    
-    <div class="post-content">
-      <div class="post-content-1">
-        <h2 style="color: var(--option-color); margin: 0;"> Title </h2>
-        <div class="post-category">
-          <span>category1</span>
-          <span>category2</span>
-          <span>category3</span>
-        </div>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque debitis neque labore nihil dignissimos autem aliquid delectus voluptatibus ipsam amet quo, blanditiis dicta eaque. Ipsum debitis expedita fugit quo vel.
-        </p>
-      </div>
-
-      <div class="post-content-2" style="white-space: nowrap; text-align: right;">
-          <p style="color: black; font-size : var(--font-size-base); margin: 0;">18/02/2026</p>
-          <p style="color: black; font-size : var(--font-size-base); margin: 0;">17:00</p>
-          <p style="color: black; font-size : var(--font-size-base); margin: 0;">1 day</p>
-      </div>
-      
-    </div>
-</div>
-
-<div class="post-card">
-    <div class="post-img">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s" alt="Thumbnail">
-    </div>
-    
-    <div class="post-content">
-      <div class="post-content-1">
-        <h2 style="color: var(--option-color); margin: 0;"> Title </h2>
-        <div class="post-category">
-          <span>category1</span>
-          <span>category2</span>
-          <span>category3</span>
-        </div>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque debitis neque labore nihil dignissimos autem aliquid delectus voluptatibus ipsam amet quo, blanditiis dicta eaque. Ipsum debitis expedita fugit quo vel.
-        </p>
-      </div>
-
-      <div class="post-content-2" style="white-space: nowrap; text-align: right;">
-          <p style="color: black; font-size : var(--font-size-base); margin: 0;">18/02/2026</p>
-          <p style="color: black; font-size : var(--font-size-base); margin: 0;">17:00</p>
-          <p style="color: black; font-size : var(--font-size-base); margin: 0;">1 day</p>
-      </div>
-      
-    </div>
-</div>
-
-<div class="post-card">
-    <div class="post-img">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s" alt="Thumbnail">
-    </div>
-    
-    <div class="post-content">
-      <div class="post-content-1">
-        <h2 style="color: var(--option-color); margin: 0;"> Title </h2>
-        <div class="post-category">
-          <span>category1</span>
-          <span>category2</span>
-          <span>category3</span>
-        </div>
-        <p> 
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque debitis neque labore nihil dignissimos autem aliquid delectus voluptatibus ipsam amet quo, blanditiis dicta eaque. Ipsum debitis expedita fugit quo vel.
-        </p>
-      </div>
-
-      <div class="post-content-2" style="white-space: nowrap; text-align: right;">
-          <p style="color: black; font-size : var(--font-size-base); margin: 0;">18/02/2026</p>
-          <p style="color: black; font-size : var(--font-size-base); margin: 0;">17:00</p>
-          <p style="color: black; font-size : var(--font-size-base); margin: 0;">1 day</p>
-      </div>
-      
-    </div>
-</div>
 
 </div>
 
- <footer>
-    @await Component.InvokeAsync(name:"Footer")
- </footer>
+<footer>
+    @* Removed the "name:" to keep it consistent with Navbar and formatter-friendly *@
+    @await Component.InvokeAsync("Footer")
+</footer>

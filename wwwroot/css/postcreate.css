@@ -44,7 +44,7 @@
 
 .form-group textarea {
     height: 100px;
-    resize: vertical;
+    resize: none;
     max-height: 300px;
     overflow: hidden;
 }

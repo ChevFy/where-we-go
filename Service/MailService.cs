@@ -1,12 +1,13 @@
 using System.Net;
 using System.Net.Mail;
 using where_we_go.Config;
+using where_we_go.Models.DTOs.Mail;
 
 namespace where_we_go.Service
 {
     public interface IMailService
     {
-        Task<string> SendEmailAsync(string toEmail, string subject, string body);
+        Task<string> SendEmailAsync(SendMailRequestDto request);
     }
 
     public class MailService : IMailService
@@ -30,18 +31,18 @@ namespace where_we_go.Service
             _mailEnableSsl = GlobalConfig.GetBoolEnvOrDefault(GlobalConfig.MailEnableSsl, true);
         }
 
-        public async Task<string> SendEmailAsync(string toEmail, string subject, string body)
+        public async Task<string> SendEmailAsync(SendMailRequestDto request)
         {
             try
             {
                 using MailMessage mail = new()
                 {
                     From = new MailAddress(_mailFromEmail, _mailFromName),
-                    Subject = subject,
-                    Body = body,
-                    IsBodyHtml = true
+                    Subject = request.Subject,
+                    Body = request.Body,
+                    IsBodyHtml = request.IsBodyHtml
                 };
-                mail.To.Add(toEmail);
+                mail.To.Add(request.ToEmail);
 
                 using SmtpClient smtp = new(_mailHost, _mailPort)
                 {

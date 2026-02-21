@@ -26,7 +26,6 @@ namespace where_we_go.Models
         public string? ProfileUrl { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateUpdated { get; set; }
-        public UserRoleEnum Role { get; set; }
         public string? OAuthId { get; set; }
 
         public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
@@ -43,7 +42,6 @@ namespace where_we_go.Models
             ProfileUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
             DateCreated = DateTime.UtcNow;
             DateUpdated = DateTime.UtcNow;
-            Role = UserRoleEnum.User;
         }
     }
 }

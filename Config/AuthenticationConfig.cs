@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Identity;
 
 namespace where_we_go.Config
 {
@@ -10,9 +9,6 @@ namespace where_we_go.Config
         {
             var googleClientId = GlobalConfig.GetRequiredEnv(GlobalConfig.GoogleClientId);
             var googleClientSecret = GlobalConfig.GetRequiredEnv(GlobalConfig.GoogleClientSecret);
-
-            // services.AddIdentity<Models.User, IdentityRole>()
-            //     .AddEntityFrameworkStores<Database.AppDbContext>().AddDefaultTokenProviders();
 
             services
             .AddAuthentication(options =>

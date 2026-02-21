@@ -7,5 +7,10 @@
 <div>
     <p>Email: @Model.Email</p>
     <p>Username: @Model.UserName</p>
-    <p>Role: @Model.Role</p>
+    <ul>
+        @foreach (var role in @Model.Role ?? Array.Empty<string>())
+        {
+            <li>@role</li>
+        }
+    </ul>
 </div>

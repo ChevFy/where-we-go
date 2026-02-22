@@ -62,4 +62,29 @@ public class AdminController : Controller
         await _userManager.UpdateAsync(user);
         return Ok();
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> SearchUsers(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return await GetUsers();
+        }
+        
+        var searchTerm = query.ToLower();
+        var users = await _userManager.Users
+            .Where(u => u.Email.ToLower().Contains(searchTerm) ||
+                        (u.Name != null && u.Name.ToLower().Contains(searchTerm)))
+            .Select(u => new {
+                u.Id,
+                u.Email,
+                u.Name,
+                u.IsBanned,
+                u.BanReason,
+                u.BanExpiresAt
+            })
+            .ToListAsync();
+        
+        return Json(users);
+    }
 }

@@ -1,28 +1,24 @@
 console.log('Admin page JavaScript starting...');
 
-// Tab switching functionality
+
 function initTabs() {
-    var tabs = document.querySelectorAll('.admin-tab');
+    const tabs = document.querySelectorAll('.admin-tab');
     tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
-            var targetTab = this.getAttribute('data-tab');
+            const targetTab = this.getAttribute('data-tab');
             
-            // Remove active class from all tabs
             tabs.forEach(function(t) {
                 t.classList.remove('active');
             });
             
-            // Add active class to clicked tab
             this.classList.add('active');
             
-            // Hide all tab contents
-            var tabContents = document.querySelectorAll('.tab-content');
+            const tabContents = document.querySelectorAll('.tab-content');
             tabContents.forEach(function(content) {
                 content.classList.remove('active');
             });
             
-            // Show target tab content
-            var targetContent = document.getElementById(targetTab);
+            const targetContent = document.getElementById(targetTab);
             if (targetContent) {
                 targetContent.classList.add('active');
             }
@@ -33,7 +29,7 @@ function initTabs() {
 console.log('Admin page JavaScript starting...');
 
 
-var allUsers = [];
+let allUsers = [];
 
 
 window.onload = function() {
@@ -43,7 +39,7 @@ window.onload = function() {
     
     loadUsers();
     
-    var searchInput = document.getElementById('searchInput');
+    const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             doSearch();
@@ -55,7 +51,7 @@ window.onload = function() {
 async function loadUsers() {
     console.log('Fetching users from /Admin/GetUsers...');
     try {
-        var response = await fetch('/Admin/GetUsers');
+        const response = await fetch('/Admin/GetUsers');
         console.log('Response status:', response.status);
         if (response.ok) {
             allUsers = await response.json();
@@ -74,30 +70,61 @@ async function loadUsers() {
 
 function renderUsers(users) {
     console.log('Rendering', users.length, 'users');
-    var tbody = document.getElementById('userList');
+    const tbody = document.getElementById('userList');
     if (!tbody) {
         console.error('userList element not found!');
         return;
     }
     
-    var html = '';
-    for (var i = 0; i < users.length; i++) {
-        var user = users[i];
-        var actionButton = user.isBanned 
-            ? '<button class="btn-unban" onclick="unbanUser(\'' + user.id + '\')">Unban</button>' 
-            : '<button class="btn-ban" onclick="openBanModal(\'' + user.id + '\')">Ban</button>';
+    tbody.innerHTML = '';
+    
+    for (let i = 0; i < users.length; i++) {
+        const user = users[i];
         
-        html += '<tr>' +
-            '<td>' + user.email + '</td>' +
-            '<td>' + user.name + '</td>' +
-            '<td><span class="ban-status ' + (user.isBanned ? 'active' : 'inactive') + '">' + 
-                (user.isBanned ? 'Banned' : 'Active') + '</span></td>' +
-            '<td>' + (user.banReason || '-') + '</td>' +
-            '<td>' + (user.banExpiresAt ? new Date(user.banExpiresAt).toLocaleDateString() : '-') + '</td>' +
-            '<td class="action-buttons">' + actionButton + '</td>' +
-            '</tr>';
+        const tr = document.createElement('tr');
+        
+        const emailTd = document.createElement('td');
+        emailTd.textContent = user.email;
+        
+        const nameTd = document.createElement('td');
+        nameTd.textContent = user.name;
+        
+        const statusTd = document.createElement('td');
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'ban-status ' + (user.isBanned ? 'active' : 'inactive');
+        statusSpan.textContent = user.isBanned ? 'Banned' : 'Active';
+        statusTd.appendChild(statusSpan);
+        
+        const banReasonTd = document.createElement('td');
+        banReasonTd.textContent = user.banReason || '-';
+        
+        const banExpiresTd = document.createElement('td');
+        banExpiresTd.textContent = user.banExpiresAt ? new Date(user.banExpiresAt).toLocaleDateString() : '-';
+        
+        const actionTd = document.createElement('td');
+        actionTd.className = 'action-buttons';
+        
+        const actionButton = document.createElement('button');
+        if (user.isBanned) {
+            actionButton.className = 'btn-unban';
+            actionButton.textContent = 'Unban';
+            actionButton.onclick = function() { unbanUser(user.id); };
+        } else {
+            actionButton.className = 'btn-ban';
+            actionButton.textContent = 'Ban';
+            actionButton.onclick = function() { openBanModal(user.id); };
+        }
+        actionTd.appendChild(actionButton);
+        
+        tr.appendChild(emailTd);
+        tr.appendChild(nameTd);
+        tr.appendChild(statusTd);
+        tr.appendChild(banReasonTd);
+        tr.appendChild(banExpiresTd);
+        tr.appendChild(actionTd);
+        
+        tbody.appendChild(tr);
     }
-    tbody.innerHTML = html;
     console.log('Users rendered');
 }
 
@@ -115,7 +142,7 @@ function closeBanModal() {
 
 
 window.onclick = function(event) {
-    var modal = document.getElementById('banModal');
+    const modal = document.getElementById('banModal');
     if (event.target == modal) {
         closeBanModal();
     }
@@ -123,9 +150,9 @@ window.onclick = function(event) {
 
 function performBan() {
     console.log('Performing ban...');
-    var userId = document.getElementById('banUserId').value;
-    var reason = document.getElementById('banReason').value;
-    var durationDays = parseInt(document.getElementById('durationDays').value);
+    const userId = document.getElementById('banUserId').value;
+    const reason = document.getElementById('banReason').value;
+    const durationDays = parseInt(document.getElementById('durationDays').value);
     
     console.log('User ID:', userId);
     console.log('Reason:', reason);
@@ -141,14 +168,14 @@ function performBan() {
         return;
     }
     
-    var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
     if (!tokenInput) {
         alert('Security token not found. Please refresh the page.');
         return;
     }
-    var token = tokenInput.value;
+    const token = tokenInput.value;
     
-    var formData = 'userId=' + encodeURIComponent(userId) + 
+    const formData = 'userId=' + encodeURIComponent(userId) +
                    '&reason=' + encodeURIComponent(reason) + 
                    '&durationDays=' + durationDays;
     
@@ -206,19 +233,28 @@ function unbanUser(userId) {
 }
 
 
-function doSearch() {
-    var searchInput = document.getElementById('searchInput');
+async function doSearch() {
+    const searchInput = document.getElementById('searchInput');
     if (!searchInput) return;
     
-    var query = searchInput.value.toLowerCase().trim();
+    const query = searchInput.value.trim();
     
     if (query === '') {
         renderUsers(allUsers);
     } else {
-        var filtered = allUsers.filter(function(u) {
-            return u.email.toLowerCase().includes(query) || u.name.toLowerCase().includes(query);
-        });
-        renderUsers(filtered);
+        console.log('Searching users with query:', query);
+        try {
+            const response = await fetch('/Admin/SearchUsers?query=' + encodeURIComponent(query));
+            if (response.ok) {
+                const filtered = await response.json();
+                console.log('Search results:', filtered.length);
+                renderUsers(filtered);
+            } else {
+                console.error('Search error:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+        }
     }
 }
 

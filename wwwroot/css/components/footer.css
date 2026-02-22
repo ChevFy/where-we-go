@@ -17,11 +17,12 @@
     margin-top : 20px;
 }
 
+
 .footer-container .main-text{
     font-size: var(--font-size-big);
     color: var(--tertiary-color);
     filter: drop-shadow(0px 0px 10px var(--option-color));
-
+    margin-bottom: -10px;
 }
 
 .footer-container .sub-text

@@ -32,12 +32,12 @@ console.log('Admin page JavaScript starting...');
 let allUsers = [];
 
 
-window.onload = function() {
+window.onload = async function() {
     console.log('Window loaded, initializing...');
     
     initTabs();
     
-    loadUsers();
+    await loadUsers();
     
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {

@@ -2,68 +2,75 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using where_we_go.DTO;
 using where_we_go.Models;
 
 
 [Authorize(Roles = "Admin")]
-public class AdminController : Controller
+[Route("admin")]
+public class AdminController(UserManager<User> userManager) : Controller
 {
-    private readonly UserManager<User> _userManager;
-    
-    public AdminController(UserManager<User> userManager)
-    {
-        _userManager = userManager;
-    }
-    
+    [HttpGet("index")]
     public IActionResult Index() => View();
     
-    [HttpGet]
+    [HttpGet("users")]
     public async Task<IActionResult> GetUsers()
     {
-        var users = await _userManager.Users
-            .Select(u => new {
-                u.Id,
-                u.Email,
-                u.Name,
-                u.IsBanned,
-                u.BanReason,
-                u.BanExpiresAt
+        var users = await userManager.Users
+            .Select(u => new AdminUserDto
+            {
+                Id = u.Id,
+                Email = u.Email ?? string.Empty,
+                Name = u.Name,
+                IsBanned = u.IsBanned,
+                BanReason = u.BanReason,
+                BanExpiresAt = u.BanExpiresAt
             })
             .ToListAsync();
         
         return Json(users);
     }
     
-    [HttpPost]
-    public async Task<IActionResult> BanUser(string userId, string reason, int durationDays)
+    [HttpPost("users/ban")]
+    public async Task<IActionResult> BanUser([FromBody] BanUserDto dto)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        var user = await userManager.FindByIdAsync(dto.UserId);
         if (user == null) return NotFound();
         
         user.IsBanned = true;
-        user.BanReason = reason;
-        user.BanExpiresAt = DateTime.UtcNow.AddDays(durationDays);
-        user.BannedBy = User.Identity.Name;
+        user.BanReason = dto.Reason;
+        user.BanExpiresAt = DateTime.UtcNow.AddDays(dto.DurationDays);
+        user.BannedBy = User.Identity?.Name ?? "System";
         
-        await _userManager.UpdateAsync(user);
+        await userManager.UpdateAsync(user);
         return Ok();
     }
     
-    [HttpPost]
-    public async Task<IActionResult> UnbanUser(string userId)
+    [HttpPost("users/unban")]
+    public async Task<IActionResult> UnbanUser([FromBody] UnbanUserDto dto)
     {
-        var user = await _userManager.FindByIdAsync(userId);
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        var user = await userManager.FindByIdAsync(dto.UserId);
         if (user == null) return NotFound();
         
         user.IsBanned = false;
         user.BanReason = null;
         user.BanExpiresAt = null;
         
-        await _userManager.UpdateAsync(user);
+        await userManager.UpdateAsync(user);
         return Ok();
     }
     
-    [HttpGet]
+    [HttpGet("users/search")]
     public async Task<IActionResult> SearchUsers(string query)
     {
         if (string.IsNullOrWhiteSpace(query))
@@ -72,16 +79,17 @@ public class AdminController : Controller
         }
         
         var searchTerm = query.ToLower();
-        var users = await _userManager.Users
-            .Where(u => u.Email.ToLower().Contains(searchTerm) ||
+        var users = await userManager.Users
+            .Where(u => (u.Email != null && u.Email.ToLower().Contains(searchTerm)) ||
                         (u.Name != null && u.Name.ToLower().Contains(searchTerm)))
-            .Select(u => new {
-                u.Id,
-                u.Email,
-                u.Name,
-                u.IsBanned,
-                u.BanReason,
-                u.BanExpiresAt
+            .Select(u => new AdminUserDto
+            {
+                Id = u.Id,
+                Email = u.Email ?? string.Empty,
+                Name = u.Name,
+                IsBanned = u.IsBanned,
+                BanReason = u.BanReason,
+                BanExpiresAt = u.BanExpiresAt
             })
             .ToListAsync();
         

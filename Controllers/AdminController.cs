@@ -36,11 +36,11 @@ public class AdminController(UserManager<User> userManager) : Controller
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
         }
         
         var user = await userManager.FindByIdAsync(dto.UserId);
-        if (user == null) return NotFound();
+        if (user == null) return NotFound(new { details = "User not found" });
         
         user.IsBanned = true;
         user.BanReason = dto.Reason;
@@ -56,11 +56,11 @@ public class AdminController(UserManager<User> userManager) : Controller
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
         }
         
         var user = await userManager.FindByIdAsync(dto.UserId);
-        if (user == null) return NotFound();
+        if (user == null) return NotFound(new { details = "User not found" });
         
         user.IsBanned = false;
         user.BanReason = null;

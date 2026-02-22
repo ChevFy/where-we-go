@@ -1,0 +1,55 @@
+@model where_we_go.DTO.UserResponseDto
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+@section Styles {
+  <link rel="stylesheet" href="~/css/userprofile.css" asp-append-version="true" />
+
+  @* Import component css *@
+  <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+}
+
+
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
+
+    
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-top">
+                @* <img src=@Model.ProfileUrl> *@
+                <div class="profile-top-content">
+                    @* <p style=" color : var(--option-color);font-size: var(--font-size-medium);">@Model.Name</p> *@
+                    <p>
+                    @* @Model.Bio  *@
+                    </p>
+                </div>
+            </div>
+        <hr style="border: 0; border-top: 2px solid rgba(0,0,0,0.4); margin: 20px auto; width: 75%;"/>
+        <div class="profile-below">
+        <div class="profile-info-group">
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-user"></i> <span>Username</span>
+                </div>
+                @* <div class="info-value">@Model.UserName</div>  *@
+            </div>
+
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-envelope"></i>
+                    <span>Email</span>
+                </div>
+                @* <div class="info-value">@Model.Email</div> *@
+            </div>
+            </div>
+        </div>
+            
+        </div>
+    </div>
+    

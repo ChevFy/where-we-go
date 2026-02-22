@@ -13,21 +13,34 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
     private UserManager<User> _userManager { get; init; } = userManager;
     private RoleManager<IdentityRole> _roleManager { get; init; } = roleManager;
 
-    [Authorize]
-    public async Task<IActionResult> Me()
+    
+    public async Task<IActionResult> UserProfile(string? username)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrEmpty(userId))
-            return RedirectToAction("Login", "Auth");
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
-        {
-            return RedirectToAction("Login", "Auth");
-        }
-        var role = (await _userManager.GetRolesAsync(user)).ToArray();
-        var userReponse = new UserResponseDto(user, role);
-        return View(userReponse);
+        if(username is null)
+            return RedirectToAction("Index","Home"); // ทำเป็น redirect ไปหน้า Home ไปก่อน
+        
+        var targetUser = await _userManager.FindByNameAsync(username);
+        if(targetUser is null)
+            return RedirectToAction("Index","Home"); // ทำเป็น redirect ไปหน้า Home ไปก่อน
+
+        var roles = (await _userManager.GetRolesAsync(targetUser)).ToArray();
+        var userResponse = new UserResponseDto(targetUser, roles);
+        
+        bool IsAuth = User.Identity?.IsAuthenticated ?? false;
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        bool isOwner = IsAuth && currentUserId == targetUser.Id;
+        ViewBag.isOwner = isOwner;
+
+        return View(userResponse);
     }
+
+    [Authorize]
+    public async Task<IActionResult> UserEdit()
+    {
+        
+        return View();
+    }
+
 
 }
 

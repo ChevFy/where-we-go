@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -34,7 +35,7 @@ namespace where_we_go.Config
                     OnValidatePrincipal = async context =>
                     {
                         var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
-                        var userId = context.Principal?.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+                        var userId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                         
                         if (!string.IsNullOrEmpty(userId))
                         {

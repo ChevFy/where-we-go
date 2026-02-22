@@ -49,9 +49,9 @@ window.onload = async function() {
 
 
 async function loadUsers() {
-    console.log('Fetching users from /Admin/GetUsers...');
+    console.log('Fetching users from /admin/users...');
     try {
-        const response = await fetch('/Admin/GetUsers');
+        const response = await fetch('/admin/users');
         console.log('Response status:', response.status);
         if (response.ok) {
             allUsers = await response.json();
@@ -175,19 +175,21 @@ function performBan() {
     }
     const token = tokenInput.value;
     
-    const formData = 'userId=' + encodeURIComponent(userId) +
-                   '&reason=' + encodeURIComponent(reason) + 
-                   '&durationDays=' + durationDays;
+    const requestBody = JSON.stringify({
+        userId: userId,
+        reason: reason,
+        durationDays: durationDays
+    });
     
-    console.log('Sending request to /Admin/BanUser...');
+    console.log('Sending request to /admin/users/ban...');
     
-    fetch('/Admin/BanUser', {
+    fetch('/admin/users/ban', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
             'RequestVerificationToken': token
         },
-        body: formData
+        body: requestBody
     })
     .then(function(response) {
         console.log('Ban response status:', response.status);
@@ -211,12 +213,16 @@ function unbanUser(userId) {
     console.log('Unbanning user:', userId);
     if (!confirm('Are you sure you want to unban this user?')) return;
     
-    fetch('/Admin/UnbanUser', {
+    const requestBody = JSON.stringify({
+        userId: userId
+    });
+    
+    fetch('/admin/users/unban', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json',
         },
-        body: 'userId=' + encodeURIComponent(userId)
+        body: requestBody
     })
     .then(function(response) {
         if (response.ok) {
@@ -244,7 +250,7 @@ async function doSearch() {
     } else {
         console.log('Searching users with query:', query);
         try {
-            const response = await fetch('/Admin/SearchUsers?query=' + encodeURIComponent(query));
+            const response = await fetch('/admin/users/search?query=' + encodeURIComponent(query));
             if (response.ok) {
                 const filtered = await response.json();
                 console.log('Search results:', filtered.length);

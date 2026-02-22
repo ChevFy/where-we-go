@@ -16,6 +16,7 @@ namespace where_we_go
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddMemoryCache();
 
             var connectionString = GlobalConfig.GetDBConnectionString();
 

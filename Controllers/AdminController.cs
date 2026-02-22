@@ -2,14 +2,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using where_we_go.DTO;
 using where_we_go.Models;
 
 
 [Authorize(Roles = "Admin")]
 [Route("admin")]
-public class AdminController(UserManager<User> userManager) : Controller
+public class AdminController(UserManager<User> userManager, IMemoryCache cache) : Controller
 {
+    private IMemoryCache _cache { get; init; } = cache;
     [HttpGet("index")]
     public IActionResult Index() => View();
     
@@ -48,6 +50,9 @@ public class AdminController(UserManager<User> userManager) : Controller
         user.BannedBy = User.Identity?.Name ?? "System";
         
         await userManager.UpdateAsync(user);
+        
+        _cache.Remove($"user_ban_status_{dto.UserId}");
+        
         return Ok();
     }
     
@@ -67,6 +72,9 @@ public class AdminController(UserManager<User> userManager) : Controller
         user.BanExpiresAt = null;
         
         await userManager.UpdateAsync(user);
+        
+        _cache.Remove($"user_ban_status_{dto.UserId}");
+        
         return Ok();
     }
     

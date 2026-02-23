@@ -4,14 +4,23 @@ using where_we_go.Models;
 
 namespace where_we_go.DTO
 {
-    public class UpdateUserDto(User user)
+    public class UpdateUserDto
     {
-        public string Id { get; set; } = user.Id;
+        [Required]
+        public string Id { get; set; } 
 
+        [Required]
         [StringLength(100, MinimumLength = 1)]
-        public string? Name { get; set; } = user.Name;
+        public string? Name { get; set; } 
+
+         [Required]
+        [StringLength(100, MinimumLength = 1)]
+        public string? userName { get; set; } 
+
+        [Required]
         [StringLength(50)]
-        public string? Bio { get; set; } = user.Bio;
-        public string? ProfileUrl { get; set; } = user.ProfileUrl;
+        public string? Bio { get; set; }
+        [Required]
+        public string? ProfileUrl { get; set; }
     }
 }

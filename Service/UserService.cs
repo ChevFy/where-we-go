@@ -1,7 +1,5 @@
 
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using where_we_go.Database;
 using where_we_go.DTO;
@@ -11,7 +9,7 @@ namespace where_we_go.Service
 {
     public interface IUserService
     {
-        public Task<PaginatedResponseDto<UserResponseDto>> GetUsersAsync(PaginatedQueryDto query);
+        public Task<PaginatedResponseDto<UserResponseDto>> GetUsersAsync(UserQueryDto query);
         Task<IdentityResult> UpdateUserAsync(UpdateUserDto model);
     }
 
@@ -31,16 +29,26 @@ namespace where_we_go.Service
             return await _userManager.UpdateAsync(user);
         }
 
-        public async Task<PaginatedResponseDto<UserResponseDto>> GetUsersAsync(PaginatedQueryDto query)
+        public async Task<PaginatedResponseDto<UserResponseDto>> GetUsersAsync(UserQueryDto query)
         {
-            var usersQuery = _dbContext.Users
-                .AsNoTracking()
-                .OrderBy(u => u.UserName);
+            var usersQuery = _dbContext.Users.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(query.NameFilter))
+            {
+                var keyword = query.NameFilter.Trim();
+                usersQuery = usersQuery.Where(u =>
+                    u.Name.Contains(keyword));
+            }
+
+            usersQuery = (query.SortBy ?? "").ToLower() switch
+            {
+                "name" => usersQuery.OrderBy(u => u.Name),
+                "name_desc" => usersQuery.OrderByDescending(u => u.Name),
+                _ => usersQuery.OrderBy(u => u.Id)
+            };
 
             return await ToPaginatedResponseAsync(
-                usersQuery,
-                query,
-                user => new UserResponseDto(user, [])
+                usersQuery, query, u => new UserResponseDto(u, [])
             );
         }
 

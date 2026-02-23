@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Npgsql.Replication;
 
 namespace where_we_go.DTO
 {

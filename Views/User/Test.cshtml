@@ -1,0 +1,25 @@
+@model where_we_go.DTO.PaginatedResponseDto<where_we_go.DTO.UserResponseDto>
+@{
+    ViewData["Title"] = "All Users";
+}
+
+<div>
+    @foreach (var user in Model.Data)
+    {
+        <div>
+            <p>
+                @user.UserName
+            </p>
+            <p>
+                @user.Name
+            </p>
+            <hr />
+        </div>
+    }
+    <div>
+        <p>Current Page: @Model.Meta.CurrentPage</p>
+        <p>Next Page: @Model.Meta.NextPage</p>
+        <p>Prev Page: @Model.Meta.PrevPage</p>
+        <p>Total items: @Model.Meta.Total</p>
+    </div>
+</div>

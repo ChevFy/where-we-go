@@ -1,29 +1,24 @@
 using Microsoft.EntityFrameworkCore;
-using where_we_go.Database;
 using where_we_go.DTO;
 
 namespace where_we_go.Service
 {
     public abstract class BaseService
     {
-        protected async Task<PaginatedResponseDto<TOut>> ToPaginatedResponseAsync<TEntity, TOut, TQuery>(
-            IQueryable<TEntity> source,
-            TQuery query,
-            Func<TEntity, TOut> mapper,
-            CancellationToken cancellationToken = default)
-            where TQuery : PaginatedQueryDto
+        protected async Task<PaginatedResponseDto<TOut>> ToPaginatedResponseAsync<T, TOut>(
+            IQueryable<T> source,
+            PaginatedQueryDto query,
+            Func<T, TOut> mapper)
         {
-            var page = query.PageSave;
-            var pageSize = query.PageSizeSave;
+            var totalRecords = await source.CountAsync();
 
-            var totalCount = await source.CountAsync(cancellationToken);
-            var entities = await source
-                .ApplyPagination(query)
-                .ToListAsync(cancellationToken);
+            var items = await source
+            .Skip((query.Page - 1) * query.PageSizeSave)
+            .Take(query.PageSizeSave)
+            .ToListAsync();
 
-            var data = entities.Select(mapper).ToList();
-
-            return new PaginatedResponseDto<TOut>(data, pageSize, page, totalCount);
+            var mapped = items.Select(mapper).ToList();
+            return new PaginatedResponseDto<TOut>(mapped, query.PageSize, query.Page, totalRecords);
         }
     }
 }

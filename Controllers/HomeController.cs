@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using where_we_go.Models;
 using where_we_go.Database;
 
@@ -18,7 +19,7 @@ public class HomeController(UserManager<User> userManager, AppDbContext dbContex
         bool IsAuth = User.Identity?.IsAuthenticated ?? false;
         ViewBag.IsAuth = IsAuth;
 
-        var posts = _dbContext.Posts.ToList();
+        var posts = await _dbContext.Posts.ToListAsync();
 
         return View(posts);
 

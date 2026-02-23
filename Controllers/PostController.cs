@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.Database;
@@ -10,11 +11,30 @@ using where_we_go.Database;
 public class PostController(AppDbContext dbContext) : Controller
 {
     private AppDbContext _dbContext { get; init; } = dbContext;
-
-    public IActionResult PostView()
+    [HttpGet]
+    public async Task<IActionResult> PostView(Guid id)
     {
+        var postDto = await _dbContext.Posts
+            .Where(p => p.PostId == id)
+            .Select(p => new PostDetailDto
+            {
+                PostId = p.PostId,
+                Title = p.Title,
+                Description = p.Description,
+                LocationName = p.LocationName,
+                DateDeadlineFormatted = p.DateDeadline.ToString("dd MMM yyyy"),
+                CurrentParticipants = p.CurrentParticipants,
+                MaxParticipants = p.MaxParticipants,
+                CategoryName = "Mock Category"
+            })
+            .FirstOrDefaultAsync();
 
-        return View(); // จะหา Views/Post/PostView.cshtml
+        if (postDto == null)
+        {
+            return NotFound();
+        }
+
+        return View(postDto);
     }
 
     [HttpGet]

@@ -18,6 +18,11 @@ public class HomeController(UserManager<User> userManager, AppDbContext dbContex
     {
         bool IsAuth = User.Identity?.IsAuthenticated ?? false;
         ViewBag.IsAuth = IsAuth;
+        
+        if (IsAuth && User.IsInRole("Admin"))
+        {
+            return RedirectToAction("Index", "Admin");
+        }
 
         // One single, clean query straight to the DTO!
         var posts = await _dbContext.Posts

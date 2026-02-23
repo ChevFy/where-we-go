@@ -28,6 +28,12 @@ namespace where_we_go.Models
         public DateTime DateUpdated { get; set; }
         public string? OAuthId { get; set; }
 
+        public bool IsBanned { get; set; }
+        public string? BanReason { get; set; }
+        public DateTime? BanExpiresAt { get; set; }
+        public string? BannedBy { get; set; }
+
+
         public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 
         public virtual ICollection<Participant> Participants { get; set; } = new List<Participant>();

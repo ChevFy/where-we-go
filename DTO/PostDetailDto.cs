@@ -8,6 +8,7 @@ namespace where_we_go.DTO
         public Guid PostId { get; set; }
 
         [Required]
+        [MinLength(2, ErrorMessage = "Title must be at least 2 characters")]
         [StringLength(100)]
         [Display(Name = "Post Title")]
         public string Title { get; set; }
@@ -23,7 +24,7 @@ namespace where_we_go.DTO
 
         [Required]
         [Display(Name = "Deadline")]
-        public string DateDeadlineFormatted { get; set; } // Formatted as "dd MMM yyyy"
+        public string DateDeadlineFormatted { get; set; }
 
         [Display(Name = "Current Participants")]
         public int CurrentParticipants { get; set; }

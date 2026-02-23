@@ -5,32 +5,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using where_we_go.Models;
 using where_we_go.Database;
+using where_we_go.Service;
 
 namespace where_we_go.Controllers;
 
-public class HomeController(UserManager<User> userManager, AppDbContext dbContext) : Controller
+public class HomeController(UserManager<User> userManager, AppDbContext dbContext, IPostService postService) : Controller
 {
     private UserManager<User> _userManager { get; init; } = userManager;
-    private AppDbContext _dbContext { get; init; } = dbContext;
+    private IPostService _postService { get; init; } = postService;
 
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        bool IsAuth = User.Identity?.IsAuthenticated ?? false;
-        ViewBag.IsAuth = IsAuth;
+        ViewBag.IsAuth = User.Identity?.IsAuthenticated ?? false;
 
-        // One single, clean query straight to the DTO!
-        var posts = await _dbContext.Posts
-            .Select(p => new PostDto
-            {
-                PostId = p.PostId,
-                Title = p.Title,
-                Description = p.Description,
-                LocationName = p.LocationName,
-                DateDeadline = p.DateDeadline, // Pass the raw date here
-                CategoryName = "Mock Category"
-            })
-            .ToListAsync();
+        var posts = await _postService.GetAllPostsAsync();
 
         return View(posts);
     }

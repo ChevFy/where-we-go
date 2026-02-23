@@ -23,7 +23,10 @@
 <div class="post-bg-container">
     <div class="post-container">
         <h2 class="post-title">Create New Post</h2>
-        <form asp-action="Create" asp-controller="Post" method="post">
+
+        <div asp-validation-summary="All" class="text-danger" style="color: red; margin-bottom: 15px;"></div>
+
+        <form asp-action="PostCreate" asp-controller="Post" method="post">
             @await Component.InvokeAsync("FormInput", new
             {
                 id = "Title",

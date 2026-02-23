@@ -1,5 +1,4 @@
-@using System.Xml.Serialization
-@model where_we_go.Models.Post
+@model where_we_go.DTO.PostDetailDto
 
 @{
     ViewData["Title"] = "Post Page";
@@ -32,7 +31,7 @@
         </div>
 
         <div class="post-date">
-            <p>📅 @Model.DateDeadline.ToString("dd MMM yyyy")</p>
+            <p>📅 @Model.DateDeadlineFormatted</p>
         </div>
 
         <div class="post-population">
@@ -41,7 +40,7 @@
 
         <div class="post-category">
             <ul>
-                <li>Mock Category</li>
+                <li>@Model.CategoryName</li>
             </ul>
         </div>
 

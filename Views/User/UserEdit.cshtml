@@ -4,13 +4,14 @@
 }
 
 @section Styles {
-  <link rel="stylesheet" href="~/css/userprofile.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/useredit.css" asp-append-version="true" />
 
   @* Import component css *@
   <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
   <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/components/forminput.css" asp-append-version="true" />
 }
 
 
@@ -22,11 +23,18 @@
     <div class="profile-container">
         <div class="profile-card">
             <div class="profile-top">
-                @* <img src=@Model.ProfileUrl> *@
+                <img src=@Model.ProfileUrl>
                 <div class="profile-top-content">
-                    @* <p style=" color : var(--option-color);font-size: var(--font-size-medium);">@Model.Name</p> *@
+                    <p style=" color : var(--option-color);font-size: var(--font-size-medium);">@Model.Name</p>
                     <p>
-                    @* @Model.Bio  *@
+                    @* @await Component.InvokeAsync("FormTextarea", new
+                    {
+                        id = "Description",
+                        name = "Description",
+                        Value = @Model.Bio,
+                        required = true
+                    }) *@
+                    
                     </p>
                 </div>
             </div>
@@ -37,7 +45,7 @@
                 <div class="info-label">
                     <i class="fas fa-user"></i> <span>Username</span>
                 </div>
-                @* <div class="info-value">@Model.UserName</div>  *@
+                <div class="info-value">@Model.UserName</div> 
             </div>
 
             <div class="info-row">
@@ -45,7 +53,7 @@
                     <i class="fas fa-envelope"></i>
                     <span>Email</span>
                 </div>
-                @* <div class="info-value">@Model.Email</div> *@
+                <div class="info-value">@Model.Email</div>
             </div>
             </div>
         </div>

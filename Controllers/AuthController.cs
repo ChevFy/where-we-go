@@ -50,10 +50,23 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
         }
 
 
+        // Check for ban BEFORE signing in
+        if (user.IsBanned && user.BanExpiresAt > DateTime.UtcNow)
+        {
+            TempData["BanMessage"] = $"You are banned. Reason: {user.BanReason}. Expires: {user.BanExpiresAt}";
+            return RedirectToAction("Login");
+        }
+
         var result = await _signInManager.PasswordSignInAsync(user, model.Password, isPersistent: true, lockoutOnFailure: false);
 
         if (result.Succeeded)
         {
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Contains("Admin"))
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -80,9 +93,18 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
 
         if (result.Succeeded)
         {
+            // Sign in after registration
             await _signInManager.SignInAsync(user, isPersistent: true);
+            
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Contains("Admin"))
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+            
             return RedirectToAction("Index", "Home");
         }
+
 
         foreach (var error in result.Errors)
         {
@@ -107,6 +129,17 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
         if (info == null)
         {
             return RedirectToAction("Login");
+        }
+
+        // Check if user already exists and if they're banned
+        var existingUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+        if (existingUser != null)
+        {
+            if (existingUser.IsBanned && existingUser.BanExpiresAt > DateTime.UtcNow)
+            {
+                TempData["BanMessage"] = $"You are banned. Reason: {existingUser.BanReason}. Expires: {existingUser.BanExpiresAt}";
+                return RedirectToAction("Login");
+            }
         }
 
         var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: true);

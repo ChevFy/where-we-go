@@ -17,7 +17,13 @@ public class HomeController(UserManager<User> userManager, AppDbContext dbContex
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        ViewBag.IsAuth = User.Identity?.IsAuthenticated ?? false;
+        bool IsAuth = User.Identity?.IsAuthenticated ?? false;
+        ViewBag.IsAuth = IsAuth;
+
+        if (IsAuth && User.IsInRole("Admin"))
+        {
+            return RedirectToAction("Index", "Admin");
+        }
 
         var posts = await _postService.GetAllPostsAsync();
 

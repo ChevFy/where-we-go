@@ -112,4 +112,30 @@
   margin-top: 10px;
 }
 
+.post-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.post-title {
+  color: var(--option-color);
+  margin: 0;
+}
+
+.post-content-2 {
+  white-space: nowrap;
+  text-align: right;
+}
+
+.post-date {
+  color: black;
+  font-size: var(--font-size-base);
+  margin: 0;
+}
+
+.auth-padding {
+  padding-top: 5rem;
+}
+
 /*----*/

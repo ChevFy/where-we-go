@@ -1,4 +1,5 @@
-﻿@model IEnumerable<where_we_go.Models.Post>
+﻿@model IEnumerable<where_we_go.Models.PostDto>
+
 @{
     ViewData["Title"] = "Home Page";
     // Store the auth state in a variable to keep the HTML clean
@@ -43,35 +44,31 @@
     
     @* Loop through your mock database posts *@
     @foreach (var post in Model)
-    {
-        @* Wrap the whole card in an anchor tag that links to PostView and passes the PostId *@
-        <a asp-controller="Post" asp-action="PostView" asp-route-id="@post.PostId" style="text-decoration: none; color: inherit;">
-            <div class="post-card">
-                <div class="post-img">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s" alt="Thumbnail">
+{
+    <a asp-controller="Post" asp-action="PostView" asp-route-id="@post.PostId" class="post-link">
+        <div class="post-card">
+            <div class="post-img">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s" alt="Thumbnail">
+            </div>
+            
+            <div class="post-content">
+                <div class="post-content-1">
+                    <h2 class="post-title">@post.Title</h2>
+                    <div class="post-category">
+                        <span>@post.CategoryName</span>
+                    </div>
+                    <p>
+                        @post.Description
+                    </p>
                 </div>
-                
-                <div class="post-content">
-                    <div class="post-content-1">
-                        <h2 style="color: var(--option-color); margin: 0;">@post.Title</h2>
-                        <div class="post-category">
-                            <span>Category</span>
-                            <span>Category</span>
-                            <span>Category</span>
-                        </div>
-                        <p>
-                            @post.Description
-                        </p>
-                    </div>
 
-                    <div class="post-content-2" style="white-space: nowrap; text-align: right;">
-                        <p style="color: black; font-size : var(--font-size-base); margin: 0;">@post.DateDeadline.ToString("dd/MM/yyyy")</p>
-                    </div>
+                <div class="post-content-2">
+                    <p class="post-date">@post.DateDeadlineFormatted</p>
                 </div>
             </div>
-        </a>
-    }
-
+        </div>
+    </a>
+}
 </div>
 
 <footer>

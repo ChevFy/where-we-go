@@ -19,20 +19,20 @@ public class HomeController(UserManager<User> userManager, AppDbContext dbContex
         bool IsAuth = User.Identity?.IsAuthenticated ?? false;
         ViewBag.IsAuth = IsAuth;
 
+        // One single, clean query straight to the DTO!
         var posts = await _dbContext.Posts
-        .Select(p => new PostDto
-        {
-            PostId = p.PostId,
-            Title = p.Title,
-            Description = p.Description,
-            LocationName = p.LocationName,
-            DateDeadlineFormatted = p.DateDeadline.ToString("dd/MM/yyyy"),
-            CategoryName = "Mock Category"
-        })
-        .ToListAsync();
+            .Select(p => new PostDto
+            {
+                PostId = p.PostId,
+                Title = p.Title,
+                Description = p.Description,
+                LocationName = p.LocationName,
+                DateDeadline = p.DateDeadline, // Pass the raw date here
+                CategoryName = "Mock Category"
+            })
+            .ToListAsync();
 
         return View(posts);
-
     }
 
     [Authorize]

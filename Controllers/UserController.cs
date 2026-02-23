@@ -14,6 +14,7 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
     private RoleManager<IdentityRole> _roleManager { get; init; } = roleManager;
 
     
+    [HttpGet]
     public async Task<IActionResult> UserProfile(string? username)
     {
         if(username is null)
@@ -35,10 +36,48 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
     }
 
     [Authorize]
+    [HttpGet]
     public async Task<IActionResult> UserEdit()
     {
+        var user = await _userManager.GetUserAsync(User);
+        if(user is null)
+            return NotFound();
+        var roles = (await _userManager.GetRolesAsync(user)).ToArray();
+        var userResponse = new UserResponseDto(user, roles);
         
-        return View();
+
+        return View(userResponse);
+    }
+
+    [Authorize]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult>  UpdateUser(UpdateUserDto model)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        if (user is null)
+            return NotFound();
+
+        user.Name = model.Name;
+        user.UserName = model.userName;
+        user.Bio = model.Bio;
+        user.ProfileUrl = model.ProfileUrl;
+
+        var result = await _userManager.UpdateAsync(user);
+
+        if(result.Succeeded)
+        {
+            TempData["Success"] = "updated success";
+            return RedirectToAction("User","Userprofile" , new { username = user.UserName });
+        }
+
+        
+        foreach (var error in result.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+
+        return View(model);
     }
 
 

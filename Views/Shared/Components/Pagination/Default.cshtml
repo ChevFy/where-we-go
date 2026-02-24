@@ -1,0 +1,46 @@
+@model where_we_go.ViewComponents.PaginationViewModel
+
+@{
+    if (Model.Meta.LastPage < 1)
+    {
+        return;
+    }
+
+    IDictionary<string, object?> BuildRoute(int page)
+    {
+        var dict = Model.RouteValues.ToDictionary(k => k.Key, v => v.Value, StringComparer.OrdinalIgnoreCase);
+        dict["page"] = page;
+        dict["pageSize"] = Model.Meta.PageSize;
+        return dict;
+    }
+
+    string? PrevUrl() => Model.Meta.PrevPage.HasValue
+        ? Url.Action(Model.Action, Model.Controller, BuildRoute(Model.Meta.PrevPage.Value))
+        : null;
+
+    string? NextUrl() => Model.Meta.NextPage.HasValue
+        ? Url.Action(Model.Action, Model.Controller, BuildRoute(Model.Meta.NextPage.Value))
+        : null;
+}
+
+<nav class="wwg-pagination" aria-label="Pagination">
+    <a class="wwg-page-btn @(Model.Meta.PrevPage.HasValue ? "" : "is-disabled")" href="@(PrevUrl() ?? "#")"
+       aria-label="Previous page" tabindex="@(Model.Meta.PrevPage.HasValue ? "0" : "-1")">‹</a>
+
+    @foreach (var item in Model.Items)
+    {
+        if (item.IsEllipsis)
+        {
+            <span class="wwg-page-btn is-ellipsis">...</span>
+            continue;
+        }
+
+        <a class="wwg-page-btn @(item.IsActive ? "is-active" : "")"
+               href="@Url.Action(Model.Action, Model.Controller, BuildRoute(item.Page!.Value))">
+            @item.Text
+        </a>
+    }
+
+    <a class="wwg-page-btn @(Model.Meta.NextPage.HasValue ? "" : "is-disabled")" href="@(NextUrl() ?? "#")"
+       aria-label="Next page" tabindex="@(Model.Meta.NextPage.HasValue ? "0" : "-1")">›</a>
+</nav>

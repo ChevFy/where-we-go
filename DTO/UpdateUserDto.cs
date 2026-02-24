@@ -7,15 +7,15 @@ namespace where_we_go.DTO
     public class UpdateUserDto
     {
         [Required]
-        public string Id { get; set; } 
+        public string? Id { get; set; } 
 
         [Required]
         [StringLength(100, MinimumLength = 1)]
-        public string? Name { get; set; } 
+        public required string Name { get; set; } 
 
          [Required]
         [StringLength(100, MinimumLength = 1)]
-        public string? userName { get; set; } 
+        public required string? userName { get; set; } 
 
         [Required]
         [StringLength(50)]

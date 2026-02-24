@@ -6,7 +6,6 @@ namespace where_we_go.DTO
 {
     public class UpdateUserDto
     {
-        [Required]
         public string? Id { get; set; } 
 
         [Required]

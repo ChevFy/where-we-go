@@ -78,11 +78,14 @@
     word-break: break-all;
     color: #333;
     font-weight: 500;
+    display: flex;
+    align-items: center;    
 }
 
 .profile-actions {
     display: flex;
     justify-content: center;
+    align-items: center;
     padding: 20px 0 30px 0;
     width: 100%;
 }
@@ -138,8 +141,76 @@
     height: 100px;
     resize: none;
     max-height: 300px;
-    overflow: hidden;
 }
+
+.frominput-username-display
+{
+    flex : 1;
+    display: none;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+
+.name-content
+{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.frominput-name-display 
+{
+    display: none;
+}
+
+.frominput-bio-display
+{
+     display: none;
+     width: 100%;
+}
+
+.bio-content textarea {
+    width: 100% !important;
+}
+
+
+.frominput-bio-display textarea {
+    width: 100%;
+}
+
+.bio-content
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+.edit-button 
+{
+    width: 2.5em;
+    height: 2.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--teritary-color);
+    border: 0;
+    cursor: pointer;
+    transition: ease 0.2s;
+}
+.edit-button:hover
+{
+    transform: translateY(-2px);
+}
+
+
+.edit-button img
+{
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
 
 
 @media (max-width: 768px) {

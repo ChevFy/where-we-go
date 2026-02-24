@@ -52,10 +52,16 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
     }
 
     [Authorize]
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateUser(UpdateUserDto model)
+    [HttpPut]
+    //[ValidateAntiForgeryToken]
+    [Route("api/user/update")]
+    public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto model)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState); 
+        }
+
         var user = await _userManager.GetUserAsync(User);
         if (user is null)
             return NotFound();
@@ -70,7 +76,10 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         if (result.Succeeded)
         {
             TempData["Success"] = "updated success";
-            return RedirectToAction("User", "Userprofile", new { username = user.UserName });
+            return Ok(new { 
+                message = "Updated success", 
+                redirectUrl = Url.Action("Userprofile", "User", new { username = user.UserName }) 
+            });
         }
 
 
@@ -79,7 +88,7 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
             ModelState.AddModelError(string.Empty, error.Description);
         }
 
-        return View(model);
+        return BadRequest(ModelState);
     }
 
     [HttpGet]

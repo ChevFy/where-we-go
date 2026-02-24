@@ -12,6 +12,7 @@ namespace where_we_go.ViewComponents
             string color = "#00B4D8",
             string hoverColor = "#0077B6",
             string width = "10rem",
+            string height = "50px",
             string imageUrl = null!,
             string textColor = "white"
             )
@@ -21,6 +22,7 @@ namespace where_we_go.ViewComponents
             ViewBag.Color = color;
             ViewBag.HoverColor = hoverColor;
             ViewBag.Width = width;
+            ViewBag.Height = height;
             ViewBag.TargetId = targetId;
             ViewBag.ButtonType = buttonType;
             ViewBag.TextColor = textColor;

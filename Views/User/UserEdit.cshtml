@@ -4,14 +4,21 @@
 }
 
 @section Styles {
-  <link rel="stylesheet" href="~/css/useredit.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/useredit.css" asp-append-version="true" />
 
-  @* Import component css *@
-  <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
-  <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
-  <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
-  <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
-  <link rel="stylesheet" href="~/css/components/forminput.css" asp-append-version="true" />
+    @* Import component css *@
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/forminput.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
+}
+
+@section Scripts
+{
+
+    <script src="~/js/useredit.js"></script>
 }
 
 
@@ -19,45 +26,113 @@
     @await Component.InvokeAsync("Navbar")
 </header>
 
-    
-    <div class="profile-container">
-        <div class="profile-card">
-            <div class="profile-top">
-                <img src=@Model.ProfileUrl>
-                <div class="profile-top-content">
-                    <p style=" color : var(--option-color);font-size: var(--font-size-medium);">@Model.Name</p>
-                    <p>
-                    @await Component.InvokeAsync("FormTextarea", new
-                    {
-                        id = "Description",
-                        name = "Description",
-                        Value = @Model.Bio,
-                        required = true
-                    })
-                    
-                    </p>
-                </div>
-            </div>
-        <hr style="border: 0; border-top: 2px solid rgba(0,0,0,0.4); margin: 20px auto; width: 75%;"/>
-        <div class="profile-below">
-        <div class="profile-info-group">
-            <div class="info-row">
-                <div class="info-label">
-                    <i class="fas fa-user"></i> <span>Username</span>
-                </div>
-                <div class="info-value">@Model.UserName</div> 
-            </div>
 
-            <div class="info-row">
-                <div class="info-label">
-                    <i class="fas fa-envelope"></i>
-                    <span>Email</span>
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-top">
+            <img id="profile-img-display" src=@Model.ProfileUrl>
+            <div class="profile-top-content">
+                <div class="name-content">
+                    <div class="frominput-name-display">
+                        @await Component.InvokeAsync("FormInput", new
+                        {
+                            id = "frominput-name",
+                            value = @Model.Name,
+                            type = "text",
+                            required = false
+                        })
+                    </div>
+                    <p id="profile-name" style=" color : var(--option-color);font-size: var(--font-size-medium);">
+                        @Model.Name</p>
+
+                        <button class="edit-button" id="edit-name-button" onclick="clickEditName()">
+                            <img src="~/images/edit.svg" alt="">
+                            </button>
+
+                        </div>
+
+                        <div class="bio-content">
+                            <div id="profile-bio">
+                                @Model.Bio
+                            </div>
+                            <span class="frominput-bio-display">
+                                @await Component.InvokeAsync("FormTextarea", new
+                                {
+                                    id = "frominput-bio",
+                                    value = @Model.Bio,
+                                    type = "text",
+                                    required = false
+                                })
+                            </span>
+
+
+                            <button class="edit-button" id="edit-bio-button" onclick="clickUpdateBio()">
+                                <img src="~/images/edit.svg" alt="">
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                    <hr style="border: 0; border-top: 2px solid rgba(0,0,0,0.4); margin: 20px auto; width: 75%;" />
+
+                    <div class="profile-below">
+                        <div class="profile-info-group">
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-user"></i> <span>Username</span>
+                                </div>
+
+                                <div class="info-value" id="profile-username">@Model.UserName</div>
+
+                                <div class="frominput-username-display">
+                                    <input type="text" id="frominput-username" value="@Model.UserName">
+                                </div>
+
+                                <button class="edit-button" onclick="clickUpdateUsername()">
+                                    <img src="~/images/edit.svg" alt="">
+                                    </button>
+                                </div>
+                            </div>
+
+
+                            <div class="info-row">
+                                <div class="info-label">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Email</span>
+                                </div>
+                                <div class="info-value">@Model.Email</div>
+                            </div>
+
+
+
+
+                        </div>
+                        <div class="profile-actions">
+                            <div class="profile-button">
+                                <a class="edit-wrapper" onclick="UpdateProfileSubmit()">
+                                    @await Component.InvokeAsync("MainButton", new
+                                    {
+                                        targetId = "confirm",
+                                        buttonType = "submit",
+                                        width = "100%",
+                                        text = "ยินยัน",
+                                    })
+                                </a>
+                                <a asp-controller="User" asp-action="UserProfile" asp-route-username="@Model.UserName" class="logout-wrapper">
+                                    @await Component.InvokeAsync("MainButton", new
+                                    {
+                                        targetId = "abort",
+                                        buttonType = "submit",
+                                        width = "100%",
+                                        text = "ยกเลิก",
+                                        color = "#fef2f2",
+                                        hoverColor = "#fee2e2",
+                                        textColor = "#ef4444"
+                                    })
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div class="info-value">@Model.Email</div>
             </div>
-            </div>
-        </div>
-            
-        </div>
-    </div>
-    

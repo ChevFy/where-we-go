@@ -489,3 +489,6 @@ $RECYCLE.BIN/
 
 bin/
 obj/
+
+# ignore dotnet tools manifest file
+dotnet-tools.json

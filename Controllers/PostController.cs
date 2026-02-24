@@ -38,7 +38,7 @@ public class PostController(IPostService postService) : Controller
         }
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null) return Unauthorized();
+        if (userId == null) return NotFound();
 
         await _postService.CreatePostAsync(dto, userId);
 

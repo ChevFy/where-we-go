@@ -7,32 +7,17 @@ using Microsoft.EntityFrameworkCore;
 using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.Database;
+using where_we_go.Service;
 
-public class PostController(AppDbContext dbContext) : Controller
+public class PostController(IPostService postService) : Controller
 {
-    private AppDbContext _dbContext { get; init; } = dbContext;
+    private IPostService _postService { get; init; } = postService;
     [HttpGet]
-    public async Task<IActionResult> PostView(Guid id)
+    public async Task<IActionResult> PostDetail(Guid id)
     {
-        var postDto = await _dbContext.Posts
-            .Where(p => p.PostId == id)
-            .Select(p => new PostDetailDto
-            {
-                PostId = p.PostId,
-                Title = p.Title,
-                Description = p.Description,
-                LocationName = p.LocationName,
-                DateDeadlineFormatted = p.DateDeadline.ToString("dd MMM yyyy"),
-                CurrentParticipants = p.CurrentParticipants,
-                MaxParticipants = p.MaxParticipants,
-                CategoryName = "Mock Category"
-            })
-            .FirstOrDefaultAsync();
+        var postDto = await _postService.GetPostDetailAsync(id);
 
-        if (postDto == null)
-        {
-            return NotFound();
-        }
+        if (postDto == null) return NotFound();
 
         return View(postDto);
     }
@@ -45,7 +30,7 @@ public class PostController(AppDbContext dbContext) : Controller
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Create(PostCreateDto dto)
+    public async Task<IActionResult> PostCreate(PostCreateDto dto)
     {
         if (!ModelState.IsValid)
         {
@@ -53,32 +38,10 @@ public class PostController(AppDbContext dbContext) : Controller
         }
 
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userId == null)
-        {
-            return Unauthorized();
-        }
+        if (userId == null) return NotFound();
 
-        var post = new Post
-        {
-            PostId = Guid.NewGuid(),
-            UserId = userId,
-            Title = dto.Title,
-            Description = dto.Description,
-            LocationName = dto.LocationName,
-            DateDeadline = dto.DateDeadline,
-            MinParticipants = dto.MinParticipants,
-            MaxParticipants = dto.MaxParticipants,
-            DateCreated = DateTime.UtcNow,
-            Status = "Active",
-            CurrentParticipants = 0,
-            InviteCode = Guid.NewGuid().ToString().Substring(0, 8).ToUpper() // Generate simple invite code
-        };
+        await _postService.CreatePostAsync(dto, userId);
 
-        // TODO: Save to database later
-        // _dbContext.Posts.Add(post);
-        // await _dbContext.SaveChangesAsync();
-
-        // For now, just redirect
-        return RedirectToAction("PostView");
+        return RedirectToAction("Index", "Home");
     }
 }

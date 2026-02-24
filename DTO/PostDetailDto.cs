@@ -23,8 +23,10 @@ namespace where_we_go.DTO
         public string LocationName { get; set; }
 
         [Required]
+        public DateTime DateDeadline { get; set; }
+
         [Display(Name = "Deadline")]
-        public string DateDeadlineFormatted { get; set; }
+        public string DateDeadlineFormatted => DateDeadline.ToString("dd MMM yyyy");
 
         [Display(Name = "Current Participants")]
         public int CurrentParticipants { get; set; }

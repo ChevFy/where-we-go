@@ -33,6 +33,8 @@ namespace where_we_go
 
             builder.Services.AddScoped<IUserService, UserService>();
 
+            builder.Services.AddScoped<IPostService, PostService>();
+
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())

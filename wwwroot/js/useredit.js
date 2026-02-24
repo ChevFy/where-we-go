@@ -115,8 +115,7 @@ const UpdateProfileSubmit = async () => {
             alert("something went wrong.")
         }
     }
-    catch (e)
-    {
+    catch (e){
         console.error(e)
         alert("kak")
     }

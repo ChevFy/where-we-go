@@ -1,5 +1,6 @@
 @import url("site.css");
 
+/* ========== Main Container ========== */
 .profile-container {
     padding: 5em;
     display: flex;
@@ -13,17 +14,10 @@
     border-radius: 25px;
 }
 
+/* ========== Profile Top Section ========== */
 .profile-top {
     display: flex;
     flex-direction: row;
-}
-
-.profile-img {
-    margin: 20px;
-    width: auto;
-    display: flex;
-    justify-content: row;
-    align-items: center;
 }
 
 .profile-top img {
@@ -44,6 +38,62 @@
     overflow: hidden;
 }
 
+/* ========== Name Content ========== */
+.name-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.frominput-name-display {
+    display: none;
+}
+
+/* ========== Bio Content ========== */
+.bio-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.frominput-bio-display {
+    display: none;
+    width: 100%;
+}
+
+.frominput-bio-display textarea {
+    width: 100%;
+}
+
+.bio-content textarea {
+    width: 100% !important;
+}
+
+/* ========== Edit Button ========== */
+.edit-button {
+    width: 2.5em;
+    height: 2.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--teritary-color);
+    border: 0;
+    cursor: pointer;
+    transition: ease 0.2s;
+}
+
+.edit-button:hover {
+    transform: translateY(-2px);
+}
+
+.edit-button img {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* ========== Profile Below Section ========== */
 .profile-below {
     padding: 10px 15%;
 }
@@ -82,6 +132,14 @@
     align-items: center;    
 }
 
+.frominput-username-display {
+    flex: 1;
+    display: none;
+    justify-content: flex-start;
+    align-items: ce;
+}
+
+/* ========== Profile Actions ========== */
 .profile-actions {
     display: flex;
     justify-content: center;
@@ -89,13 +147,6 @@
     padding: 20px 0 30px 0;
     width: 100%;
 }
-
-.logout-wrapper {
-    width: 50%;
-    text-decoration: none;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
 
 .profile-button {
     display: flex;
@@ -106,17 +157,20 @@
     box-sizing: border-box;
 }
 
-.logout-wrapper,.edit-wrapper {
+.logout-wrapper,
+.edit-wrapper {
     flex: 1;
     max-width: 200px;
     text-decoration: none;
     transition: transform 0.2s ease;
 }
 
-.logout-wrapper:hover,.edit-wrapper:hover {
+.logout-wrapper:hover,
+.edit-wrapper:hover {
     transform: translateY(-3px);
 }
 
+/* ========== Form Groups ========== */
 .form-group {
     margin-bottom: 1rem;
 }
@@ -143,77 +197,9 @@
     max-height: 300px;
 }
 
-.frominput-username-display
-{
-    flex : 1;
-    display: none;
-    justify-content: flex-start;
-    align-items: center;
-}
-
-
-.name-content
-{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-}
-
-.frominput-name-display 
-{
-    display: none;
-}
-
-.frominput-bio-display
-{
-     display: none;
-     width: 100%;
-}
-
-.bio-content textarea {
-    width: 100% !important;
-}
-
-
-.frominput-bio-display textarea {
-    width: 100%;
-}
-
-.bio-content
-{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-}
-.edit-button 
-{
-    width: 2.5em;
-    height: 2.5em;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--teritary-color);
-    border: 0;
-    cursor: pointer;
-    transition: ease 0.2s;
-}
-.edit-button:hover
-{
-    transform: translateY(-2px);
-}
-
-
-.edit-button img
-{
-    width: 1.5rem;
-    height: 1.5rem;
-}
-
-
-
+/* ========== Responsive Media Queries ========== */
 @media (max-width: 768px) {
+    /* Main Container */
     .profile-container {
         padding: 5em 1em;
     }
@@ -225,6 +211,7 @@
         min-height: unset;
     }
 
+    /* Profile Top Section */
     .profile-top {
         flex-direction: column;
         align-items: center;
@@ -241,6 +228,23 @@
         margin: 10px 20px;
     }
 
+    /* Name Content */
+    .name-content button {
+        margin-bottom: 30px;
+    }
+
+    /* Bio Content */
+    .bio-content button {
+        margin-bottom: 30px;
+    }
+
+    /* Edit Button */
+    .edit-button img {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    /* Profile Below Section */
     .profile-below {
         padding: 10px 8%;
     }
@@ -257,6 +261,7 @@
         font-size: var(--font-size-small);
     }
 
+    /* Profile Actions */
     .logout-wrapper {
         width: 80%;
     }

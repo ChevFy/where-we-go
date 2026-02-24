@@ -39,7 +39,7 @@ namespace where_we_go.Service
                     Title = p.Title,
                     Description = p.Description,
                     LocationName = p.LocationName,
-                    DateDeadline = p.DateDeadline, // Raw date passed safely here
+                    DateDeadline = p.DateDeadline,
                     CurrentParticipants = p.CurrentParticipants,
                     MaxParticipants = p.MaxParticipants,
                     CategoryName = "Mock Category"

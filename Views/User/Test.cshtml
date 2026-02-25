@@ -1,0 +1,37 @@
+@* filepath: /home/potsawee/work/kmitl/web-dev/where-we-go/Views/User/Test.cshtml *@
+@model where_we_go.DTO.PaginatedResponseDto<where_we_go.DTO.UserResponseDto>
+@{
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+
+    @* Import component css *@
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/pagination.css" asp-append-version="true" />
+    ViewData["Title"] = "All Users";
+    var routeValues = Context.Request.Query.ToDictionary(
+        q => q.Key,
+        q => (object?)q.Value.ToString()
+    );
+}
+
+<div>
+    @foreach (var user in Model.Data)
+    {
+        <div>
+            <p>@user.UserName</p>
+            <p>@user.Name</p>
+            <p>@user.Email</p>
+            <hr />
+        </div>
+    }
+
+    @await Component.InvokeAsync("Pagination", new
+    {
+        meta = Model.Meta,
+        action = "Test",
+        controller = "User",
+        routeValues
+    })
+</div>

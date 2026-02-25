@@ -1,0 +1,42 @@
+.wwg-pagination {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+
+.wwg-page-btn {
+    min-width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color, #d9d9d9);
+    border-radius: 14px;
+    text-decoration: none;
+    color: var(--text-color, #2f2f39);
+    background: var(--surface-color, #fff);
+    font-weight: 600;
+    transition: .15s ease;
+    padding: 0 .75rem;
+}
+
+.wwg-page-btn:hover {
+    border-color: var(--color-primary, var(--bs-primary, #3b82f6));
+}
+
+.wwg-page-btn.is-active {
+    background: var(--color-primary, var(--bs-primary, #3b82f6));
+    border-color: var(--color-primary, var(--bs-primary, #3b82f6));
+    color: #fff;
+}
+
+.wwg-page-btn.is-disabled {
+    opacity: .45;
+    pointer-events: none;
+}
+
+.wwg-page-btn.is-ellipsis {
+    pointer-events: none;
+}

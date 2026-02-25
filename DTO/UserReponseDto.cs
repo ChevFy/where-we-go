@@ -10,6 +10,6 @@ namespace where_we_go.DTO
         public string Name { get; set; } = user.Name;
         public string? Bio { get; set; } = user.Bio;
         public string? ProfileUrl { get; set; } = user.ProfileUrl;
-        public string[] Role = role;
+        public string[] Role { get; set; } = role;
     }
 }

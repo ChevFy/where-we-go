@@ -98,8 +98,8 @@ const UpdateProfileSubmit = async () => {
     }
 }
 
-const NameEditor = FieldEditorFactory("name", "name");
-const BioEditor = FieldEditorFactory("bio", "bio", "flex");
+const NameEditor = FieldEditorFactory("name", "Name");
+const BioEditor = FieldEditorFactory("bio", "Bio", "flex");
 const UsernameEditor = FieldEditorFactory("username", "userName", "flex");
 
 const clickEditName = () => NameEditor.toggle();

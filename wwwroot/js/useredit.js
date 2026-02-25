@@ -94,7 +94,7 @@ const UpdateProfileSubmit = async () => {
     }
     catch (e){
         console.error(e);
-        alert("Connetion Failed!")
+        alert("Connetion failed!")
     }
 }
 

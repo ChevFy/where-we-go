@@ -25,7 +25,7 @@ namespace where_we_go.Service
 
             var user = await _userManager.FindByIdAsync(model.Id);
             if (user is null)
-                return IdentityResult.Failed(new IdentityError { Description = "ไม่พบผู้ใช้งานนี้" });
+                return IdentityResult.Failed(new IdentityError { Description = "User Not FOund" });
 
 
             return await _userManager.UpdateAsync(user);

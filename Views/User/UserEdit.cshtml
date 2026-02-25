@@ -34,13 +34,7 @@
             <div class="profile-top-content">
                 <div class="name-content">
                     <div class="frominput-name-display">
-                        @await Component.InvokeAsync("FormInput", new
-                        {
-                            id = "frominput-name",
-                            value = @Model.Name,
-                            type = "text",
-                            required = false
-                        })
+                        <input type="text" value="@Model.Name" id="frominput-name">
                     </div>
                     <p id="profile-name" style=" color : var(--option-color);font-size: var(--font-size-medium);">
                         @Model.Name</p>
@@ -56,13 +50,7 @@
                                 @Model.Bio
                             </div>
                             <span class="frominput-bio-display">
-                                @await Component.InvokeAsync("FormTextarea", new
-                                {
-                                    id = "frominput-bio",
-                                    value = @Model.Bio,
-                                    type = "text",
-                                    required = false
-                                })
+                                <textarea type="text" id="frominput-bio">@Model.Bio</textarea>
                             </span>
 
 
@@ -102,8 +90,6 @@
                                 </div>
                                 <div class="info-value">@Model.Email</div>
                             </div>
-
-
 
 
                         </div>

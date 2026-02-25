@@ -1,6 +1,5 @@
 @import url("site.css");
 
-/* ========== Main Container ========== */
 .profile-container {
     padding: 5em;
     display: flex;
@@ -14,7 +13,6 @@
     border-radius: 25px;
 }
 
-/* ========== Profile Top Section ========== */
 .profile-top {
     display: flex;
     flex-direction: row;
@@ -29,9 +27,10 @@
 
 .profile-top-content {
     margin: 25px 25px 25px 0;
+    width: 50%;
 }
 
-.profile-top-contentp {
+.profile-top-content {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -40,6 +39,7 @@
 
 /* ========== Name Content ========== */
 .name-content {
+    width: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -171,6 +171,26 @@
 }
 
 /* ========== Form Groups ========== */
+
+.frominput-name-display input{
+    display: flex;
+    width: 100%;
+    height: 3rem;
+    font-size: var(--font-size-medium);
+    margin: 25px 0 25px 0;
+    border: 0;
+} 
+
+.frominput-bio-display textarea{
+    display: flex;
+    width: 100%;
+    height: 5rem;
+    font-size: var(--font-size-baes);
+    border: 0;
+    resize: none;
+} 
+
+
 .form-group {
     margin-bottom: 1rem;
 }
@@ -232,6 +252,19 @@
     .name-content button {
         margin-bottom: 30px;
     }
+
+    .name-content 
+    {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .frominput-name-display input
+    {
+        text-align: center;
+    } 
+
 
     /* Bio Content */
     .bio-content button {

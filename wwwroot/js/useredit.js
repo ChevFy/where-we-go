@@ -2,121 +2,106 @@
 
 
 let UpdateUserDtoJson = {
-    name : "",
+    Name : "",
     userName : "",
-    bio : "",
-    profileUrl : ""
+    Bio : "",
+    ProfileUrl : ""
 };
 
-/* Name */
-let isToggleEditName = false;
+const FieldEditorFactory = (htmlId, dtoKey, displayType = "block") => {
+    let isEditing = false;
+    
+    return {
+        toggle: () => {
+            const displayLabel = document.getElementById(`profile-${htmlId}`);
+            const inputContainer = document.querySelector(`.frominput-${htmlId}-display`);
+            const inputField = document.getElementById(`frominput-${htmlId}`);
+            
+            if (!isEditing) {
+                inputContainer.style.display = displayType;
+                displayLabel.style.display = "none";
+            } else {
+                const newValue = inputField.value;
+                displayLabel.innerText = newValue;
+                UpdateUserDtoJson[dtoKey] = newValue;
+                
+                inputContainer.style.display = "none";
+                displayLabel.style.display = displayType;
+            }
+            isEditing = !isEditing;
+        }
+    };
+};
 
-const clickEditName = () => {
-    const defaultName = document.getElementById("profile-name");
-    const fromInputBar = document.querySelector(".frominput-name-display")
-    if (!isToggleEditName)
-    {
-        fromInputBar.style.display = "block"
-        defaultName.style.display = "none";
-    }
-    else 
-    {
-        fromInputBar.style.display = "none";
-        defaultName.style.display = "block";
-        
-        fromInputName = document.getElementById("frominput-name")
-        newValue = fromInputName.value;
-        defaultName.innerText = newValue;
-        UpdateUserDtoJson.name = newValue
-        // console.log(UpdateUserDtoJson)
-    }
+const validateUpdateData = (data) => {
+    if (!data.Name || data.Name.trim().length < 1 || data.Name.length > 100) 
+        return "Name must be between 1 and 100 characters.";
+    
+    const usernameRegex = /^[a-zA-Z0-9_.-]+$/;
+    if (!data.userName || data.userName.trim().length < 1 || data.userName.length > 100) 
+        return "Username must be between 1 and 100 characters.";
 
-    isToggleEditName = !isToggleEditName
-}
-
-/*Bio*/
-let isToggleEditBio = false;
-
-function clickUpdateBio() {
-     const defaultName = document.getElementById("profile-bio");
-    const fromInputBar = document.querySelector(".frominput-bio-display")
-    if (!isToggleEditBio)
-    {
-        fromInputBar.style.display = "flex"
-        defaultName.style.display = "none";
-    }
-    else 
-    {
-        fromInputBar.style.display = "none";
-        defaultName.style.display = "flex";
-        
-        fromInputName = document.getElementById("frominput-bio")
-        newValue = fromInputName.value;
-        defaultName.innerText = newValue;
-        UpdateUserDtoJson.bio = newValue
-        // console.log(UpdateUserDtoJson)
-    }
-
-    isToggleEditBio = !isToggleEditBio
-
-
-}
-
-
-/* Username  */
-let isToggleEditUsername = false;
-
-function clickUpdateUsername() {
-    const defaultName = document.getElementById("profile-username");
-    const fromInputBar = document.querySelector(".frominput-username-display");
-    const fromInputName = document.getElementById("frominput-username");
-
-    if (!isToggleEditUsername) {
-        fromInputBar.style.display = "flex"; 
-        defaultName.style.display = "none";
-    } else {
-        fromInputBar.style.display = "none";
-        defaultName.style.display = "flex";
-        
-        const newValue = fromInputName.value;
-        defaultName.innerText = newValue;
-        UpdateUserDtoJson.userName = newValue;
-        
-       
-    }
-
-    isToggleEditUsername = !isToggleEditUsername;
-}
-
+    if (!usernameRegex.test(data.userName)) 
+        return "Username can only contain letters, numbers, '.', '-', and '_' with no spaces.";
+    
+    if (data.Bio.length > 50) 
+        return "Bio cannot exceed 50 characters.";
+    
+    if (!data.ProfileUrl || data.ProfileUrl.trim() === "") 
+        return "Profile URL is required.";
+    
+    return null;
+};
 
 const UpdateProfileSubmit = async () => {
     try {
-        UpdateUserDtoJson.name = document.getElementById("frominput-name").value;
-        UpdateUserDtoJson.userName = document.getElementById("frominput-username").value;
-        UpdateUserDtoJson.bio = document.getElementById("frominput-bio").value;
-        UpdateUserDtoJson.profileUrl = document.querySelector(".profile-top img").src;
+        const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+        if (!tokenElement) {
+            console.error("Antiforgery token not found!");
+            return;
+        }
+        const token = tokenElement.value;
 
-        console.log(UpdateUserDtoJson)
+        UpdateUserDtoJson.Name = document.getElementById("frominput-name").value;
+        UpdateUserDtoJson.userName = document.getElementById("frominput-username").value;
+        UpdateUserDtoJson.Bio = document.getElementById("frominput-bio").value;
+        UpdateUserDtoJson.ProfileUrl = document.querySelector(".profile-top img").src;
+
+        const errorMessage = validateUpdateData(UpdateUserDtoJson);
+        if (errorMessage) {
+            alert(errorMessage); 
+            return; 
+        }
         const res = await fetch('/api/user/update', { 
                 method: 'PUT', 
                 headers: {
-                    'Content-Type': 'application/json' 
+                    'Content-Type': 'application/json' ,
+                    'RequestVerificationToken': token
                 },
                 body: JSON.stringify(UpdateUserDtoJson) 
             });
+        const result = await res.json();
         if(res.ok){
-            const data = await res.json();
-            window.location.href = data.redirectUrl;
+            window.location.href = result.redirectUrl;
             alert("Success");
         }
         else
         {
-            const errorDetail = await res.json();
-            alert("something went wrong.")
+            console.log(result)
+            
+            alert(result.message || "Something went wrong.");
         }
     }
     catch (e){
-        console.error(e)
-        alert("kak")
+        console.error(e);
+        alert("Connetion Failed!")
     }
 }
+
+const NameEditor = FieldEditorFactory("name", "name");
+const BioEditor = FieldEditorFactory("bio", "bio", "flex");
+const UsernameEditor = FieldEditorFactory("username", "userName", "flex");
+
+const clickEditName = () => NameEditor.toggle();
+const clickUpdateBio = () => BioEditor.toggle();
+const clickUpdateUsername = () => UsernameEditor.toggle();

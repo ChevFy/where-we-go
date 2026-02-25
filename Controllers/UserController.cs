@@ -2,7 +2,10 @@ using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.Service;
@@ -53,19 +56,31 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
 
     [Authorize]
     [HttpPut]
-    //[ValidateAntiForgeryToken]
+    [ValidateAntiForgeryToken]
     [Route("api/user/update")]
-    public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto model)
+    public async Task<IActionResult> UpdateUser([FromBody] SelfUpdateUserDto model)
     {
+
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState); 
+            return BadRequest(new { message = ModelState }); 
         }
 
+        if (string.IsNullOrEmpty(model.userName))
+            return BadRequest( new { message = "Username is required"});
+
+    
         var user = await _userManager.GetUserAsync(User);
         if (user is null)
             return NotFound();
 
+        //Check duplicate
+        var existUser = await _userManager.Users.FirstOrDefaultAsync(u=> u.UserName == model.userName && u.Id != user.Id);
+        if(existUser is not null)
+        {
+            return BadRequest(new { message = "This Username already exist"});
+        }
+        
         user.Name = model.Name;
         user.UserName = model.userName;
         user.Bio = model.Bio;
@@ -78,7 +93,7 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
             TempData["Success"] = "updated success";
             return Ok(new { 
                 message = "Updated success", 
-                redirectUrl = Url.Action("Userprofile", "User", new { username = user.UserName }) 
+                redirectUrl = Url.Action("UserProfile", "User", new { username = user.UserName }) 
             });
         }
 
@@ -88,7 +103,7 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
             ModelState.AddModelError(string.Empty, error.Description);
         }
 
-        return BadRequest(ModelState);
+        return BadRequest(new { message = ModelState});
     }
 
     [HttpGet]

@@ -42,7 +42,8 @@ namespace where_we_go.Service
                     DateDeadline = p.DateDeadline,
                     CurrentParticipants = p.CurrentParticipants,
                     MaxParticipants = p.MaxParticipants,
-                    CategoryName = "Mock Category"
+                    CategoryName = "Mock Category",
+                    UserId = p.UserId
                 })
                 .FirstOrDefaultAsync();
         }
@@ -71,6 +72,18 @@ namespace where_we_go.Service
 
             _dbContext.Posts.Add(post);
             await _dbContext.SaveChangesAsync();
+        }
+        public async Task<bool> DeletePostAsync(Guid id, string userId)
+        {
+            var post = await _dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == id && p.UserId == userId);
+            if (post == null)
+            {
+                return false;
+            }
+
+            _dbContext.Posts.Remove(post);
+            await _dbContext.SaveChangesAsync();
+            return true;
         }
     }
 }

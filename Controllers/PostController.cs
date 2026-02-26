@@ -44,4 +44,24 @@ public class PostController(IPostService postService) : Controller
 
         return RedirectToAction("Index", "Home");
     }
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> PostDelete(Guid id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return NotFound();
+
+        var result = await _postService.DeletePostAsync(id, userId);
+        if (result)
+        {
+            TempData["AlertMessage"] = "Success: Post deleted successfully!";
+            return RedirectToAction("Index", "Home");
+        }
+        else
+        {
+            TempData["AlertMessage"] = "Error: You do not have permission or the post was not found.";
+            return RedirectToAction("PostDetail", "Post", new { id = id });
+        }
+
+    }
 }

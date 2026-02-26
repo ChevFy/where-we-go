@@ -215,8 +215,6 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
 
     }
 
-
-
     [HttpGet]
     public async Task<IActionResult> Logout()
     {
@@ -224,4 +222,3 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
         return RedirectToAction("Index", "Home");
     }
 }
-

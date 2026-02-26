@@ -18,14 +18,6 @@
     flex-direction: row;
 }
 
-.profile-img {
-    margin: 20px;
-    width: auto;
-    display: flex;
-    justify-content: row;
-    align-items: center;
-}
-
 .profile-top img {
     width: 12em;
     margin: 25px;
@@ -35,15 +27,73 @@
 
 .profile-top-content {
     margin: 25px 25px 25px 0;
+    width: 50%;
 }
 
-.profile-top-contentp {
+.profile-top-content {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
 
+/* ========== Name Content ========== */
+.name-content {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.frominput-name-display {
+    display: none;
+}
+
+/* ========== Bio Content ========== */
+.bio-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.frominput-bio-display {
+    display: none;
+    width: 100%;
+}
+
+.frominput-bio-display textarea {
+    width: 100%;
+}
+
+.bio-content textarea {
+    width: 100% !important;
+}
+
+/* ========== Edit Button ========== */
+.edit-button {
+    width: 2.5em;
+    height: 2.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--teritary-color);
+    border: 0;
+    cursor: pointer;
+    transition: ease 0.2s;
+}
+
+.edit-button:hover {
+    transform: translateY(-2px);
+}
+
+.edit-button img {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+/* ========== Profile Below Section ========== */
 .profile-below {
     padding: 10px 15%;
 }
@@ -78,21 +128,25 @@
     word-break: break-all;
     color: #333;
     font-weight: 500;
+    display: flex;
+    align-items: center;    
 }
 
+.frominput-username-display {
+    flex: 1;
+    display: none;
+    justify-content: flex-start;
+    align-items: ce;
+}
+
+/* ========== Profile Actions ========== */
 .profile-actions {
     display: flex;
     justify-content: center;
+    align-items: center;
     padding: 20px 0 30px 0;
     width: 100%;
 }
-
-.logout-wrapper {
-    width: 50%;
-    text-decoration: none;
-    transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
 
 .profile-button {
     display: flex;
@@ -103,16 +157,39 @@
     box-sizing: border-box;
 }
 
-.logout-wrapper,.edit-wrapper {
+.logout-wrapper,
+.edit-wrapper {
     flex: 1;
     max-width: 200px;
     text-decoration: none;
     transition: transform 0.2s ease;
 }
 
-.logout-wrapper:hover,.edit-wrapper:hover {
+.logout-wrapper:hover,
+.edit-wrapper:hover {
     transform: translateY(-3px);
 }
+
+/* ========== Form Groups ========== */
+
+.frominput-name-display input{
+    display: flex;
+    width: 100%;
+    height: 3rem;
+    font-size: var(--font-size-medium);
+    margin: 25px 0 25px 0;
+    border: 0;
+} 
+
+.frominput-bio-display textarea{
+    display: flex;
+    width: 100%;
+    height: 5rem;
+    font-size: var(--font-size-base);
+    border: 0;
+    resize: none;
+} 
+
 
 .form-group {
     margin-bottom: 1rem;
@@ -138,11 +215,11 @@
     height: 100px;
     resize: none;
     max-height: 300px;
-    overflow: hidden;
 }
 
-
+/* ========== Responsive Media Queries ========== */
 @media (max-width: 768px) {
+    /* Main Container */
     .profile-container {
         padding: 5em 1em;
     }
@@ -154,6 +231,7 @@
         min-height: unset;
     }
 
+    /* Profile Top Section */
     .profile-top {
         flex-direction: column;
         align-items: center;
@@ -170,6 +248,36 @@
         margin: 10px 20px;
     }
 
+    /* Name Content */
+    .name-content button {
+        margin-bottom: 30px;
+    }
+
+    .name-content 
+    {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .frominput-name-display input
+    {
+        text-align: center;
+    } 
+
+
+    /* Bio Content */
+    .bio-content button {
+        margin-bottom: 30px;
+    }
+
+    /* Edit Button */
+    .edit-button img {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    /* Profile Below Section */
     .profile-below {
         padding: 10px 8%;
     }
@@ -186,6 +294,7 @@
         font-size: var(--font-size-small);
     }
 
+    /* Profile Actions */
     .logout-wrapper {
         width: 80%;
     }

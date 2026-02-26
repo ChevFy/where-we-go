@@ -11,6 +11,7 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
+        <span id="antiforgery-token-container" style="display:none;"> @Html.AntiForgeryToken()</span>
         <header>
             @* <nav class="nav-bar">
                 <div class="nav-left-container">

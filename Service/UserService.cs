@@ -10,7 +10,7 @@ namespace where_we_go.Service
     public interface IUserService
     {
         public Task<PaginatedResponseDto<UserResponseDto>> GetUsersAsync(UserQueryDto query);
-        Task<IdentityResult> UpdateUserAsync(UpdateUserDto model);
+        Task<IdentityResult> UpdateUserAsync(AdminUpdateUserDto model);
     }
 
     public class UserService(UserManager<User> userManager, AppDbContext appContext) : BaseService, IUserService
@@ -18,12 +18,14 @@ namespace where_we_go.Service
         private UserManager<User> _userManager { get; init; } = userManager;
         private AppDbContext _dbContext { get; init; } = appContext;
 
-        public async Task<IdentityResult> UpdateUserAsync(UpdateUserDto model)
+        /* For Admin */
+
+        public async Task<IdentityResult> UpdateUserAsync(AdminUpdateUserDto model)
         {
 
             var user = await _userManager.FindByIdAsync(model.Id);
             if (user is null)
-                return IdentityResult.Failed(new IdentityError { Description = "ไม่พบผู้ใช้งานนี้" });
+                return IdentityResult.Failed(new IdentityError { Description = "User Not FOund" });
 
 
             return await _userManager.UpdateAsync(user);

@@ -152,7 +152,6 @@
   width: 60px;
   height: 60px;
   background-color: var(--primary-color);
-  /* Change to your theme color */
   border-radius: 50%;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s;
@@ -161,7 +160,6 @@
 .fab-icon {
   width: 30px;
   height: 30px;
-  /* If your SVG is black and you want it white, use filter: */
   filter: brightness(0) invert(1);
 }
 

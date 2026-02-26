@@ -1,4 +1,10 @@
 @model where_we_go.DTO.PostDetailDto
+@using System.Security.Claims
+
+@{
+    // Get the ID of the person currently looking at the page
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
 
 @{
     ViewData["Title"] = "Post Page";
@@ -47,5 +53,19 @@
         <div class="post-description">
             <p>@Model.Description</p>
         </div>
+        @* Only show delete if user is logged in AND they are the creator *@
+        @if (User.Identity?.IsAuthenticated == true && currentUserId == Model.UserId)
+        {
+            <form asp-action="PostDelete" asp-controller="Post" asp-route-id="@Model.PostId" method="post"
+                  onsubmit="return confirm('Do you really want to delete this post?');">
+                <button type="submit" class="btn btn-danger">Delete This Post</button>
+            </form>
+        }
     </div>
 </div>
+@if (TempData["AlertMessage"] != null)
+{
+    <script type="text/javascript">
+        alert('@TempData["AlertMessage"]');
+    </script>
+}

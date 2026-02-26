@@ -148,29 +148,74 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
             return LocalRedirect(returnUrl ?? "/");
         }
 
+
         var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-        var username = info.Principal.FindFirstValue(ClaimTypes.GivenName);
         var name = info.Principal.FindFirstValue(ClaimTypes.Name) ?? "";
+
+        var model = new OauthRegisterDto
+        {
+            Email = email ?? "",
+            Name = name,
+            LoginProvider = info.LoginProvider,
+            ProviderKey = info.ProviderKey
+        };
+
+        TempData["ExternalLoginInfo"] = System.Text.Json.JsonSerializer.Serialize(model);
+        return RedirectToAction("OauthRegister");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> OauthRegister()
+    {
+        var data = TempData["ExternalLoginInfo"] as string;
+        if(string.IsNullOrEmpty(data))
+        {
+            return RedirectToAction("Login");
+        }
+        var model = System.Text.Json.JsonSerializer.Deserialize<OauthRegisterDto>(data);
+        TempData.Keep("ExternalLoginInfo");
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> OauthRegister(OauthRegisterDto model)
+    {
+        if(!ModelState.IsValid)
+            return View(model);
+
 
         var user = new User
         {
-            UserName = username,
-            Email = email,
-            Name = name,
+            UserName = model.UserName,
+            Email = model.Email,
+            Name = model.Name,
             EmailConfirmed = true,
-            OAuthId = info.ProviderKey,
+            OAuthId = model.ProviderKey
         };
 
-        var createdResult = await _userManager.CreateAsync(user);
+         IdentityResult createdResult;
+
+        createdResult = await _userManager.CreateAsync(user);
+        
         if (createdResult.Succeeded)
         {
+            var info = new UserLoginInfo(model.LoginProvider, model.ProviderKey, model.LoginProvider);
             await _userManager.AddLoginAsync(user, info);
+            
             await _signInManager.SignInAsync(user, isPersistent: true);
-            return LocalRedirect(returnUrl ?? "/");
+            return RedirectToAction("Index", "Home");
         }
 
-        return RedirectToAction("Login");
+        foreach (var error in createdResult.Errors)
+        {
+            ModelState.AddModelError(string.Empty, error.Description);
+        }
+
+        return View(model);
+
     }
+
+
 
     [HttpGet]
     public async Task<IActionResult> Logout()

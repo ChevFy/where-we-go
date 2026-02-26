@@ -1,0 +1,55 @@
+@model where_we_go.DTO.OauthRegisterDto
+@using where_we_go.ViewComponents
+
+@{
+    ViewData["Title"] = "Complete Registration";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/registerpage.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @* Import css component *@
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/select_dropdown.css" asp-append-version="true" />
+}
+
+<div class="register-bg-container">
+    <div class="register-card">
+        <div class="register-main-text">
+            ลงทะเบียน
+        </div>
+
+        <form style="width: 100%; gap : 1.5rem ; display :flex ; align-items : center ; justify-content : center ; flex-direction : column" method="post" asp-action="OauthRegister" asp-controller="Auth">
+            <input type="hidden" asp-for="Email" />
+            <input type="hidden" asp-for="Name" />
+            <input type="hidden" asp-for="LoginProvider" />
+            <input type="hidden" asp-for="ProviderKey" />
+
+            <div class="register-input">                
+                @await Component.InvokeAsync("InputBar", new { targetId = "UserName", inputType = "text", placeHolder = "Username", width = "75%" })
+            </div>
+
+           @if (!ViewData.ModelState.IsValid)
+            {
+                var allErrors = string.Join("\\n", ViewData.ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => "• " + e.ErrorMessage));
+
+                <script type="text/javascript">
+                    alert("เกิดข้อผิดพลาด:\n @Html.Raw(allErrors)");
+                </script>
+            }
+
+            <div class="register-button">
+                <a asp-controller="Auth" asp-action="Login">
+                </a>
+                @await Component.InvokeAsync("MainButton", new { width = "75%" ,targetId = "register-submit", buttonType = "submit", text = "เสร็จสิ้น", color = "var(--secondary-color)" })
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

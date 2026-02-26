@@ -1,0 +1,34 @@
+@model IEnumerable<where_we_go.Models.PostDto>
+
+@{
+    ViewData["Title"] = "Error Page";
+    var isAuthenticated = ViewBag.IsAuth ?? false;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/notfoundpage.css" asp-append-version="true" />
+
+    @* Import component css *@
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+}
+
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
+
+
+<div class="home-bg-container">
+    <div class="main-text">
+        404
+    </div>
+    <div class="sub-text">
+        <h2 style="margin-bottom: 15px;">อุ๊ปส์! ดูเหมือนพิกัดนี้จะหล่นหายไป</h2>
+    </div>
+    
+    <a href="/" class="btn-back-home">
+        กลับสู่หน้าหลัก
+    </a>
+</div>

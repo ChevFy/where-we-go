@@ -64,4 +64,24 @@ public class PostController(IPostService postService) : Controller
         }
 
     }
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> Join(Guid id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var result = await _postService.JoinPostAsync(id, userId);
+
+        if (result == "Success")
+        {
+            TempData["AlertMessage"] = "You have successfully joined the activity!";
+        }
+        else
+        {
+            TempData["AlertMessage"] = result; // Shows "Full" or "Already joined"
+        }
+
+        return RedirectToAction("PostDetail", new { id = id });
+    }
 }

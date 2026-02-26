@@ -85,5 +85,32 @@ namespace where_we_go.Service
             await _dbContext.SaveChangesAsync();
             return true;
         }
+        public async Task<string> JoinPostAsync(Guid postId, string userId)
+        {
+            var post = await _dbContext.Posts.FindAsync(postId);
+            if (post == null) return "Activity not found.";
+
+            var existing = await _dbContext.Participants
+                .AnyAsync(p => p.PostId == postId && p.UserId == userId);
+            if (existing) return "You have already joined this activity.";
+
+            if (post.CurrentParticipants >= post.MaxParticipants) return "This activity is full.";
+
+            var participant = new Participant
+            {
+                ParticipantId = Guid.NewGuid(),
+                PostId = postId,
+                UserId = userId,
+                DateJoin = DateTime.UtcNow,
+                status = ParticipantStatus.Approved
+            };
+
+            post.CurrentParticipants += 1;
+
+            _dbContext.Participants.Add(participant);
+            await _dbContext.SaveChangesAsync();
+
+            return "Success";
+        }
     }
 }

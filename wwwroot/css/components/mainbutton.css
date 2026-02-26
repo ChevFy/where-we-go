@@ -8,7 +8,10 @@
   font-size: var(--font-size);
   border-radius: 42px;
   cursor: pointer;
+  margin: 0;
+  padding: 0;
 }
+
 
 .main-button:hover {
   background-color: var(--btn-hover-color);

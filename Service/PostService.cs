@@ -40,7 +40,7 @@ namespace where_we_go.Service
                     Description = p.Description,
                     LocationName = p.LocationName,
                     DateDeadline = p.DateDeadline,
-                    CurrentParticipants = p.CurrentParticipants,
+                    CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == p.PostId && part.status == ParticipantStatus.Approved),
                     MaxParticipants = p.MaxParticipants,
                     CategoryName = "Mock Category",
                     UserId = p.UserId
@@ -66,7 +66,6 @@ namespace where_we_go.Service
                 DateCreated = DateTime.UtcNow,
 
                 Status = "Active",
-                CurrentParticipants = 0,
                 InviteCode = Guid.NewGuid().ToString().Substring(0, 8).ToUpper()
             };
 
@@ -84,6 +83,33 @@ namespace where_we_go.Service
             _dbContext.Posts.Remove(post);
             await _dbContext.SaveChangesAsync();
             return true;
+        }
+        public async Task<string> JoinPostAsync(Guid postId, string userId)
+        {
+            var post = await _dbContext.Posts.FindAsync(postId);
+            if (post == null) return "Activity not found.";
+
+            var existing = await _dbContext.Participants
+                .AnyAsync(p => p.PostId == postId && p.UserId == userId);
+            if (existing) return "You have already joined this activity.";
+
+            var currentCount = await _dbContext.Participants.CountAsync(p => p.PostId == postId && p.status == ParticipantStatus.Approved);
+
+            if (currentCount >= post.MaxParticipants) return "This activity is full.";
+
+            var participant = new Participant
+            {
+                ParticipantId = Guid.NewGuid(),
+                PostId = postId,
+                UserId = userId,
+                DateJoin = DateTime.UtcNow,
+                status = ParticipantStatus.Approved
+            };
+
+            _dbContext.Participants.Add(participant);
+            await _dbContext.SaveChangesAsync();
+
+            return "Success";
         }
     }
 }

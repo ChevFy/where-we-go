@@ -53,6 +53,14 @@
         <div class="post-description">
             <p>@Model.Description</p>
         </div>
+        <div class="join-section" style="margin-top: 20px;">
+            @if (User.Identity?.IsAuthenticated == true && currentUserId != Model.UserId)
+            {
+                <form asp-action="Join" asp-controller="Post" asp-route-id="@Model.PostId" method="post">
+                    <button type="submit" class="btn btn-success">Join Activity</button>
+                </form>
+            }
+        </div>
         @* Only show delete if user is logged in AND they are the creator *@
         @if (User.Identity?.IsAuthenticated == true && currentUserId == Model.UserId)
         {

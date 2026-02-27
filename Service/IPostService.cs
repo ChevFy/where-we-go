@@ -9,5 +9,6 @@ namespace where_we_go.Service
         Task<PostDetailDto?> GetPostDetailAsync(Guid id);
         Task CreatePostAsync(PostCreateDto dto, string userId);
         Task<bool> DeletePostAsync(Guid id, string userId);
+        Task<string> JoinPostAsync(Guid postId, string userId);
     }
 }

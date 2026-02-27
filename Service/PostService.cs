@@ -29,7 +29,7 @@ namespace where_we_go.Service
                 .ToListAsync();
         }
 
-        public async Task<PostDetailDto?> GetPostDetailAsync(Guid id)
+        public async Task<PostDetailDto?> GetPostDetailAsync(Guid id, string? currentUserId = null)
         {
             return await _dbContext.Posts
                 .Where(p => p.PostId == id)
@@ -43,7 +43,9 @@ namespace where_we_go.Service
                     CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == p.PostId && part.status == ParticipantStatus.Approved),
                     MaxParticipants = p.MaxParticipants,
                     CategoryName = "Mock Category",
-                    UserId = p.UserId
+                    UserId = p.UserId,
+                    // Check if the current user is an approved participant
+                    IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == p.PostId && part.UserId == currentUserId && part.status == ParticipantStatus.Approved)
                 })
                 .FirstOrDefaultAsync();
         }
@@ -89,26 +91,62 @@ namespace where_we_go.Service
             var post = await _dbContext.Posts.FindAsync(postId);
             if (post == null) return "Activity not found.";
 
-            var existing = await _dbContext.Participants
-                .AnyAsync(p => p.PostId == postId && p.UserId == userId);
-            if (existing) return "You have already joined this activity.";
+            var existingParticipant = await _dbContext.Participants
+                .FirstOrDefaultAsync(p => p.PostId == postId && p.UserId == userId);
 
-            var currentCount = await _dbContext.Participants.CountAsync(p => p.PostId == postId && p.status == ParticipantStatus.Approved);
+            var currentCount = await _dbContext.Participants
+                .CountAsync(p => p.PostId == postId && p.status == ParticipantStatus.Approved);
 
-            if (currentCount >= post.MaxParticipants) return "This activity is full.";
+            // Determine if they get in, or go to the waitlist
+            string assignedStatus = currentCount >= post.MaxParticipants
+                ? ParticipantStatus.Pending
+                : ParticipantStatus.Approved;
 
+            if (existingParticipant != null)
+            {
+                if (existingParticipant.status == ParticipantStatus.Approved)
+                    return "You have already joined this activity.";
+
+                if (existingParticipant.status == ParticipantStatus.Pending)
+                    return "Pending"; // They are already on the waitlist
+
+                if (existingParticipant.status == ParticipantStatus.Left)
+                {
+                    // Reactivate their old record
+                    existingParticipant.status = assignedStatus;
+                    existingParticipant.DateJoin = DateTime.UtcNow;
+                    await _dbContext.SaveChangesAsync();
+                    return assignedStatus == ParticipantStatus.Pending ? "Pending" : "Success";
+                }
+            }
+
+            // Completely new participant
             var participant = new Participant
             {
                 ParticipantId = Guid.NewGuid(),
                 PostId = postId,
                 UserId = userId,
                 DateJoin = DateTime.UtcNow,
-                status = ParticipantStatus.Approved
+                status = assignedStatus
             };
 
             _dbContext.Participants.Add(participant);
             await _dbContext.SaveChangesAsync();
 
+            return assignedStatus == ParticipantStatus.Pending ? "Pending" : "Success";
+        }
+        public async Task<string> LeavePostAsync(Guid postId, string userId)
+        {
+            var participant = await _dbContext.Participants
+                .FirstOrDefaultAsync(p => p.PostId == postId &&
+                                          p.UserId == userId &&
+                                          p.status == ParticipantStatus.Approved);
+
+            if (participant == null) return "You are not a member of this activity.";
+
+            participant.status = ParticipantStatus.Left;
+
+            await _dbContext.SaveChangesAsync();
             return "Success";
         }
     }

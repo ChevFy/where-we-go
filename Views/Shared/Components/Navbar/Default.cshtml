@@ -1,3 +1,7 @@
+@{
+     var isAuthenticated = ViewBag.IsAuth ?? false;
+}
+
 <nav class="nav-bar">
     <div class="nav-left-container">
         <a asp-controller="Home" asp-action="Index">
@@ -14,7 +18,7 @@
             </ul>
         </div>
         <div class="hbg-wrapper">
-            @if(ViewBag.isAuth)
+            @if(isAuthenticated)
             {
             @await Component.InvokeAsync("HamburgerMenu", new { 
                 items = new List<where_we_go.ViewComponents.NavItem> {
@@ -32,7 +36,7 @@
 
     <div class="login-container">
 
-                @if (ViewBag.isAuth)
+                @if (isAuthenticated)
                 {
                     <a asp-controller="User" asp-action="UserProfile" asp-route-username=@Model.UserName >
                      <div class="login-text"">

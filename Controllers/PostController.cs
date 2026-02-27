@@ -15,7 +15,9 @@ public class PostController(IPostService postService) : Controller
     [HttpGet]
     public async Task<IActionResult> PostDetail(Guid id)
     {
-        var postDto = await _postService.GetPostDetailAsync(id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var postDto = await _postService.GetPostDetailAsync(id, userId);
 
         if (postDto == null) return NotFound();
 
@@ -66,7 +68,7 @@ public class PostController(IPostService postService) : Controller
     }
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Join(Guid id)
+    public async Task<IActionResult> JoinPost(Guid id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return Unauthorized();
@@ -77,9 +79,33 @@ public class PostController(IPostService postService) : Controller
         {
             TempData["AlertMessage"] = "You have successfully joined the activity!";
         }
+        else if (result == "Pending")
+        {
+            TempData["AlertMessage"] = "This activity is full. You have been added to the waitlist (Pending).";
+        }
         else
         {
-            TempData["AlertMessage"] = result; // Shows "Full" or "Already joined"
+            TempData["AlertMessage"] = result;
+        }
+
+        return RedirectToAction("PostDetail", new { id = id });
+    }
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> LeavePost(Guid id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var result = await _postService.LeavePostAsync(id, userId);
+
+        if (result == "Success")
+        {
+            TempData["AlertMessage"] = "You have successfully left the activity.";
+        }
+        else
+        {
+            TempData["AlertMessage"] = result;
         }
 
         return RedirectToAction("PostDetail", new { id = id });

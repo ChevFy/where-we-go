@@ -34,42 +34,11 @@ public static class SeedData
                 {
                     new User { UserName = "admin@example.com", Email = "admin@example.com", Name = "Admin", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
                     new User { UserName = "john@example.com", Email = "john@example.com", Name = "John Doe", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "jane@example.com", Email = "jane@example.com", Name = "Jane Smith", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "alice@example.com", Email = "alice@example.com", Name = "Alice Johnson", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "bob@example.com", Email = "bob@example.com", Name = "Bob Williams", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "charlie@example.com", Email = "charlie@example.com", Name = "Charlie Brown", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "diana@example.com", Email = "diana@example.com", Name = "Diana Prince", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "evan@example.com", Email = "evan@example.com", Name = "Evan Martinez", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "fiona@example.com", Email = "fiona@example.com", Name = "Fiona Garcia", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "george@example.com", Email = "george@example.com", Name = "George Wilson", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "hannah@example.com", Email = "hannah@example.com", Name = "Hannah Lee", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "ivan@example.com", Email = "ivan@example.com", Name = "Ivan Petrov", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "julia@example.com", Email = "julia@example.com", Name = "Julia Roberts", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "kevin@example.com", Email = "kevin@example.com", Name = "Kevin Hart", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "laura@example.com", Email = "laura@example.com", Name = "Laura White", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "michael@example.com", Email = "michael@example.com", Name = "Michael Scott", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "nancy@example.com", Email = "nancy@example.com", Name = "Nancy Drew", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "oliver@example.com", Email = "oliver@example.com", Name = "Oliver Twist", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "paula@example.com", Email = "paula@example.com", Name = "Paula Abdul", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "quincy@example.com", Email = "quincy@example.com", Name = "Quincy Jones", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "rachel@example.com", Email = "rachel@example.com", Name = "Rachel Green", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "steve@example.com", Email = "steve@example.com", Name = "Steve Rogers", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "tina@example.com", Email = "tina@example.com", Name = "Tina Turner", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "ursula@example.com", Email = "ursula@example.com", Name = "Ursula Burns", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "victor@example.com", Email = "victor@example.com", Name = "Victor Hugo", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "wendy@example.com", Email = "wendy@example.com", Name = "Wendy Williams", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "xavier@example.com", Email = "xavier@example.com", Name = "Xavier Cugat", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "yvonne@example.com", Email = "yvonne@example.com", Name = "Yvonne Craig", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "zack@example.com", Email = "zack@example.com", Name = "Zack Morris", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow }
+                    new User { UserName = "jane@example.com", Email = "jane@example.com", Name = "Jane Smith", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow }
                 };
 
-                var passwords = new[] {
-                    "AdminPassword123!", "JohnPassword123!", "JanePassword123!",
-                    "Password123!", "Password123!", "Password123!", "Password123!", "Password123!", "Password123!", "Password123!",
-                    "Password123!", "Password123!", "Password123!", "Password123!", "Password123!", "Password123!", "Password123!", "Password123!", "Password123!", "Password123!",
-                    "Password123!", "Password123!", "Password123!", "Password123!", "Password123!", "Password123!", "Password123!", "Password123!", "Password123!"
-                };
-                var roleNames = new[] { "Admin", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User", "User" };
+                var passwords = new[] { "AdminPassword123!", "JohnPassword123!", "JanePassword123!" };
+                var roleNames = new[] { "Admin", "User", "User" };
 
                 for (int i = 0; i < users.Length; i++)
                 {

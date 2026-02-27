@@ -40,7 +40,7 @@ namespace where_we_go.Service
                     Description = p.Description,
                     LocationName = p.LocationName,
                     DateDeadline = p.DateDeadline,
-                    CurrentParticipants = p.CurrentParticipants,
+                    CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == p.PostId && part.status == ParticipantStatus.Approved),
                     MaxParticipants = p.MaxParticipants,
                     CategoryName = "Mock Category",
                     UserId = p.UserId
@@ -66,7 +66,6 @@ namespace where_we_go.Service
                 DateCreated = DateTime.UtcNow,
 
                 Status = "Active",
-                CurrentParticipants = 0,
                 InviteCode = Guid.NewGuid().ToString().Substring(0, 8).ToUpper()
             };
 
@@ -94,7 +93,9 @@ namespace where_we_go.Service
                 .AnyAsync(p => p.PostId == postId && p.UserId == userId);
             if (existing) return "You have already joined this activity.";
 
-            if (post.CurrentParticipants >= post.MaxParticipants) return "This activity is full.";
+            var currentCount = await _dbContext.Participants.CountAsync(p => p.PostId == postId && p.status == ParticipantStatus.Approved);
+
+            if (currentCount >= post.MaxParticipants) return "This activity is full.";
 
             var participant = new Participant
             {
@@ -104,8 +105,6 @@ namespace where_we_go.Service
                 DateJoin = DateTime.UtcNow,
                 status = ParticipantStatus.Approved
             };
-
-            post.CurrentParticipants += 1;
 
             _dbContext.Participants.Add(participant);
             await _dbContext.SaveChangesAsync();

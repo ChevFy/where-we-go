@@ -53,12 +53,22 @@
         <div class="post-description">
             <p>@Model.Description</p>
         </div>
-        <div class="join-section" style="margin-top: 20px;">
+        <div class="join-section">
+            @* Check if user is logged in AND not the owner of the post *@
             @if (User.Identity?.IsAuthenticated == true && currentUserId != Model.UserId)
             {
-                <form asp-action="Join" asp-controller="Post" asp-route-id="@Model.PostId" method="post">
-                    <button type="submit" class="btn btn-success">Join Activity</button>
-                </form>
+                @if (Model.IsJoined)
+                {
+                    <form asp-action="LeavePost" asp-controller="Post" asp-route-id="@Model.PostId" method="post">
+                        <button type="submit" class="btn" style="background-color: rgb(243, 49, 49);">Leave Activity</button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-action="JoinPost" asp-controller="Post" asp-route-id="@Model.PostId" method="post">
+                        <button type="submit" class="btn" style="background-color: rgb(96, 241, 28);">Join Activity</button>
+                    </form>
+                }
             }
         </div>
         @* Only show delete if user is logged in AND they are the creator *@

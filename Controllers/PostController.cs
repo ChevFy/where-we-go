@@ -68,8 +68,6 @@ public class PostController(IPostService postService) : Controller
     }
     [HttpPost]
     [Authorize]
-    [HttpPost]
-    [Authorize]
     public async Task<IActionResult> JoinPost(Guid id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);

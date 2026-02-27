@@ -12,13 +12,41 @@ using where_we_go.Models;
 public class AdminController(UserManager<User> userManager, IMemoryCache cache) : Controller
 {
     private IMemoryCache _cache { get; init; } = cache;
+    
     [HttpGet("index")]
     public IActionResult Index() => View();
     
     [HttpGet("users")]
-    public async Task<IActionResult> GetUsers()
+    public async Task<IActionResult> GetUsers([FromQuery] UserQueryDto query)
     {
-        var users = await userManager.Users
+        var usersQuery = userManager.Users.AsNoTracking();
+        
+        // Apply name filter if provided
+        if (!string.IsNullOrWhiteSpace(query.NameFilter))
+        {
+            var keyword = query.NameFilter.Trim();
+            usersQuery = usersQuery.Where(u =>
+                (u.Email != null && u.Email.Contains(keyword)) ||
+                (u.Name != null && u.Name.Contains(keyword)));
+        }
+        
+        // Get total count
+        var totalCount = await usersQuery.CountAsync();
+        
+        // Apply sorting
+        usersQuery = (query.SortBy ?? "").ToLower() switch
+        {
+            "name" => usersQuery.OrderBy(u => u.Name),
+            "name_desc" => usersQuery.OrderByDescending(u => u.Name),
+            "email" => usersQuery.OrderBy(u => u.Email),
+            "email_desc" => usersQuery.OrderByDescending(u => u.Email),
+            _ => usersQuery.OrderBy(u => u.Id)
+        };
+        
+        // Apply pagination
+        var users = await usersQuery
+            .Skip((query.PageSave - 1) * query.PageSizeSave)
+            .Take(query.PageSizeSave)
             .Select(u => new AdminUserDto
             {
                 Id = u.Id,
@@ -30,7 +58,10 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache) 
             })
             .ToListAsync();
         
-        return Json(users);
+        var meta = new PaginatedMetaDto(query.PageSizeSave, query.PageSave, totalCount);
+        var response = new PaginatedResponseDto<AdminUserDto>(users, query.PageSizeSave, query.PageSave, totalCount);
+        
+        return Json(response);
     }
     
     [HttpPost("users/ban")]
@@ -79,28 +110,13 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache) 
     }
     
     [HttpGet("users/search")]
-    public async Task<IActionResult> SearchUsers(string query)
+    public async Task<IActionResult> SearchUsers([FromQuery] UserQueryDto query)
     {
-        if (string.IsNullOrWhiteSpace(query))
+        if (string.IsNullOrWhiteSpace(query.NameFilter))
         {
-            return await GetUsers();
+            query.NameFilter = null;
         }
         
-        var searchTerm = query.ToLower();
-        var users = await userManager.Users
-            .Where(u => (u.Email != null && u.Email.ToLower().Contains(searchTerm)) ||
-                        (u.Name != null && u.Name.ToLower().Contains(searchTerm)))
-            .Select(u => new AdminUserDto
-            {
-                Id = u.Id,
-                Email = u.Email ?? string.Empty,
-                Name = u.Name,
-                IsBanned = u.IsBanned,
-                BanReason = u.BanReason,
-                BanExpiresAt = u.BanExpiresAt
-            })
-            .ToListAsync();
-        
-        return Json(users);
+        return await GetUsers(query);
     }
 }

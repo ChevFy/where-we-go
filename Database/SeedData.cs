@@ -86,7 +86,6 @@ public static class SeedData
                             MaxParticipants = 5,
                             DateCreated = DateTime.UtcNow,
                             Status = "Active",
-                            CurrentParticipants = 1,
                             InviteCode = "TRIP01"
                         },
                         new Post
@@ -101,7 +100,6 @@ public static class SeedData
                             MaxParticipants = 3,
                             DateCreated = DateTime.UtcNow,
                             Status = "Active",
-                            CurrentParticipants = 1,
                             InviteCode = "CAFE02"
                         },
                         new Post
@@ -116,7 +114,6 @@ public static class SeedData
                             MaxParticipants = 10,
                             DateCreated = DateTime.UtcNow,
                             Status = "Active",
-                            CurrentParticipants = 1,
                             InviteCode = "BEACH3"
                         }
                     );

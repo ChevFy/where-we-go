@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+
 using where_we_go.Database;
 using where_we_go.DTO;
 using where_we_go.Models;
@@ -40,12 +41,12 @@ namespace where_we_go.Service
                     Description = p.Description,
                     LocationName = p.LocationName,
                     DateDeadline = p.DateDeadline,
-                    CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == p.PostId && part.status == ParticipantStatus.Approved),
+                    CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved),
                     MaxParticipants = p.MaxParticipants,
                     CategoryName = "Mock Category",
                     UserId = p.UserId,
                     // Check if the current user is an approved participant
-                    IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == p.PostId && part.UserId == currentUserId && part.status == ParticipantStatus.Approved)
+                    IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == p.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved)
                 })
                 .FirstOrDefaultAsync();
         }
@@ -95,7 +96,7 @@ namespace where_we_go.Service
                 .FirstOrDefaultAsync(p => p.PostId == postId && p.UserId == userId);
 
             var currentCount = await _dbContext.Participants
-                .CountAsync(p => p.PostId == postId && p.status == ParticipantStatus.Approved);
+                .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
 
             // Determine if they get in, or go to the waitlist
             string assignedStatus = currentCount >= post.MaxParticipants
@@ -104,16 +105,16 @@ namespace where_we_go.Service
 
             if (existingParticipant != null)
             {
-                if (existingParticipant.status == ParticipantStatus.Approved)
+                if (existingParticipant.Status == ParticipantStatus.Approved)
                     return "You have already joined this activity.";
 
-                if (existingParticipant.status == ParticipantStatus.Pending)
+                if (existingParticipant.Status == ParticipantStatus.Pending)
                     return "Pending"; // They are already on the waitlist
 
-                if (existingParticipant.status == ParticipantStatus.Left)
+                if (existingParticipant.Status == ParticipantStatus.Left)
                 {
                     // Reactivate their old record
-                    existingParticipant.status = assignedStatus;
+                    existingParticipant.Status = assignedStatus;
                     existingParticipant.DateJoin = DateTime.UtcNow;
                     await _dbContext.SaveChangesAsync();
                     return assignedStatus == ParticipantStatus.Pending ? "Pending" : "Success";
@@ -127,7 +128,7 @@ namespace where_we_go.Service
                 PostId = postId,
                 UserId = userId,
                 DateJoin = DateTime.UtcNow,
-                status = assignedStatus
+                Status = assignedStatus
             };
 
             _dbContext.Participants.Add(participant);
@@ -140,11 +141,11 @@ namespace where_we_go.Service
             var participant = await _dbContext.Participants
                 .FirstOrDefaultAsync(p => p.PostId == postId &&
                                           p.UserId == userId &&
-                                          p.status == ParticipantStatus.Approved);
+                                          p.Status == ParticipantStatus.Approved);
 
             if (participant == null) return "You are not a member of this activity.";
 
-            participant.status = ParticipantStatus.Left;
+            participant.Status = ParticipantStatus.Left;
 
             await _dbContext.SaveChangesAsync();
             return "Success";

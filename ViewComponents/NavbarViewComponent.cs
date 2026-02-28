@@ -1,9 +1,11 @@
 
+using System.Security.Claims;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using where_we_go.Models;
-using System.Security.Claims;
+
 using where_we_go.DTO;
+using where_we_go.Models;
 
 namespace where_we_go.ViewComponents
 {

@@ -1,6 +1,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
 using Microsoft.AspNetCore.Identity;
 
 
@@ -32,7 +33,7 @@ namespace where_we_go.Models
         [Required]
         public required int MaxParticipants { get; set; }
 
-        public virtual ICollection<Participant> Participants { get; set; } = new List<Participant>();
+        public virtual ICollection<Participant> Participants { get; set; } = [];
 
         public DateTime DateCreated { get; set; }
 
@@ -52,7 +53,7 @@ namespace where_we_go.Models
         [Required]
         public required string InviteCode { get; set; }
 
-        public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+        public virtual ICollection<Notification> Notifications { get; set; } = [];
 
 
         public Post()

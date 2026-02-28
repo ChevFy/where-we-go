@@ -1,10 +1,12 @@
 using System.Diagnostics;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using where_we_go.Models;
+
 using where_we_go.Database;
+using where_we_go.Models;
 using where_we_go.Service;
 
 namespace where_we_go.Controllers;

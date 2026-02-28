@@ -7,7 +7,7 @@ namespace where_we_go.Controllers
         [Route("404")]
         public async Task<IActionResult> NotFoundPage()
         {
-            return View(); 
+            return View();
         }
     }
 }

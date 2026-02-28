@@ -15,7 +15,9 @@ public class PostController(IPostService postService) : Controller
     [HttpGet]
     public async Task<IActionResult> PostDetail(Guid id)
     {
-        var postDto = await _postService.GetPostDetailAsync(id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var postDto = await _postService.GetPostDetailAsync(id, userId);
 
         if (postDto == null) return NotFound();
 
@@ -43,5 +45,69 @@ public class PostController(IPostService postService) : Controller
         await _postService.CreatePostAsync(dto, userId);
 
         return RedirectToAction("Index", "Home");
+    }
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> PostDelete(Guid id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return NotFound();
+
+        var result = await _postService.DeletePostAsync(id, userId);
+        if (result)
+        {
+            TempData["AlertMessage"] = "Success: Post deleted successfully!";
+            return RedirectToAction("Index", "Home");
+        }
+        else
+        {
+            TempData["AlertMessage"] = "Error: You do not have permission or the post was not found.";
+            return RedirectToAction("PostDetail", "Post", new { id = id });
+        }
+
+    }
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> JoinPost(Guid id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var result = await _postService.JoinPostAsync(id, userId);
+
+        if (result == "Success")
+        {
+            TempData["AlertMessage"] = "You have successfully joined the activity!";
+        }
+        else if (result == "Pending")
+        {
+            TempData["AlertMessage"] = "This activity is full. You have been added to the waitlist (Pending).";
+        }
+        else
+        {
+            TempData["AlertMessage"] = result;
+        }
+
+        return RedirectToAction("PostDetail", new { id = id });
+    }
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> LeavePost(Guid id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var result = await _postService.LeavePostAsync(id, userId);
+
+        if (result == "Success")
+        {
+            TempData["AlertMessage"] = "You have successfully left the activity.";
+        }
+        else
+        {
+            TempData["AlertMessage"] = result;
+        }
+
+        return RedirectToAction("PostDetail", new { id = id });
     }
 }

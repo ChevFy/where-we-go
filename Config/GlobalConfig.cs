@@ -25,6 +25,13 @@ namespace where_we_go.Config
         public const string MailFromName = "MAIL_FROM_NAME";
         public const string MailEnableSsl = "MAIL_ENABLE_SSL";
 
+        // MinIO config
+        public const string MinioEndpoint = "MINIO_ENDPOINT";
+        public const string MinioAccessKey = "MINIO_ACCESS_KEY";
+        public const string MinioSecretKey = "MINIO_SECRET_KEY";
+        public const string MinioBucketName = "MINIO_BUCKET_NAME";
+        public const string MinioUseSsl = "MINIO_USE_SSL";
+
         public static string GetRequiredEnv(string key)
         {
             return Environment.GetEnvironmentVariable(key)

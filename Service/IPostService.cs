@@ -6,7 +6,10 @@ namespace where_we_go.Service
     public interface IPostService
     {
         Task<List<PostDto>> GetAllPostsAsync();
-        Task<PostDetailDto?> GetPostDetailAsync(Guid id);
+        Task<PostDetailDto?> GetPostDetailAsync(Guid id, string? currentUserId = null);
         Task CreatePostAsync(PostCreateDto dto, string userId);
+        Task<bool> DeletePostAsync(Guid id, string userId);
+        Task<string> JoinPostAsync(Guid postId, string userId);
+        Task<string> LeavePostAsync(Guid postId, string userId);
     }
 }

@@ -39,5 +39,10 @@ namespace where_we_go.DTO
         [Required]
         [Display(Name = "Category")]
         public string CategoryName { get; set; }
+
+        [Required]
+        public string UserId { get; set; }
+        public bool IsJoined { get; set; }
+        public bool IsPending { get; set; }
     }
 }

@@ -1,3 +1,8 @@
+@{
+     var isAuthenticated = ViewBag.IsAuth ?? false;
+     var userData? = Model as where_we_go.DTO.UserResponseDto;
+}
+
 <nav class="nav-bar">
     <div class="nav-left-container">
         <a asp-controller="Home" asp-action="Index">
@@ -14,7 +19,7 @@
             </ul>
         </div>
         <div class="hbg-wrapper">
-            @if(ViewBag.isAuth)
+            @if(isAuthenticated)
             {
             @await Component.InvokeAsync("HamburgerMenu", new { 
                 items = new List<where_we_go.ViewComponents.NavItem> {
@@ -32,14 +37,14 @@
 
     <div class="login-container">
 
-                @if (ViewBag.isAuth)
+                @if (isAuthenticated && userData != null)
                 {
-                    <a asp-controller="User" asp-action="UserProfile" asp-route-username=@Model.UserName >
+                    <a asp-controller="User" asp-action="UserProfile" asp-route-username=@userData.UserName >
                      <div class="login-text"">
-                    @* <span class="user-name">@Model.Name</span> *@
+                    @* <span class="user-name">@userData.Name</span> *@
                     @* <a asp-controller="Auth" asp-action="Logout">ออกจากระบบ</a> *@
                     </div>
-                    <img src="@Model.ProfileUrl" class="login-icon" />
+                    <img src="@userData.ProfileUrl" class="login-icon" />
                     </a>
                     
                 }

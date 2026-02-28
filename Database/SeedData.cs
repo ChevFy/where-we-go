@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 using where_we_go.Models;
 
 namespace where_we_go.Database;
@@ -8,118 +9,116 @@ public static class SeedData
 {
     public static void Initialize(IServiceProvider serviceProvider)
     {
-        using (var context = new AppDbContext(
-            serviceProvider.GetRequiredService<
-                DbContextOptions<AppDbContext>>()))
+        using var context = new AppDbContext(serviceProvider.GetRequiredService<DbContextOptions<AppDbContext>>());
+
+        Console.WriteLine("Seeding initial data...");
+
+        var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
+        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+        var roles = new[] { "Admin", "User" };
+
+        foreach (var role in roles)
         {
-            Console.WriteLine("Seeding initial data...");
-
-            var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
-            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-            var roles = new[] { "Admin", "User" };
-
-            foreach (var role in roles)
+            var roleName = role.ToString();
+            if (!roleManager.RoleExistsAsync(roleName).Result)
             {
-                var roleName = role.ToString();
-                if (!roleManager.RoleExistsAsync(roleName).Result)
-                {
-                    roleManager.CreateAsync(new IdentityRole(roleName)).Wait();
-                }
+                roleManager.CreateAsync(new IdentityRole(roleName)).Wait();
             }
+        }
 
-            if (!context.Users.Any())
+        if (!context.Users.Any())
+        {
+            var users = new[]
             {
-                var users = new[]
-                {
                     new User { UserName = "admin@example.com", Email = "admin@example.com", Name = "Admin", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
                     new User { UserName = "john@example.com", Email = "john@example.com", Name = "John Doe", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
                     new User { UserName = "jane@example.com", Email = "jane@example.com", Name = "Jane Smith", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow }
                 };
 
-                var passwords = new[] { "AdminPassword123!", "JohnPassword123!", "JanePassword123!" };
-                var roleNames = new[] { "Admin", "User", "User" };
+            var passwords = new[] { "AdminPassword123!", "JohnPassword123!", "JanePassword123!" };
+            var roleNames = new[] { "Admin", "User", "User" };
 
-                for (int i = 0; i < users.Length; i++)
+            for (int i = 0; i < users.Length; i++)
+            {
+                var result = userManager.CreateAsync(users[i], passwords[i]).Result;
+                if (!result.Succeeded)
                 {
-                    var result = userManager.CreateAsync(users[i], passwords[i]).Result;
-                    if (!result.Succeeded)
-                    {
-                        Console.WriteLine($"Failed to create user {users[i].UserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                    }
-                    else
-                    {
-                        userManager.AddToRoleAsync(users[i], roleNames[i]).Wait();
-                    }
+                    Console.WriteLine($"Failed to create user {users[i].UserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
                 }
-            }
-
-            // Seed Categories
-            if (!context.Categories.Any())
-            {
-                context.Categories.AddRange(
-                    new Category { CategoryId = Guid.NewGuid(), Name = "Travel", Description = "Travel destinations and experiences" },
-                    new Category { CategoryId = Guid.NewGuid(), Name = "Food", Description = "Dining and food recommendations" },
-                    new Category { CategoryId = Guid.NewGuid(), Name = "Entertainment", Description = "Movies, music, and entertainment venues" },
-                    new Category { CategoryId = Guid.NewGuid(), Name = "Shopping", Description = "Shopping malls and stores" },
-                    new Category { CategoryId = Guid.NewGuid(), Name = "Nature", Description = "Parks, hiking, and outdoor activities" }
-                );
-                context.SaveChanges();
-            }
-
-            if (context.Posts.Count() < 3)
-            {
-                var author = context.Users.FirstOrDefault();
-                if (author != null)
+                else
                 {
-                    // Clear existing if you want a fresh start, or just add more
-                    context.Posts.AddRange(
-                        new Post
-                        {
-                            PostId = Guid.NewGuid(),
-                            UserId = author.Id,
-                            Title = "Mountain Trip",
-                            Description = "Hiking adventure in the north.",
-                            LocationName = "Chiang Mai",
-                            DateDeadline = DateTime.UtcNow.AddDays(7),
-                            MinParticipants = 2,
-                            MaxParticipants = 5,
-                            DateCreated = DateTime.UtcNow,
-                            Status = "Active",
-                            InviteCode = "TRIP01"
-                        },
-                        new Post
-                        {
-                            PostId = Guid.NewGuid(),
-                            UserId = author.Id,
-                            Title = "Cafe Hopping",
-                            Description = "Exploring aesthetic cafes.",
-                            LocationName = "Bangkok",
-                            DateDeadline = DateTime.UtcNow.AddDays(3),
-                            MinParticipants = 2,
-                            MaxParticipants = 3,
-                            DateCreated = DateTime.UtcNow,
-                            Status = "Active",
-                            InviteCode = "CAFE02"
-                        },
-                        new Post
-                        {
-                            PostId = Guid.NewGuid(),
-                            UserId = author.Id,
-                            Title = "Beach Day",
-                            Description = "Sun, sand, and relaxing vibes.",
-                            LocationName = "Phuket",
-                            DateDeadline = DateTime.UtcNow.AddDays(10),
-                            MinParticipants = 4,
-                            MaxParticipants = 10,
-                            DateCreated = DateTime.UtcNow,
-                            Status = "Active",
-                            InviteCode = "BEACH3"
-                        }
-                    );
-                    context.SaveChanges();
+                    userManager.AddToRoleAsync(users[i], roleNames[i]).Wait();
                 }
             }
         }
+
+        // Seed Categories
+        if (!context.Categories.Any())
+        {
+            context.Categories.AddRange(
+                new Category { CategoryId = Guid.NewGuid(), Name = "Travel", Description = "Travel destinations and experiences" },
+                new Category { CategoryId = Guid.NewGuid(), Name = "Food", Description = "Dining and food recommendations" },
+                new Category { CategoryId = Guid.NewGuid(), Name = "Entertainment", Description = "Movies, music, and entertainment venues" },
+                new Category { CategoryId = Guid.NewGuid(), Name = "Shopping", Description = "Shopping malls and stores" },
+                new Category { CategoryId = Guid.NewGuid(), Name = "Nature", Description = "Parks, hiking, and outdoor activities" }
+            );
+            context.SaveChanges();
+        }
+
+        if (context.Posts.Count() < 3)
+        {
+            var author = context.Users.FirstOrDefault();
+            if (author != null)
+            {
+                // Clear existing if you want a fresh start, or just add more
+                context.Posts.AddRange(
+                    new Post
+                    {
+                        PostId = Guid.NewGuid(),
+                        UserId = author.Id,
+                        Title = "Mountain Trip",
+                        Description = "Hiking adventure in the north.",
+                        LocationName = "Chiang Mai",
+                        DateDeadline = DateTime.UtcNow.AddDays(7),
+                        MinParticipants = 2,
+                        MaxParticipants = 5,
+                        DateCreated = DateTime.UtcNow,
+                        Status = "Active",
+                        InviteCode = "TRIP01"
+                    },
+                    new Post
+                    {
+                        PostId = Guid.NewGuid(),
+                        UserId = author.Id,
+                        Title = "Cafe Hopping",
+                        Description = "Exploring aesthetic cafes.",
+                        LocationName = "Bangkok",
+                        DateDeadline = DateTime.UtcNow.AddDays(3),
+                        MinParticipants = 2,
+                        MaxParticipants = 3,
+                        DateCreated = DateTime.UtcNow,
+                        Status = "Active",
+                        InviteCode = "CAFE02"
+                    },
+                    new Post
+                    {
+                        PostId = Guid.NewGuid(),
+                        UserId = author.Id,
+                        Title = "Beach Day",
+                        Description = "Sun, sand, and relaxing vibes.",
+                        LocationName = "Phuket",
+                        DateDeadline = DateTime.UtcNow.AddDays(10),
+                        MinParticipants = 4,
+                        MaxParticipants = 10,
+                        DateCreated = DateTime.UtcNow,
+                        Status = "Active",
+                        InviteCode = "BEACH3"
+                    }
+                );
+                context.SaveChanges();
+            }
+        }
+
     }
 }

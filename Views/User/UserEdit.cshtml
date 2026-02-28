@@ -30,7 +30,12 @@
 <div class="profile-container">
     <div class="profile-card">
         <div class="profile-top">
-            <img id="profile-img-display" src=@Model.ProfileUrl>
+
+            
+            <img onclick="document.getElementById('imageInput').click()" id="profile-img-display" src=@Model.ProfileUrl>
+            <input type="file" id="imageInput" style="display: none;" accept="image/*">
+
+
             <div class="profile-top-content">
                 <div class="name-content">
                     <div class="frominput-name-display">

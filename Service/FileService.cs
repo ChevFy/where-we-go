@@ -14,6 +14,8 @@ namespace where_we_go.Service
         Task UploadFileAsync(FileUploadDto uploadDto);
         Task<string> GetPresignedUrlAsync(FileDownloadDto downloadDto);
         Task<Stream> GetFileStreamAsync(FileDownloadDto downloadDto);
+        Task<string?> GeneratePresignedUrl(string? key);
+
     }
 
     public class FileService : IFileService
@@ -167,6 +169,25 @@ namespace where_we_go.Service
             {
                 throw new InvalidOperationException($"Failed to retrieve file: {ex.Message}", ex);
             }
+        }
+
+        public async Task<string?> GeneratePresignedUrl(string? key)
+        {
+
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                key =  "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+            }
+            if (Uri.IsWellFormedUriString(key, UriKind.Absolute)) 
+                return key;
+
+            return await this.GetPresignedUrlAsync(
+                new FileDownloadDto
+                {
+                    ObjectName = key,
+                    ExpiryInSeconds = 3600
+                }
+            );
         }
     }
 }

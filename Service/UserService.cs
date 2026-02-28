@@ -50,7 +50,7 @@ namespace where_we_go.Service
             };
 
             return await ToPaginatedResponseAsync(
-                usersQuery, query, u => new UserResponseDto(u, [])
+                usersQuery, query, u => new UserResponseDto(u, [], u.ProfileImageKey ?? string.Empty)
             );
         }
 

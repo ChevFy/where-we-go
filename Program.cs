@@ -1,9 +1,11 @@
-using Microsoft.EntityFrameworkCore;
 using dotenv.net;
-using where_we_go.Database;
-using where_we_go.Config;
-using where_we_go.Service;
+
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+using where_we_go.Config;
+using where_we_go.Database;
+using where_we_go.Service;
 
 namespace where_we_go
 {

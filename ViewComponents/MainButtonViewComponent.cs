@@ -8,7 +8,7 @@ namespace where_we_go.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(
             string targetId,
             string buttonType,
-            string text, 
+            string text,
             string color = "#00B4D8",
             string hoverColor = "#0077B6",
             string width = "10rem",
@@ -16,7 +16,7 @@ namespace where_we_go.ViewComponents
             string imageUrl = null!,
             string textColor = "white"
             )
-            {
+        {
 
             ViewBag.Text = text;
             ViewBag.Color = color;

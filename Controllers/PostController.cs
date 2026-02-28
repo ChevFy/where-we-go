@@ -1,12 +1,14 @@
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+using where_we_go.Database;
 using where_we_go.DTO;
 using where_we_go.Models;
-using where_we_go.Database;
 using where_we_go.Service;
 
 public class PostController(IPostService postService) : Controller

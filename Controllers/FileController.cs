@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using where_we_go.Service;
+
 using where_we_go.DTO;
+using where_we_go.Service;
 
 namespace where_we_go.Controllers
 {

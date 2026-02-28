@@ -1,6 +1,7 @@
 using Minio;
-using Minio.Exceptions;
 using Minio.DataModel.Args;
+using Minio.Exceptions;
+
 using where_we_go.Config;
 using where_we_go.DTO;
 

@@ -1,11 +1,13 @@
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+
 using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.Service;
@@ -74,24 +76,24 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
 
         if (!ModelState.IsValid)
         {
-            return BadRequest(new { message = ModelState }); 
+            return BadRequest(new { message = ModelState });
         }
 
         if (string.IsNullOrEmpty(model.userName))
-            return BadRequest( new { message = "Username is required"});
+            return BadRequest(new { message = "Username is required" });
 
-    
+
         var user = await _userManager.GetUserAsync(User);
         if (user is null)
             return NotFound();
 
         //Check duplicate
-        var existUser = await _userManager.Users.FirstOrDefaultAsync(u=> u.UserName == model.userName && u.Id != user.Id);
-        if(existUser is not null)
+        var existUser = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == model.userName && u.Id != user.Id);
+        if (existUser is not null)
         {
-            return BadRequest(new { message = "This Username already exist"});
+            return BadRequest(new { message = "This Username already exist" });
         }
-        
+
         user.Name = model.Name;
         user.UserName = model.userName;
         user.Bio = model.Bio;
@@ -107,9 +109,10 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         if (result.Succeeded)
         {
             TempData["Success"] = "updated success";
-            return Ok(new { 
-                message = "Updated success", 
-                redirectUrl = Url.Action("UserProfile", "User", new { username = user.UserName }) 
+            return Ok(new
+            {
+                message = "Updated success",
+                redirectUrl = Url.Action("UserProfile", "User", new { username = user.UserName })
             });
         }
 
@@ -119,7 +122,7 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
             ModelState.AddModelError(string.Empty, error.Description);
         }
 
-        return BadRequest(new { message = ModelState});
+        return BadRequest(new { message = ModelState });
     }
 
     [HttpGet]
@@ -129,5 +132,3 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         return View(user);
     }
 }
-
-

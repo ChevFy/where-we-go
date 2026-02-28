@@ -1,8 +1,10 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Identity;
-using where_we_go.Models;
+using Microsoft.AspNetCore.Mvc;
+
 using where_we_go.DTO;
+using where_we_go.Models;
 
 namespace where_we_go.Controllers;
 
@@ -95,13 +97,13 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
         {
             // Sign in after registration
             await _signInManager.SignInAsync(user, isPersistent: true);
-            
+
             var roles = await _userManager.GetRolesAsync(user);
             if (roles.Contains("Admin"))
             {
                 return RedirectToAction("Index", "Admin");
             }
-            
+
             return RedirectToAction("Index", "Home");
         }
 
@@ -168,7 +170,7 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
     public async Task<IActionResult> OauthRegister()
     {
         var data = TempData["ExternalLoginInfo"] as string;
-        if(string.IsNullOrEmpty(data))
+        if (string.IsNullOrEmpty(data))
         {
             return RedirectToAction("Login");
         }
@@ -180,7 +182,7 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
     [HttpPost]
     public async Task<IActionResult> OauthRegister(OauthRegisterDto model)
     {
-        if(!ModelState.IsValid)
+        if (!ModelState.IsValid)
             return View(model);
 
 
@@ -193,15 +195,15 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
             OAuthId = model.ProviderKey
         };
 
-         IdentityResult createdResult;
+        IdentityResult createdResult;
 
         createdResult = await _userManager.CreateAsync(user);
-        
+
         if (createdResult.Succeeded)
         {
             var info = new UserLoginInfo(model.LoginProvider, model.ProviderKey, model.LoginProvider);
             await _userManager.AddLoginAsync(user, info);
-            
+
             await _signInManager.SignInAsync(user, isPersistent: true);
             return RedirectToAction("Index", "Home");
         }

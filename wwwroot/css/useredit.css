@@ -23,7 +23,15 @@
     margin: 25px;
     height: 12em;
     border-radius: 25px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
 }
+
+.profile-top img:hover
+{
+    transform: scale(1.05);
+}
+
 
 .profile-top-content {
     margin: 25px 25px 25px 0;

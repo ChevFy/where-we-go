@@ -23,7 +23,7 @@ namespace where_we_go.Models
         public override string? UserName { get; set; }
 
         public string? Bio { get; set; }
-        public string? ProfileUrl { get; set; }
+        public string? ProfileImageKey { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateUpdated { get; set; }
         public string? OAuthId { get; set; }
@@ -45,7 +45,7 @@ namespace where_we_go.Models
 
         public User()
         {
-            ProfileUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+            ProfileImageKey = null;
             DateCreated = DateTime.UtcNow;
             DateUpdated = DateTime.UtcNow;
         }

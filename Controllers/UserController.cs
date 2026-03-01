@@ -35,7 +35,7 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
             return RedirectToAction("Index", "Home"); // ทำเป็น redirect ไปหน้า Home ไปก่อน
 
         var roles = (await _userManager.GetRolesAsync(targetUser)).ToArray();
-        var profileUrl = await _fileService.GeneratePresignedUrl(targetUser.ProfileImageKey);
+        var profileUrl = await _fileService.GeneratePresignedUrlAsync(targetUser.ProfileImageKey);
         if(profileUrl is null)
                 profileUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 
@@ -58,7 +58,7 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         if (user is null)
             return NotFound();
         var roles = (await _userManager.GetRolesAsync(user)).ToArray();
-        var profileUrl = await _fileService.GeneratePresignedUrl(user.ProfileImageKey);
+        var profileUrl = await _fileService.GeneratePresignedUrlAsync(user.ProfileImageKey);
         if(profileUrl is null)
                 profileUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 

@@ -15,7 +15,7 @@ namespace where_we_go.Service
         Task UploadFileAsync(FileUploadDto uploadDto);
         Task<string> GetPresignedUrlAsync(FileDownloadDto downloadDto);
         Task<Stream> GetFileStreamAsync(FileDownloadDto downloadDto);
-        Task<string?> GeneratePresignedUrl(string? key);
+        Task<string?> GeneratePresignedUrlAsync(string? key);
 
     }
 
@@ -172,7 +172,7 @@ namespace where_we_go.Service
             }
         }
 
-        public async Task<string?> GeneratePresignedUrl(string? key)
+        public async Task<string?> GeneratePresignedUrlAsync(string? key)
         {
 
             if (string.IsNullOrWhiteSpace(key))

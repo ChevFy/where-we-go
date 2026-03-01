@@ -103,7 +103,7 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         if (string.IsNullOrWhiteSpace(model.ProfileUrl))
                 user.ProfileImageKey =  user.ProfileImageKey;
         else    
-                 user.ProfileImageKey = model.ProfileUrl;
+                 user.ProfileImageKey = model.ProfileUrl ;
 
         var result = await _userManager.UpdateAsync(user);
 

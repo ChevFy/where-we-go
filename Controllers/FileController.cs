@@ -24,7 +24,7 @@ namespace where_we_go.Controllers
 
             try
             {
-                var fileName = Guid.NewGuid() + file.FileName ;
+                var fileName = Guid.NewGuid() + "_" + file.FileName ;
                 await fileService.UploadFileAsync(new FileUploadDto()
                 {
                     ObjectName = fileName,

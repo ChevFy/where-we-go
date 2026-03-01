@@ -66,8 +66,7 @@ const UpdateProfileSubmit = async () => {
         UpdateUserDtoJson.ProfileUrl = await UploadImgProfie();
 
         if(UpdateUserDtoJson.ProfileUrl == null)
-            UpdateUserDtoJson.ProfileUrl = document.getElementById("profile-img-display").src
-
+            UpdateUserDtoJson.ProfileUrl = " "
 
         const errorMessage = validateUpdateData(UpdateUserDtoJson);
         if (errorMessage) {
@@ -88,8 +87,6 @@ const UpdateProfileSubmit = async () => {
             alert("Success");
         }
         else {
-            console.log(result)
-
             alert(result.message || "Something went wrong.");
         }
     }
@@ -115,7 +112,6 @@ const UploadImgProfie = async () => {
         const imageInput = document.getElementById("imageInput");
         const file = imageInput.files[0];
         if (!file) {
-            console.log("No file selected");
             return null;
         }
 
@@ -129,15 +125,12 @@ const UploadImgProfie = async () => {
         })
 
         const result = await res.json()
-
         return result.fileName;
 
-        // console.log(res.json().fileName);
 
 
     }
     catch (e) {
-        console.log(e);
         return null;
     }
 

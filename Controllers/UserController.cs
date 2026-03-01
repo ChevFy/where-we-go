@@ -1,5 +1,6 @@
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
+using System.Text.Json;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -97,7 +98,7 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         user.Name = model.Name;
         user.UserName = model.userName;
         user.Bio = model.Bio;
-        // user.ProfileUrl = model.ProfileUrl;
+        user.DateUpdated = DateTime.UtcNow;
         
         if (string.IsNullOrWhiteSpace(model.ProfileUrl))
                 user.ProfileImageKey =  user.ProfileImageKey;

@@ -10,11 +10,11 @@ namespace where_we_go.ViewComponents
             string targetId,
             string inputType,
             string placeHolder,
-            string width = "100%", 
+            string width = "100%",
             string height = "50px"
             )
 
-            {
+        {
             ViewBag.TargetId = targetId;
             ViewBag.inputType = inputType;
             ViewBag.placeHolder = placeHolder;

@@ -1,22 +1,27 @@
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
+using System.Text.Json;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+
 using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.Service;
 
 namespace where_we_go.Controllers;
 
-public class UserController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IUserService userService) : Controller
+public class UserController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IUserService userService, IFileService fileService) : Controller
 {
     private UserManager<User> _userManager { get; init; } = userManager;
     private RoleManager<IdentityRole> _roleManager { get; init; } = roleManager;
     private IUserService _userService { get; init; } = userService;
+
+    private IFileService _fileService { get; init; } = fileService;
 
 
     [HttpGet]
@@ -30,7 +35,12 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
             return RedirectToAction("Index", "Home"); // ทำเป็น redirect ไปหน้า Home ไปก่อน
 
         var roles = (await _userManager.GetRolesAsync(targetUser)).ToArray();
-        var userResponse = new UserResponseDto(targetUser, roles);
+        var profileUrl = await _fileService.GeneratePresignedUrlAsync(targetUser.ProfileImageKey);
+        if(profileUrl is null)
+                profileUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+
+
+        var userResponse = new UserResponseDto(targetUser, roles,profileUrl);
 
         bool IsAuth = User.Identity?.IsAuthenticated ?? false;
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -48,7 +58,11 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         if (user is null)
             return NotFound();
         var roles = (await _userManager.GetRolesAsync(user)).ToArray();
-        var userResponse = new UserResponseDto(user, roles);
+        var profileUrl = await _fileService.GeneratePresignedUrlAsync(user.ProfileImageKey);
+        if(profileUrl is null)
+                profileUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+
+        var userResponse = new UserResponseDto(user, roles,profileUrl);
 
 
         return View(userResponse);
@@ -63,37 +77,43 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
 
         if (!ModelState.IsValid)
         {
-            return BadRequest(new { message = ModelState }); 
+            return BadRequest(new { message = ModelState });
         }
 
         if (string.IsNullOrEmpty(model.userName))
-            return BadRequest( new { message = "Username is required"});
+            return BadRequest(new { message = "Username is required" });
 
-    
+
         var user = await _userManager.GetUserAsync(User);
         if (user is null)
             return NotFound();
 
         //Check duplicate
-        var existUser = await _userManager.Users.FirstOrDefaultAsync(u=> u.UserName == model.userName && u.Id != user.Id);
-        if(existUser is not null)
+        var existUser = await _userManager.Users.FirstOrDefaultAsync(u => u.UserName == model.userName && u.Id != user.Id);
+        if (existUser is not null)
         {
-            return BadRequest(new { message = "This Username already exist"});
+            return BadRequest(new { message = "This Username already exist" });
         }
-        
+
         user.Name = model.Name;
         user.UserName = model.userName;
         user.Bio = model.Bio;
-        user.ProfileUrl = model.ProfileUrl;
+        user.DateUpdated = DateTime.UtcNow;
+        
+        if (string.IsNullOrWhiteSpace(model.ProfileUrl))
+                user.ProfileImageKey =  user.ProfileImageKey;
+        else    
+                 user.ProfileImageKey = model.ProfileUrl ;
 
         var result = await _userManager.UpdateAsync(user);
 
         if (result.Succeeded)
         {
             TempData["Success"] = "updated success";
-            return Ok(new { 
-                message = "Updated success", 
-                redirectUrl = Url.Action("UserProfile", "User", new { username = user.UserName }) 
+            return Ok(new
+            {
+                message = "Updated success",
+                redirectUrl = Url.Action("UserProfile", "User", new { username = user.UserName })
             });
         }
 
@@ -103,7 +123,7 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
             ModelState.AddModelError(string.Empty, error.Description);
         }
 
-        return BadRequest(new { message = ModelState});
+        return BadRequest(new { message = ModelState });
     }
 
     [HttpGet]
@@ -113,5 +133,3 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         return View(user);
     }
 }
-
-

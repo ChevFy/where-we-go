@@ -1,5 +1,6 @@
 
 using System.ComponentModel.DataAnnotations;
+
 using where_we_go.Models;
 
 namespace where_we_go.DTO
@@ -8,16 +9,15 @@ namespace where_we_go.DTO
     {
         [Required]
         [StringLength(100, MinimumLength = 1)]
-        public required string Name { get; set; } 
+        public  required string? Name { get; set; }
 
-         [Required]
+        [Required]
         [StringLength(100, MinimumLength = 1)]
         [RegularExpression(@"^[a-zA-Z0-9_.-]+$", ErrorMessage = "Username can only contain letters, numbers, '.', '-', and '_' with no spaces.")]
-        public required string userName { get; set; } 
+        public  required string? userName { get; set; }
 
         [StringLength(50)]
-        public required string Bio { get; set; }
-        [Required]
-        public required string ProfileUrl { get; set; }
+        public  string? Bio { get; set; }
+        public  string? ProfileUrl { get; set; }
     }
 }

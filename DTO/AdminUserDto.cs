@@ -23,7 +23,7 @@ public class AdminUpdateUserDto
     [Required]
     [StringLength(100, MinimumLength = 1)]
     [RegularExpression(@"^[a-zA-Z0-9_.-]+$", ErrorMessage = "Username can only contain letters, numbers, '.', '-', and '_' with no spaces.")]
-    public required string userName { get; set; }
+    public required string UserName { get; set; }
 
     [Required]
     [StringLength(50)]

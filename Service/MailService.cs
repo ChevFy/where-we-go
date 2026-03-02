@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Mail;
+
 using where_we_go.Config;
 using where_we_go.Models.DTOs.Mail;
 

@@ -1,6 +1,7 @@
 
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 using where_we_go.Database;
 using where_we_go.DTO;
 using where_we_go.Models;
@@ -50,7 +51,7 @@ namespace where_we_go.Service
             };
 
             return await ToPaginatedResponseAsync(
-                usersQuery, query, u => new UserResponseDto(u, [])
+                usersQuery, query, u => new UserResponseDto(u, [], u.ProfileImageKey ?? string.Empty)
             );
         }
 

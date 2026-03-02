@@ -6,40 +6,18 @@
     <title>@ViewData["Title"] - where_we_go</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/where_we_go.styles.css" asp-append-version="true" />
-    @await RenderSectionAsync("Scripts", required: false)
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
         <span id="antiforgery-token-container" style="display:none;"> @Html.AntiForgeryToken()</span>
-        <header>
-            @* <nav class="nav-bar">
-                <div class="nav-left-container">
-                    <img src="/images/wherewego-logo.svg" class="logo-icon" >
-                </div>
-                <div class="search-container">
-                    <input class="search-input" id="search-context" type="text" placeholder="ค้นหากิจกรรม">
-                    <button class="search-submit-btn"> search </button>
-                </div>
-                <div class="login-container">
-                    
-                    <img src="/images/non-profile-login.svg" class="login-icon" />
-                    <a href="#" class="login-link">ลงชื่อเข้าใช้</a>
-                    
-            </div>
-                </div>
-            </nav> *@
-    </header>
-        </header>
         <div class="container-fluid" >
             <main role="main" class="pb-3">
                 @RenderBody()
             </main>
         </div>
-
-
-
-
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+
 </body>
+
 </html>

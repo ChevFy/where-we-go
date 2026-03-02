@@ -1,6 +1,6 @@
 @{
-     var isAuthenticated = ViewBag.IsAuth ?? false;
-     var userData = Model as where_we_go.DTO.UserResponseDto;
+    var isAuthenticated = ViewBag.IsAuth ?? false;
+    var userData = Model as where_we_go.DTO.UserResponseDto;
 }
 
 <nav class="nav-bar">
@@ -19,42 +19,43 @@
             </ul>
         </div>
         <div class="hbg-wrapper">
-            @if(isAuthenticated)
+            @if (isAuthenticated)
             {
-            @await Component.InvokeAsync("HamburgerMenu", new { 
-                items = new List<where_we_go.ViewComponents.NavItem> {
+                @await Component.InvokeAsync("HamburgerMenu", new
+                {
+                    items = new List<where_we_go.ViewComponents.NavItem> {
                     new() { Text = "หน้าแรก", Href = "/" },
                     new() { Text = "กิจกรรม", Href = "/" },
                     new() { Text = "แชทกลุ่ม", Href = "/" },
                     new() { Text = "แจ้งเตือน", Href = "/" },
-                    @* new() { Text = "ออกจากระบบ", Href = "/Auth/Logout" }, *@
-                    
-                } 
-            })
+@* new() { Text = "ออกจากระบบ", Href = "/Auth/Logout" }, *@
+
+                }
+                })
             }
         </div>
     </div>
 
     <div class="login-container">
 
-                @if (isAuthenticated && userData != null)
-                {
-                    <a asp-controller="User" asp-action="UserProfile" asp-route-username=@userData.UserName >
-                     <div class="login-text"">
+        @if (isAuthenticated && userData != null)
+        {
+            <a asp-controller="User" asp-action="UserProfile" asp-route-username=@userData?.UserName>
+                <div class="login-text"">
                     @* <span class="user-name">@userData.Name</span> *@
                     @* <a asp-controller="Auth" asp-action="Logout">ออกจากระบบ</a> *@
-                    </div>
-                    <img src="@userData.ProfileUrl" class="login-icon" />
-                    </a>
-                    
-                }
-                else
-                {
-                    <img src="/images/non-profile-login.svg" class="login-icon" />
-                    <a asp-controller="Auth" asp-action="Login" class="login-link">ลงชื่อเข้าใช้</a>
-                }
+                </div>
+                <img src=" @userData?.ProfileUrl" class="login-icon" />
+            </a>
 
-        
+        }
+        else
+        {
+            <img src="/images/non-profile-login.svg" class="login-icon" />
+            <a asp-controller="Auth" asp-action="Login" class="login-link">ลงชื่อเข้าใช้</a>
+        }
+
+
 
 
     </div>

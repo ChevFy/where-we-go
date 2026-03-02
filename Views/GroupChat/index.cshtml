@@ -1,0 +1,77 @@
+@{
+    ViewData["Title"] = "Chat";
+}
+
+<link rel="stylesheet" href="/css/GroupChat.css">
+
+<div class="chat-page">
+
+    <!-- Header -->
+    <div class="chat-header">
+        <div>
+            <div class="meeting-name">[Meeting name]</div>
+            <div class="meeting-due">due 18/02/2569</div>
+        </div>
+        <div class="header-icons">
+            <span>📹</span>
+            <span>ℹ️</span>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-body">
+
+        <!-- Link / Preview message -->
+        <div class="message other">
+            <div class="bubble">
+                <img class="preview-img" src="/images/mock-preview.png" />
+                <a href="#">https://dribbble.com/shots/17742253-ui-kit-designjam</a>
+            </div>
+            <div class="time">15:42</div>
+        </div>
+
+        <!-- Other user message -->
+        <div class="message other">
+            <div class="bubble">
+                See you at office tomorrow!
+            </div>
+            <div class="time">15:42</div>
+        </div>
+
+        <!-- My message -->
+        <div class="message mine">
+            <div class="bubble">
+                Thank you for work, see you!
+            </div>
+            <div class="time">15:42 ✓✓</div>
+        </div>
+
+        <!-- Day divider -->
+        <div class="day-divider">Today</div>
+
+        <!-- Other user -->
+        <div class="message other">
+            <div class="sender">Nanthapong</div>
+            <div class="bubble">
+                Hello! Have you seen my backpack anywhere in office?
+            </div>
+            <div class="time">15:42</div>
+        </div>
+
+        <!-- My reply -->
+        <div class="message mine">
+            <div class="bubble">
+                Hi, yes, David have found it, ask our concierge 👀
+            </div>
+            <div class="time">15:42 ✓✓</div>
+        </div>
+
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input">
+        <input placeholder="Type your message here.." />
+        <button>Send message</button>
+    </div>
+
+</div>

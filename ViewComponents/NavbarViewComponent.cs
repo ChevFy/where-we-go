@@ -29,8 +29,8 @@ namespace where_we_go.ViewComponents
 
             var role = (await _userManager.GetRolesAsync(user)).ToArray();
 
-            var profileUrl = await _fileService.GeneratePresignedProfileUrlAsync(user.ProfileImageKey);
-            if(profileUrl is null)
+            var profileUrl = await _fileService.GeneratePresignedUrlAsync(user.ProfileImageKey);
+            if (profileUrl is null)
                 profileUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 
             var userReponse = new UserResponseDto(user, role, profileUrl);

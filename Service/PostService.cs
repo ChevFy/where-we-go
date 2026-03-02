@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 using where_we_go.Database;
 using where_we_go.DTO;
+using where_we_go.Models.Enums;
 using where_we_go.Models;
 
 namespace where_we_go.Service
@@ -99,7 +100,7 @@ namespace where_we_go.Service
                 .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
 
             // Determine if they get in, or go to the waitlist
-            string assignedStatus = currentCount >= post.MaxParticipants
+            var assignedStatus = currentCount >= post.MaxParticipants
                 ? ParticipantStatus.Pending
                 : ParticipantStatus.Approved;
 

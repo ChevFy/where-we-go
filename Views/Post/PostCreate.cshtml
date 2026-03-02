@@ -16,8 +16,15 @@
     <link rel="stylesheet" href="~/css/components/forminput.css" asp-append-version="true" />
 }
 
+@section Scripts
+{
+
+    <script asp-append-version="true" src="~/js/postcreate.js"></script>
+}
+
 <header>
     @await Component.InvokeAsync("Navbar")
+    <div id="hidden-post-id" style="display : none">@ViewBag.postId</div>
 </header>
 
 <div class="post-bg-container">
@@ -26,7 +33,16 @@
 
         <div asp-validation-summary="All" class="text-danger" style="color: red; margin-bottom: 15px;"></div>
 
+        <div onclick="document.getElementById('post-imageInput').click()" class="post-img">
+            <img id="post-img-url"
+                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSTgFro4TxtuXEvoGJDkuv8o972kVsSsbi2w&s"
+                 alt="">
+        </div>
+            <input type="file" id="post-imageInput" style="display: none;" accept="image/*">  
+
+
         <form asp-action="PostCreate" asp-controller="Post" method="post">
+            
             @await Component.InvokeAsync("FormInput", new
             {
                 id = "Title",
@@ -86,6 +102,11 @@
                 buttonType = "submit",
                 text = "Create Post"
             })
+            
+            <input type="hidden" name="postId" value="@ViewBag.postId" />
+            <input type="hidden" id="PostImgkey" name="PostImgkey" value="" />
         </form>
+
+
     </div>
 </div>

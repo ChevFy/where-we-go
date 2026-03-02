@@ -11,16 +11,16 @@ namespace where_we_go.DTO
         [MinLength(2, ErrorMessage = "Title must be at least 2 characters")]
         [StringLength(100)]
         [Display(Name = "Post Title")]
-        public string Title { get; set; }
+        public required string Title { get; set; }
 
         [StringLength(200, ErrorMessage = "Description must be at most 200 characters")]
         [Display(Name = "Description")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         [StringLength(200)]
         [Display(Name = "Location")]
-        public string LocationName { get; set; }
+        public required string LocationName { get; set; }
 
         [Required]
         public DateTime DateDeadline { get; set; }
@@ -38,10 +38,12 @@ namespace where_we_go.DTO
 
         [Required]
         [Display(Name = "Category")]
-        public string CategoryName { get; set; }
+        public required string CategoryName { get; set; }
+
+        public string? PostImgURL {get; set;}
 
         [Required]
-        public string UserId { get; set; }
+        public required string UserId { get; set; }
         public bool IsJoined { get; set; }
         public bool IsPending { get; set; }
     }

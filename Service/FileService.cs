@@ -15,7 +15,9 @@ namespace where_we_go.Service
         Task UploadFileAsync(FileUploadDto uploadDto);
         Task<string> GetPresignedUrlAsync(FileDownloadDto downloadDto);
         Task<Stream> GetFileStreamAsync(FileDownloadDto downloadDto);
-        Task<string?> GeneratePresignedUrlAsync(string? key);
+        Task<string?> GeneratePresignedProfileUrlAsync(string? key);
+        Task<string?> GeneratePresignedPostUrlAsync(string? key);
+
 
     }
 
@@ -172,12 +174,31 @@ namespace where_we_go.Service
             }
         }
 
-        public async Task<string?> GeneratePresignedUrlAsync(string? key)
+        public async Task<string?> GeneratePresignedProfileUrlAsync(string? key)
         {
 
             if (string.IsNullOrWhiteSpace(key))
             {
                 key =  "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+            }
+            if (Uri.IsWellFormedUriString(key, UriKind.Absolute)) 
+                return key;
+
+            return await this.GetPresignedUrlAsync(
+                new FileDownloadDto
+                {
+                    ObjectName = key,
+                    ExpiryInSeconds = 3600
+                }
+            );
+        }
+
+        public async Task<string?> GeneratePresignedPostUrlAsync(string? key)
+        {
+
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                key =  "https://nftcalendar.io/storage/uploads/2021/11/30/screenshot_-_30_11_2021___15_14_00_1130202114142561a631c12a4aa.jpg";
             }
             if (Uri.IsWellFormedUriString(key, UriKind.Absolute)) 
                 return key;

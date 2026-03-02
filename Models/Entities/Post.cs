@@ -48,7 +48,7 @@ namespace where_we_go.Models
 
         public float? LocationLon { get; set; }
 
-        public string? PostUrl { get; set; }
+        public string? PostImageKey { get; set; }
 
         [Required]
         public required string InviteCode { get; set; }
@@ -59,10 +59,9 @@ namespace where_we_go.Models
         public Post()
         {
             Status = "ACTIVE";
-            DateCreated = DateTime.Now;
-            DateDeadline = DateTime.Now;
-            PostUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiyTHhPsApqZdEyUNhkGYS40BBOU8Oeb1vgw&s";
-            InviteCode = null!; // ต้องทำ service generate code
+            DateCreated = DateTime.UtcNow;
+            DateDeadline = DateTime.UtcNow;
+            InviteCode = null!; 
         }
     }
 

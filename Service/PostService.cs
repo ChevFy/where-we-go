@@ -9,57 +9,72 @@ namespace where_we_go.Service
     public class PostService : IPostService
     {
         private readonly AppDbContext _dbContext;
+        
+        private readonly IFileService _fileService;
 
-        public PostService(AppDbContext dbContext)
+        public PostService(AppDbContext dbContext, IFileService fileService)
         {
             _dbContext = dbContext;
+            _fileService = fileService;
         }
+
+
 
         public async Task<List<PostDto>> GetAllPostsAsync()
         {
-            return await _dbContext.Posts
-                .Select(p => new PostDto
+            var posts = await _dbContext.Posts.ToListAsync();
+            var result = new List<PostDto>();
+            foreach (var p in posts)
+            {
+                result.Add(new PostDto
                 {
                     PostId = p.PostId,
                     Title = p.Title,
                     Description = p.Description,
                     LocationName = p.LocationName,
                     DateDeadline = p.DateDeadline,
+                    PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(p.PostImageKey),
                     CategoryName = "Mock Category"
-                })
-                .ToListAsync();
+                });
+            }
+            return result;
         }
 
         public async Task<PostDetailDto?> GetPostDetailAsync(Guid id, string? currentUserId = null)
         {
-            return await _dbContext.Posts
+            var post = await _dbContext.Posts
                 .Where(p => p.PostId == id)
-                .Select(p => new PostDetailDto
-                {
-                    PostId = p.PostId,
-                    Title = p.Title,
-                    Description = p.Description,
-                    LocationName = p.LocationName,
-                    DateDeadline = p.DateDeadline,
-                    CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved),
-                    MaxParticipants = p.MaxParticipants,
-                    CategoryName = "Mock Category",
-                    UserId = p.UserId,
-                    // Check if the current user is an approved participant
-                    IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == p.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved)
-                })
                 .FirstOrDefaultAsync();
+
+            if (post == null)
+                return null;
+
+            return new PostDetailDto
+            {
+                PostId = post.PostId,
+                Title = post.Title,
+                Description = post.Description,
+                LocationName = post.LocationName,
+                DateDeadline = post.DateDeadline,
+                CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved),
+                MaxParticipants = post.MaxParticipants,
+                CategoryName = "Mock Category",
+                PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(post.PostImageKey),
+                UserId = post.UserId,
+                IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved)
+            };
         }
 
-        public async Task CreatePostAsync(PostCreateDto dto, string userId)
+        public async Task CreatePostAsync(PostCreateDto dto, string userId , Guid postId)
         {
             var post = new Post
             {
-                PostId = Guid.NewGuid(),
+                PostId = postId,
                 UserId = userId,
                 Title = dto.Title,
                 Description = dto.Description,
                 LocationName = dto.LocationName,
+                PostImageKey = string.IsNullOrWhiteSpace(dto.PostImgkey) ? null : dto.PostImgkey,
 
                 DateDeadline = dto.DateDeadline.ToUniversalTime(),
 
@@ -150,5 +165,7 @@ namespace where_we_go.Service
             await _dbContext.SaveChangesAsync();
             return "Success";
         }
+
+
     }
 }

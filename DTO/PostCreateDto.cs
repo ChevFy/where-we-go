@@ -27,6 +27,8 @@ namespace where_we_go.DTO
         [Range(1, int.MaxValue)]
         public required int MaxParticipants { get; set; }
 
-        public string? PostImgkey {get; set;}
+        public string? PostImgkey { get; set; }
+
+        public List<Guid>? CategoryIds { get; set; }
     }
 }

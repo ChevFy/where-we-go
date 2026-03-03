@@ -10,7 +10,7 @@ namespace where_we_go.Service
     public class PostService : IPostService
     {
         private readonly AppDbContext _dbContext;
-        
+
         private readonly IFileService _fileService;
 
         public PostService(AppDbContext dbContext, IFileService fileService)
@@ -23,7 +23,9 @@ namespace where_we_go.Service
 
         public async Task<List<PostDto>> GetAllPostsAsync()
         {
-            var posts = await _dbContext.Posts.ToListAsync();
+            var posts = await _dbContext.Posts
+                .Include(p => p.Categories)
+                .ToListAsync();
             var result = new List<PostDto>();
             foreach (var p in posts)
             {
@@ -35,7 +37,7 @@ namespace where_we_go.Service
                     LocationName = p.LocationName,
                     DateDeadline = p.DateDeadline,
                     PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(p.PostImageKey),
-                    CategoryName = "Mock Category"
+                    CategoryName = p.Categories.FirstOrDefault()?.Name ?? "Uncategorized"
                 });
             }
             return result;
@@ -44,6 +46,7 @@ namespace where_we_go.Service
         public async Task<PostDetailDto?> GetPostDetailAsync(Guid id, string? currentUserId = null)
         {
             var post = await _dbContext.Posts
+                .Include(p => p.Categories)
                 .Where(p => p.PostId == id)
                 .FirstOrDefaultAsync();
 
@@ -59,14 +62,14 @@ namespace where_we_go.Service
                 DateDeadline = post.DateDeadline,
                 CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved),
                 MaxParticipants = post.MaxParticipants,
-                CategoryName = "Mock Category",
+                CategoryName = post.Categories.FirstOrDefault()?.Name ?? "Uncategorized",
                 PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(post.PostImageKey),
                 UserId = post.UserId,
                 IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved)
             };
         }
 
-        public async Task CreatePostAsync(PostCreateDto dto, string userId , Guid postId)
+        public async Task CreatePostAsync(PostCreateDto dto, string userId, Guid postId)
         {
             var post = new Post
             {
@@ -90,6 +93,21 @@ namespace where_we_go.Service
 
             _dbContext.Posts.Add(post);
             await _dbContext.SaveChangesAsync();
+
+            // Associate categories if provided
+            if (dto.CategoryIds?.Count > 0)
+            {
+                var categories = await _dbContext.Categories
+                    .Where(c => dto.CategoryIds.Contains(c.CategoryId))
+                    .ToListAsync();
+
+                foreach (var category in categories)
+                {
+                    post.Categories.Add(category);
+                }
+
+                await _dbContext.SaveChangesAsync();
+            }
         }
         public async Task<bool> DeletePostAsync(Guid id, string userId)
         {

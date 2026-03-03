@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using where_we_go.Models;
+using where_we_go.Models.Enums;
 
 namespace where_we_go.Database;
 
@@ -16,109 +17,135 @@ public static class SeedData
         var userManager = serviceProvider.GetRequiredService<UserManager<User>>();
         var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
+        SeedRoles(roleManager);
+        SeedUsers(userManager);
+        SeedCategories(context);
+        SeedPosts(context);
+        SeedParticipants(context);
+
+        Console.WriteLine("Seeding completed.");
+    }
+
+    private static void SeedRoles(RoleManager<IdentityRole> roleManager)
+    {
         var roles = new[] { "Admin", "User" };
 
         foreach (var role in roles)
         {
-            var roleName = role.ToString();
-            if (!roleManager.RoleExistsAsync(roleName).Result)
+            if (!roleManager.RoleExistsAsync(role).Result)
             {
-                roleManager.CreateAsync(new IdentityRole(roleName)).Wait();
+                roleManager.CreateAsync(new IdentityRole(role)).Wait();
             }
         }
+    }
 
-        if (!context.Users.Any())
+    private static void SeedUsers(UserManager<User> userManager)
+    {
+        if (userManager.Users.Any()) return;
+
+        foreach (var (userName, email, name, password, role) in SeedDataModels.Users.Data)
         {
-            var users = new[]
+            var user = new User
             {
-                    new User { UserName = "admin@example.com", Email = "admin@example.com", Name = "Admin", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "john@example.com", Email = "john@example.com", Name = "John Doe", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow },
-                    new User { UserName = "jane@example.com", Email = "jane@example.com", Name = "Jane Smith", EmailConfirmed = true, DateCreated = DateTime.UtcNow, DateUpdated = DateTime.UtcNow }
-                };
+                UserName = userName,
+                Email = email,
+                Name = name,
+                EmailConfirmed = true,
+                DateCreated = DateTime.UtcNow,
+                DateUpdated = DateTime.UtcNow
+            };
 
-            var passwords = new[] { "AdminPassword123!", "JohnPassword123!", "JanePassword123!" };
-            var roleNames = new[] { "Admin", "User", "User" };
-
-            for (int i = 0; i < users.Length; i++)
+            var result = userManager.CreateAsync(user, password).Result;
+            if (!result.Succeeded)
             {
-                var result = userManager.CreateAsync(users[i], passwords[i]).Result;
-                if (!result.Succeeded)
+                Console.WriteLine($"Failed to create user {userName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+            else
+            {
+                userManager.AddToRoleAsync(user, role).Wait();
+            }
+        }
+    }
+
+    private static void SeedCategories(AppDbContext context)
+    {
+        if (context.Categories.Any()) return;
+
+        foreach (var (name, description) in SeedDataModels.Categories.Data)
+        {
+            context.Categories.Add(new Category
+            {
+                CategoryId = Guid.NewGuid(),
+                Name = name,
+                Description = description
+            });
+        }
+
+        context.SaveChanges();
+    }
+
+    private static void SeedPosts(AppDbContext context)
+    {
+        if (context.Posts.Count() >= 10) return;
+
+        var author = context.Users.FirstOrDefault();
+        if (author == null) return;
+
+        var categories = context.Categories.ToList();
+
+        foreach (var (title, description, location, daysDeadline, minPart, maxPart, inviteCode, categoryNames) in SeedDataModels.Posts.Data)
+        {
+            var postCategories = categories.Where(c => categoryNames.Contains(c.Name)).ToList();
+
+            context.Posts.Add(new Post
+            {
+                PostId = Guid.NewGuid(),
+                UserId = author.Id,
+                Title = title,
+                Description = description,
+                LocationName = location,
+                DateDeadline = DateTime.UtcNow.AddDays(daysDeadline),
+                MinParticipants = minPart,
+                MaxParticipants = maxPart,
+                DateCreated = DateTime.UtcNow,
+                Status = "Active",
+                InviteCode = inviteCode,
+                Categories = postCategories
+            });
+        }
+
+        context.SaveChanges();
+    }
+
+    private static void SeedParticipants(AppDbContext context)
+    {
+        if (context.Participants.Any()) return;
+
+        var posts = context.Posts.OrderBy(p => p.DateCreated).ToList();
+        var users = context.Users.ToList();
+
+        foreach (var (postIndex, userEmails) in SeedDataModels.Participants.Data)
+        {
+            if (postIndex >= posts.Count) continue;
+
+            var post = posts[postIndex];
+
+            foreach (var email in userEmails)
+            {
+                var user = users.FirstOrDefault(u => u.Email == email);
+                if (user == null) continue;
+
+                context.Participants.Add(new Participant
                 {
-                    Console.WriteLine($"Failed to create user {users[i].UserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                }
-                else
-                {
-                    userManager.AddToRoleAsync(users[i], roleNames[i]).Wait();
-                }
+                    ParticipantId = Guid.NewGuid(),
+                    PostId = post.PostId,
+                    UserId = user.Id,
+                    Status = ParticipantStatus.Approved,
+                    DateJoin = DateTime.UtcNow.AddDays(-1)
+                });
             }
         }
 
-        // Seed Categories
-        if (!context.Categories.Any())
-        {
-            context.Categories.AddRange(
-                new Category { CategoryId = Guid.NewGuid(), Name = "Travel", Description = "Travel destinations and experiences" },
-                new Category { CategoryId = Guid.NewGuid(), Name = "Food", Description = "Dining and food recommendations" },
-                new Category { CategoryId = Guid.NewGuid(), Name = "Entertainment", Description = "Movies, music, and entertainment venues" },
-                new Category { CategoryId = Guid.NewGuid(), Name = "Shopping", Description = "Shopping malls and stores" },
-                new Category { CategoryId = Guid.NewGuid(), Name = "Nature", Description = "Parks, hiking, and outdoor activities" }
-            );
-            context.SaveChanges();
-        }
-
-        if (context.Posts.Count() < 3)
-        {
-            var author = context.Users.FirstOrDefault();
-            if (author != null)
-            {
-                // Clear existing if you want a fresh start, or just add more
-                context.Posts.AddRange(
-                    new Post
-                    {
-                        PostId = Guid.NewGuid(),
-                        UserId = author.Id,
-                        Title = "Mountain Trip",
-                        Description = "Hiking adventure in the north.",
-                        LocationName = "Chiang Mai",
-                        DateDeadline = DateTime.UtcNow.AddDays(7),
-                        MinParticipants = 2,
-                        MaxParticipants = 5,
-                        DateCreated = DateTime.UtcNow,
-                        Status = "Active",
-                        InviteCode = "TRIP01"
-                    },
-                    new Post
-                    {
-                        PostId = Guid.NewGuid(),
-                        UserId = author.Id,
-                        Title = "Cafe Hopping",
-                        Description = "Exploring aesthetic cafes.",
-                        LocationName = "Bangkok",
-                        DateDeadline = DateTime.UtcNow.AddDays(3),
-                        MinParticipants = 2,
-                        MaxParticipants = 3,
-                        DateCreated = DateTime.UtcNow,
-                        Status = "Active",
-                        InviteCode = "CAFE02"
-                    },
-                    new Post
-                    {
-                        PostId = Guid.NewGuid(),
-                        UserId = author.Id,
-                        Title = "Beach Day",
-                        Description = "Sun, sand, and relaxing vibes.",
-                        LocationName = "Phuket",
-                        DateDeadline = DateTime.UtcNow.AddDays(10),
-                        MinParticipants = 4,
-                        MaxParticipants = 10,
-                        DateCreated = DateTime.UtcNow,
-                        Status = "Active",
-                        InviteCode = "BEACH3"
-                    }
-                );
-                context.SaveChanges();
-            }
-        }
-
+        context.SaveChanges();
     }
 }

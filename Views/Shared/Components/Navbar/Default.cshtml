@@ -51,7 +51,9 @@
         }
         else
         {
-            <img src="/images/non-profile-login.svg" class="login-icon" />
+            <a asp-controller="Auth" asp-action="Login"> 
+            <img src="/images/non-profile-login.svg" class="login-icon" />    
+            </a>
             <a asp-controller="Auth" asp-action="Login" class="login-link">ลงชื่อเข้าใช้</a>
         }
 

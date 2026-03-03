@@ -181,6 +181,10 @@
     display: none;
   }
 
+  .login-container .login-link {
+    display: none;
+  }
+
 .login-text{
   display: none;
 }

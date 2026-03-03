@@ -62,7 +62,17 @@
                 <div class="post-content-1">
                     <h2 class="post-title">@post.Title</h2>
                     <div class="post-category">
-                        <span>@post.CategoryName</span>
+                        @if (post.Categories.Count > 0)
+                        {
+                            @foreach (var category in post.Categories)
+                            {
+                                <span>@category.Name</span>
+                            }
+                        }
+                        else
+                        {
+                            <span>Uncategorized</span>
+                        }
                     </div>
                     <p>
                         @post.Description

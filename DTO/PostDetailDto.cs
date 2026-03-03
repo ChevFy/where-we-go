@@ -41,15 +41,21 @@ namespace where_we_go.DTO
         [Display(Name = "Max Participants")]
         public int MaxParticipants { get; set; }
 
-        [Required]
-        [Display(Name = "Category")]
-        public required string CategoryName { get; set; }
+        [Display(Name = "Categories")]
+        public List<CategoryDetailDto> Categories { get; set; } = [];
 
-        public string? PostImgURL {get; set;}
+        public string? PostImgURL { get; set; }
 
         [Required]
         public required string UserId { get; set; }
         public bool IsJoined { get; set; }
         public bool IsPending { get; set; }
+    }
+
+    public class CategoryDetailDto
+    {
+        public Guid CategoryId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
     }
 }

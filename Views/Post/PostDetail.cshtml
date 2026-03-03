@@ -26,9 +26,7 @@
 
 <div class="post-bg-container">
     <div class="post-container">
-        <img class="post-thumbnail"
-             src=@Model.PostImgURL
-             alt="Thumbnail">
+        <img class="post-thumbnail"   src=@Model.PostImgURL    alt="Thumbnail">
 
         <h2 class="post-title">@Model.Title</h2>
 
@@ -48,7 +46,17 @@
 
         <div class="post-category">
             <ul>
-                <li>@Model.CategoryName</li>
+                @if (Model.Categories.Count > 0)
+                {
+                    @foreach (var category in Model.Categories)
+                    {
+                        <li>@category.Name</li>
+                    }
+                }
+                else
+                {
+                    <li>Uncategorized</li>
+                }
             </ul>
         </div>
 

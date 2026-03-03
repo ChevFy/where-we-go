@@ -44,3 +44,37 @@ document.getElementById("submit-btn").addEventListener('click', async (e) => {
 
     form.submit();
 });
+
+
+var map = L.map('map').setView([13.7563, 100.5018], 13); // พิกัดกรุงเทพฯ
+
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+// เพิ่มหมุด (Marker)
+// 1. สร้างตัวแปรเก็บ Marker ไว้ตัวเดียว (เพื่อไม่ให้หมุดซ้ำกันหลายอันเวลาคลิกใหม่)
+var selectionMarker;
+
+// 2. ดักจับเหตุการณ์การคลิกบนแผนที่
+map.on('click', function(e) {
+    var lat = e.latlng.lat; // ละติจูด
+    var lng = e.latlng.lng; // ลองจิจูด
+
+    // 3. ถ้ามีหมุดเดิมอยู่แล้ว ให้ลบออกก่อน หรือย้ายตำแหน่ง
+    if (selectionMarker) {
+        selectionMarker.setLatLng(e.latlng);
+    } else {
+        selectionMarker = L.marker(e.latlng).addTo(map);
+    }
+
+    // 4. แสดง Popup บอกพิกัด (หรือเอาไปใส่ใน Input ของ Form)
+    selectionMarker.bindPopup("คุณเลือกที่: " + lat.toFixed(6) + ", " + lng.toFixed(6)).openPopup();
+
+    // 5. ส่งค่าพิกัดไปเก็บไว้ใน Input HTML (เพื่อเตรียมส่งไป .NET)
+    document.getElementById('latInput').value = lat;
+    document.getElementById('lngInput').value = lng;
+    
+    console.log("Selected coordinates:", lat, lng);
+});

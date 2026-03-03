@@ -6,3 +6,4 @@ public class GroupChatController : Controller
         return View();
     }
 }
+

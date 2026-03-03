@@ -1,77 +1,71 @@
 @{
-    ViewData["Title"] = "Chat";
-}
+    ViewData["Title"] = "Group Chat";
 
-<link rel="stylesheet" href="/css/GroupChat.css">
+    // ===== Mock GROUPCHAT =====
+    var groupChat = new
+    {
+        GroupChatId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+        Name = "Meeting name",
+        CreatedAt = DateTime.UtcNow
+    };
+
+    // mock current user
+    var currentUserId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+
+    // ===== Mock CHATMESSAGE =====
+    var messages = new[]
+    {
+        new {
+            MessageId = Guid.NewGuid(),
+            GroupChatId = groupChat.GroupChatId,
+            UserId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            UserName = "NanthaPong",
+            Message = "Hello! Have you seen my backpack anywhere in office?",
+            SentAt = "15:42"
+        },
+        new {
+            MessageId = Guid.NewGuid(),
+            GroupChatId = groupChat.GroupChatId,
+            UserId = currentUserId,
+            UserName = "Me",
+            Message = "Hi, yes, David have found it, ask our concierge 👀",
+            SentAt = "15:42"
+        }
+    };
+}
+<link rel="stylesheet" href="~/css/GroupChat.css" />
 
 <div class="chat-page">
 
-    <!-- Header -->
+    <!-- HEADER -->
     <div class="chat-header">
-        <div>
-            <div class="meeting-name">[Meeting name]</div>
-            <div class="meeting-due">due 18/02/2569</div>
-        </div>
-        <div class="header-icons">
-            <span>📹</span>
-            <span>ℹ️</span>
-        </div>
+        <h3>@groupChat.Name</h3>
+        <small>Created @groupChat.CreatedAt.ToShortDateString()</small>
     </div>
 
-    <!-- Messages -->
-    <div class="chat-body">
+    <!-- MESSAGE LIST -->
+    <div class="chat-messages">
+        @foreach (var msg in messages)
+        {
+            bool isMe = msg.UserId == currentUserId;
 
-        <!-- Link / Preview message -->
-        <div class="message other">
-            <div class="bubble">
-                <img class="preview-img" src="/images/mock-preview.png" />
-                <a href="#">https://dribbble.com/shots/17742253-ui-kit-designjam</a>
+            <div class="message-row @(isMe ? "me" : "other")">
+                <div class="message-bubble">
+                    @if (!isMe)
+                    {
+                        <div class="sender">@msg.UserName</div>
+                    }
+                    <div class="text">@msg.Message</div>
+                    <div class="time">@msg.SentAt</div>
+                </div>
             </div>
-            <div class="time">15:42</div>
-        </div>
-
-        <!-- Other user message -->
-        <div class="message other">
-            <div class="bubble">
-                See you at office tomorrow!
-            </div>
-            <div class="time">15:42</div>
-        </div>
-
-        <!-- My message -->
-        <div class="message mine">
-            <div class="bubble">
-                Thank you for work, see you!
-            </div>
-            <div class="time">15:42 ✓✓</div>
-        </div>
-
-        <!-- Day divider -->
-        <div class="day-divider">Today</div>
-
-        <!-- Other user -->
-        <div class="message other">
-            <div class="sender">Nanthapong</div>
-            <div class="bubble">
-                Hello! Have you seen my backpack anywhere in office?
-            </div>
-            <div class="time">15:42</div>
-        </div>
-
-        <!-- My reply -->
-        <div class="message mine">
-            <div class="bubble">
-                Hi, yes, David have found it, ask our concierge 👀
-            </div>
-            <div class="time">15:42 ✓✓</div>
-        </div>
-
+        }
     </div>
 
-    <!-- Input -->
+    <!-- INPUT -->
     <div class="chat-input">
-        <input placeholder="Type your message here.." />
-        <button>Send message</button>
+        <input type="text" placeholder="Type your message here..." />
+        <button>Send</button>
     </div>
 
-</div>
+</div>  

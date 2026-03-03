@@ -1,6 +1,14 @@
-public class ChatMessageDto
+namespace where_we_go.DTO;
+public class MessageDto
 {
-    public required string UserName { get; set; }
-    public required string Message { get; set; }
-    public required string SentAt { get; set; }
+    public string SenderName { get; set; }
+    public string Content { get; set; }
+    public bool IsMe { get; set; }
+
+    public MessageDto(string senderName, string content, bool isMe)
+    {
+        SenderName = senderName;
+        Content = content;
+        IsMe = isMe;
+    }
 }

@@ -7,11 +7,13 @@ public class PostDto
     [Required]
     public Guid PostId { get; set; }
     [Required]
-    public string Title { get; set; }
+    public required string Title { get; set; }
     [Required]
-    public string Description { get; set; }
-    public string LocationName { get; set; }
+    public required string Description { get; set; }
+    public string? LocationName { get; set; }
     public DateTime DateDeadline { get; set; }
-    public string DateDeadlineFormatted => DateDeadline.ToString("dd/MM/yyyy");
-    public string CategoryName { get; set; }
+
+    public string? PostImgURL {get; set;}
+    public string? DateDeadlineFormatted => DateDeadline.ToString("dd/MM/yyyy");
+    public string? CategoryName { get; set; }
 }

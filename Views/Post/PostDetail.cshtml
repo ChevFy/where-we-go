@@ -26,7 +26,7 @@
 
 <div class="post-bg-container">
     <div class="post-container">
-        <img class="post-thumbnail"   src=@Model.PostImgURL    alt="Thumbnail">
+        <img class="post-thumbnail" src=@Model.PostImgURL alt="Thumbnail">
 
         <h2 class="post-title">@Model.Title</h2>
 
@@ -89,9 +89,3 @@
         }
     </div>
 </div>
-@if (TempData["AlertMessage"] != null)
-{
-    <script type="text/javascript">
-        alert('@TempData["AlertMessage"]');
-    </script>
-}

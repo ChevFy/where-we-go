@@ -9,14 +9,21 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-        <span id="antiforgery-token-container" style="display:none;"> @Html.AntiForgeryToken()</span>
-        <div class="container-fluid" >
-            <main role="main" class="pb-3">
-                @RenderBody()
-            </main>
-        </div>
+    <span id="antiforgery-token-container" style="display:none;"> @Html.AntiForgeryToken()</span>
+    <div class="container-fluid">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+
+    @if (TempData["AlertMessage"] != null)
+    {
+        <script type="text/javascript">
+            alert('@TempData["AlertMessage"]');
+        </script>
+    }
 
 </body>
 

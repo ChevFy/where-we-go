@@ -4,14 +4,16 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 using where_we_go.Database;
 using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.Service;
 
-public class PostController(IPostService postService) : Controller
+public class PostController(IPostService postService , AppDbContext dbContext) : Controller
 {
     private IPostService _postService { get; init; } = postService;
     [HttpGet]
@@ -29,12 +31,14 @@ public class PostController(IPostService postService) : Controller
     [HttpGet]
     public IActionResult PostCreate()
     {
+        string postId = (Guid.NewGuid()).ToString();
+        ViewBag.postId = postId;
         return View();
     }
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> PostCreate(PostCreateDto dto)
+    public async Task<IActionResult> PostCreate(PostCreateDto dto , string postId)
     {
         if (!ModelState.IsValid)
         {
@@ -44,7 +48,7 @@ public class PostController(IPostService postService) : Controller
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return NotFound();
 
-        await _postService.CreatePostAsync(dto, userId);
+        await _postService.CreatePostAsync(dto, userId, Guid.Parse(postId));
 
         return RedirectToAction("Index", "Home");
     }
@@ -112,4 +116,31 @@ public class PostController(IPostService postService) : Controller
 
         return RedirectToAction("PostDetail", new { id = id });
     }
+
+    [HttpPost]
+    [Route("api/post/uploadfile")]
+    public async Task<IActionResult> PostUploadFile([FromBody] PostUploadDto model)
+    {
+        if (!ModelState.IsValid)
+        {
+            BadRequest();
+        }
+
+        var post = await dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == Guid.Parse(model.PostId));
+        if(post is null)
+            return NotFound();;
+
+        if(string.IsNullOrWhiteSpace(model.PostImageKey))
+        {
+            post.PostImageKey = null;
+        }
+         else
+        {
+            post.PostImageKey = model.PostImageKey;
+        }        
+
+        return Ok(new { message = "Suceess"});
+    }
+
+    
 }

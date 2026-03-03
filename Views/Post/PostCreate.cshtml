@@ -24,7 +24,6 @@
 
 <header>
     @await Component.InvokeAsync("Navbar")
-    <div id="hidden-post-id" style="display : none">@ViewBag.postId</div>
 </header>
 
 <div class="post-bg-container">
@@ -40,7 +39,6 @@
         </div>
             <input type="file" id="post-imageInput" style="display: none;" accept="image/*">  
 
-        <div id="map" style="height: 500px; width: 100%;"></div>
 
         <form asp-action="PostCreate" asp-controller="Post" method="post">
             
@@ -65,10 +63,13 @@
             {
                 id = "LocationName",
                 name = "LocationName",
-                label = "Location",
+                label = "Location Name",
                 type = "text",
                 required = true
             })
+            <div id="map" style="height: 500px; width: 100%;"></div>
+            <input id="location-lat" type="hidden" name="LocationLat"  />
+            <input id="location-lon" type="hidden" name="LocationLon"  />
 
             @await Component.InvokeAsync("FormInput", new
             {
@@ -104,9 +105,12 @@
                 text = "Create Post"
             })
             
+            
             <input type="hidden" name="postId" value="@ViewBag.postId" />
             <input type="hidden" id="PostImgkey" name="PostImgkey" value="" />
         </form>
+        
+                
 
 
     </div>

@@ -31,14 +31,12 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
     [HttpGet]
     public IActionResult PostCreate()
     {
-        string postId = (Guid.NewGuid()).ToString();
-        ViewBag.postId = postId;
         return View();
     }
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> PostCreate(PostCreateDto dto , string postId)
+    public async Task<IActionResult> PostCreate(PostCreateDto dto )
     {
         if (!ModelState.IsValid)
         {
@@ -48,7 +46,7 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (userId == null) return NotFound();
 
-        await _postService.CreatePostAsync(dto, userId, Guid.Parse(postId));
+        await _postService.CreatePostAsync(dto, userId);
 
         return RedirectToAction("Index", "Home");
     }
@@ -118,26 +116,21 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
     }
 
     [HttpPost]
-    [Route("api/post/uploadfile")]
-    public async Task<IActionResult> PostUploadFile([FromBody] PostUploadDto model)
+    [Route("api/post/locationsave")]
+    public async Task<IActionResult> PostLocationSave([FromBody] PostLocationSaveDto model )
     {
-        if (!ModelState.IsValid)
+        if(!ModelState.IsValid)
         {
-            BadRequest();
+            return BadRequest();
         }
 
         var post = await dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == Guid.Parse(model.PostId));
         if(post is null)
-            return NotFound();;
+            return NotFound();
 
-        if(string.IsNullOrWhiteSpace(model.PostImageKey))
-        {
-            post.PostImageKey = null;
-        }
-         else
-        {
-            post.PostImageKey = model.PostImageKey;
-        }        
+        post.LocationLat = float.Parse(model.LocationLat);
+        post.LocationLon = float.Parse(model.LocationLon);
+
 
         return Ok(new { message = "Suceess"});
     }

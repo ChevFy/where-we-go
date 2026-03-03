@@ -66,15 +66,17 @@ namespace where_we_go.Service
             };
         }
 
-        public async Task CreatePostAsync(PostCreateDto dto, string userId , Guid postId)
+        public async Task CreatePostAsync(PostCreateDto dto, string userId)
         {
             var post = new Post
             {
-                PostId = postId,
+                PostId = Guid.NewGuid(),
                 UserId = userId,
                 Title = dto.Title,
                 Description = dto.Description,
                 LocationName = dto.LocationName,
+                LocationLat = float.Parse(dto.LocationLat),
+                LocationLon = float.Parse(dto.LocationLon),
                 PostImageKey = string.IsNullOrWhiteSpace(dto.PostImgkey) ? null : dto.PostImgkey,
 
                 DateDeadline = dto.DateDeadline.ToUniversalTime(),

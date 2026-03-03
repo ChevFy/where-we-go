@@ -17,6 +17,12 @@ namespace where_we_go.DTO
         public required string LocationName { get; set; }
 
         [Required]
+        public required string LocationLat {get; set;}
+        [Required]
+
+        public required string LocationLon {get; set;}
+
+        [Required]
         public required DateTime DateDeadline { get; set; }
 
         [Required]

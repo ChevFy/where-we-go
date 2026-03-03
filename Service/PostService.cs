@@ -37,7 +37,11 @@ namespace where_we_go.Service
                     LocationName = p.LocationName,
                     DateDeadline = p.DateDeadline,
                     PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(p.PostImageKey),
-                    CategoryName = p.Categories.FirstOrDefault()?.Name ?? "Uncategorized"
+                    Categories = p.Categories.Select(c => new CategorySimpleDto
+                    {
+                        CategoryId = c.CategoryId,
+                        Name = c.Name
+                    }).ToList()
                 });
             }
             return result;
@@ -62,7 +66,12 @@ namespace where_we_go.Service
                 DateDeadline = post.DateDeadline,
                 CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved),
                 MaxParticipants = post.MaxParticipants,
-                CategoryName = post.Categories.FirstOrDefault()?.Name ?? "Uncategorized",
+                Categories = post.Categories.Select(c => new CategoryDetailDto
+                {
+                    CategoryId = c.CategoryId,
+                    Name = c.Name,
+                    Description = c.Description
+                }).ToList(),
                 PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(post.PostImageKey),
                 UserId = post.UserId,
                 IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved)

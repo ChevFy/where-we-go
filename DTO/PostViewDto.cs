@@ -13,7 +13,13 @@ public class PostDto
     public string? LocationName { get; set; }
     public DateTime DateDeadline { get; set; }
 
-    public string? PostImgURL {get; set;}
+    public string? PostImgURL { get; set; }
     public string? DateDeadlineFormatted => DateDeadline.ToString("dd/MM/yyyy");
-    public string? CategoryName { get; set; }
+    public List<CategorySimpleDto> Categories { get; set; } = [];
+}
+
+public class CategorySimpleDto
+{
+    public Guid CategoryId { get; set; }
+    public string Name { get; set; } = string.Empty;
 }

@@ -57,6 +57,8 @@ namespace where_we_go.Service
                 Description = post.Description,
                 LocationName = post.LocationName,
                 DateDeadline = post.DateDeadline,
+                Locationlat = post.LocationLat ?? 0f,
+                Locationlon = post.LocationLon ?? 0f,
                 CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved),
                 MaxParticipants = post.MaxParticipants,
                 CategoryName = "Mock Category",

@@ -22,6 +22,11 @@ namespace where_we_go.DTO
         [Display(Name = "Location")]
         public required string LocationName { get; set; }
 
+        public required float Locationlat { get; set; }
+
+        public required float Locationlon { get; set; }
+
+
         [Required]
         public DateTime DateDeadline { get; set; }
 

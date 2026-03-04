@@ -106,6 +106,22 @@
     margin-top: 0.5rem;
 }
 
+.post-status.active {
+    background-color: #007bff;
+}
+
+.post-status.full {
+    background-color: #28a745;
+}
+
+.post-status.ended {
+    background-color: #dc3545;
+}
+
+.post-status.delete {
+    background-color: #6c757d;
+}
+
 
 
 @media (max-width: 768px) {

@@ -20,10 +20,18 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
     public async Task<IActionResult> PostDetail(Guid id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
         var postDto = await _postService.GetPostDetailAsync(id, userId);
 
         if (postDto == null) return NotFound();
+
+        // Check if post is deleted - only owner or admin can view
+        if (postDto.Status == "Delete")
+        {
+            if (userId != postDto.UserId && !User.IsInRole("Admin"))
+            {
+                return NotFound();
+            }
+        }
 
         return View(postDto);
     }

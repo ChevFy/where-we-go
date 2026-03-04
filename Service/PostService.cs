@@ -21,28 +21,29 @@ namespace where_we_go.Service
 
 
 
-        private string GetPostStatus(Post post)
+        private PostStatus GetPostStatus(Post post)
         {
             // Check if post is marked as deleted
-            if (post.Status == "Delete")
-                return "Delete";
+            if (post.Status == PostStatus.Delete)
+                return PostStatus.Delete;
 
             // Check if deadline has passed
             if (DateTime.UtcNow > post.DateDeadline)
-                return "Ended";
+                return PostStatus.Ended;
 
             // Check if post is full
             var participantCount = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved);
             if (participantCount >= post.MaxParticipants)
-                return "Full";
+                return PostStatus.Full;
 
             // Otherwise active
-            return "Active";
+            return PostStatus.Active;
         }
 
         public async Task<List<PostDto>> GetAllPostsAsync()
         {
             var posts = await _dbContext.Posts
+                .Where(p => p.Status != PostStatus.Delete)
                 .Include(p => p.Categories)
                 .ToListAsync();
             var result = new List<PostDto>();
@@ -55,7 +56,7 @@ namespace where_we_go.Service
                     Description = p.Description,
                     LocationName = p.LocationName,
                     DateDeadline = p.DateDeadline,
-                    Status = GetPostStatus(p),
+                    Status = GetPostStatus(p).ToString(),
                     PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(p.PostImageKey),
                     Categories = p.Categories.Select(c => new CategorySimpleDto
                     {
@@ -84,7 +85,7 @@ namespace where_we_go.Service
                 Description = post.Description,
                 LocationName = post.LocationName,
                 DateDeadline = post.DateDeadline,
-                Status = GetPostStatus(post),
+                Status = GetPostStatus(post).ToString(),
                 Locationlat = post.LocationLat ?? 0f,
                 Locationlon = post.LocationLon ?? 0f,
                 CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved),
@@ -124,7 +125,7 @@ namespace where_we_go.Service
 
                 DateCreated = DateTime.UtcNow,
 
-                Status = "Active",
+                Status = PostStatus.Active,
                 InviteCode = Guid.NewGuid().ToString().Substring(0, 8).ToUpper()
             };
 
@@ -154,7 +155,7 @@ namespace where_we_go.Service
                 return false;
             }
 
-            post.Status = "Delete";
+            post.Status = PostStatus.Delete;
             _dbContext.Posts.Update(post);
             await _dbContext.SaveChangesAsync();
             return true;
@@ -164,16 +165,26 @@ namespace where_we_go.Service
             var post = await _dbContext.Posts.FindAsync(postId);
             if (post == null) return "Activity not found.";
 
-            var existingParticipant = await _dbContext.Participants
-                .FirstOrDefaultAsync(p => p.PostId == postId && p.UserId == userId);
+            // Check if post is deleted, ended, or full
+            if (post.Status == PostStatus.Delete)
+                return "This activity has been deleted.";
 
-            var currentCount = await _dbContext.Participants
+            if (DateTime.UtcNow > post.DateDeadline)
+                return "This activity has ended.";
+
+            var approvedCount = await _dbContext.Participants
                 .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
 
+            if (approvedCount >= post.MaxParticipants)
+                return "This activity is full. You will be added to the waitlist.";
+
             // Determine if they get in, or go to the waitlist
-            var assignedStatus = currentCount >= post.MaxParticipants
+            var assignedStatus = approvedCount >= post.MaxParticipants
                 ? ParticipantStatus.Pending
                 : ParticipantStatus.Approved;
+
+            var existingParticipant = await _dbContext.Participants
+                .FirstOrDefaultAsync(p => p.PostId == postId && p.UserId == userId);
 
             if (existingParticipant != null)
             {

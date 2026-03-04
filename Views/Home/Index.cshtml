@@ -150,44 +150,53 @@
     </div>
 
     @* Loop through mock database posts *@
-    @foreach (var post in Model.Data)
+    @if (Model.Data.Count == 0)
     {
-    <a asp-controller="Post" asp-action="PostDetail" asp-route-id="@post.PostId" class="post-link">
-        <div class="post-card">
-            <div class="post-img">
-                <img src=@post.PostImgURL alt="https://steamcdn-a.akamaihd.net/steam/apps/398970/header.jpg">
-            </div>
-            
-            <div class="post-content">
-                <div class="post-content-1">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h2 class="post-title">@post.Title</h2>
-                        <span class="post-status @post.Status?.ToLower()">@post.Status</span>
-                    </div>
-                    <div class="post-category">
-                        @if (post.Categories.Count > 0)
-                        {
-                            @foreach (var category in post.Categories)
-                            {
-                                <span>@category.Name</span>
-                            }
-                        }
-                        else
-                        {
-                            <span>Uncategorized</span>
-                        }
-                    </div>
-                    <p>
-                        @post.Description
-                    </p>
-                </div>
-
-                <div class="post-content-2">
-                    <p class="post-date">@post.DateDeadlineFormatted</p>
-                </div>
-            </div>
+        <div class="no-posts-message">
+            <p>ไม่พบโพสต์ที่ตรงกับเงื่อนไขการค้นหา</p>
         </div>
-    </a>
+    }
+    else
+    {
+        @foreach (var post in Model.Data)
+        {
+        <a asp-controller="Post" asp-action="PostDetail" asp-route-id="@post.PostId" class="post-link">
+            <div class="post-card">
+                <div class="post-img">
+                    <img src=@post.PostImgURL alt="https://steamcdn-a.akamaihd.net/steam/apps/398970/header.jpg">
+                </div>
+                
+                <div class="post-content">
+                    <div class="post-content-1">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2 class="post-title">@post.Title</h2>
+                            <span class="post-status @post.Status?.ToLower()">@post.Status</span>
+                        </div>
+                        <div class="post-category">
+                            @if (post.Categories.Count > 0)
+                            {
+                                @foreach (var category in post.Categories)
+                                {
+                                    <span>@category.Name</span>
+                                }
+                            }
+                            else
+                            {
+                                <span>Uncategorized</span>
+                            }
+                        </div>
+                        <p>
+                            @post.Description
+                        </p>
+                    </div>
+
+                    <div class="post-content-2">
+                        <p class="post-date">@post.DateDeadlineFormatted</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        }
     }
     @await Component.InvokeAsync("Pagination", new
     {

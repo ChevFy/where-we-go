@@ -48,13 +48,13 @@ namespace where_we_go.Service
             if (!string.IsNullOrWhiteSpace(query.NameFilter))
             {
                 var keyword = query.NameFilter.Trim();
-                posts = posts.Where(p => p.Title.Contains(keyword));
+                posts = posts.Where(p => EF.Functions.Like(p.Title.ToLower(), $"%{keyword}%"));
             }
 
             // Filter by categories
             if (query.Categories != null && query.Categories.Count > 0)
             {
-                posts = posts.Where(p => query.Categories.All(catId => p.Categories.Any(c => c.CategoryId == catId)));
+                posts = posts.Where(p => query.Categories.Any(catId => p.Categories.Any(c => c.CategoryId == catId)));
             }
 
             // Filter by status
@@ -63,21 +63,20 @@ namespace where_we_go.Service
             {
                 posts = query.StatusFilter.ToLower() switch
                 {
-                    "delete" => posts.Where(p => p.Status == "Delete"),
-                    "ended" => posts.Where(p => p.Status != "Delete" && now > p.DateDeadline),
-                    "full" => posts.Where(p => p.Status != "Delete" &&
+                    "delete" => posts.Where(p => p.Status == PostStatus.Delete),
+                    "ended" => posts.Where(p => p.Status != PostStatus.Delete && now > p.DateDeadline),
+                    "full" => posts.Where(p => p.Status != PostStatus.Delete &&
                                               now <= p.DateDeadline &&
                                               _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) >= p.MaxParticipants),
-                    "active" => posts.Where(p => p.Status != "Delete" &&
+                    "active" => posts.Where(p => p.Status != PostStatus.Delete &&
                                                 now <= p.DateDeadline &&
                                                 _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) < p.MaxParticipants),
-                    _ => posts
+                    _ => posts.Where(p => p.Status != PostStatus.Delete)
                 };
             }
             else
             {
-                // Default: exclude deleted posts
-                posts = posts.Where(p => p.Status != "Delete");
+                posts = posts.Where(p => p.Status != PostStatus.Delete);
             }
 
             // Sort by
@@ -96,7 +95,7 @@ namespace where_we_go.Service
                 Description = p.Description,
                 LocationName = p.LocationName,
                 DateDeadline = p.DateDeadline,
-                Status = GetPostStatus(p),
+                Status = GetPostStatus(p).ToString(),
                 Categories = [.. p.Categories.Select(c => new CategorySimpleDto
                 {
                     CategoryId = c.CategoryId,

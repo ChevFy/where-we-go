@@ -18,15 +18,16 @@ namespace where_we_go.ViewComponents
         public async Task<IViewComponentResult> InvokeAsync(
             string targetId,
             string mainText,
-            string width,
-            string height,
-            List<SelectDropdownItem> items)
+            List<SelectDropdownItem>? items = null,
+            string width = "200px",
+            string height = "40px")
         {
             ViewBag.width = width;
             ViewBag.height = height;
             ViewBag.mainText = mainText;
             ViewBag.targetId = targetId;
-            return View(items);
+            var resultModel = items ?? new List<SelectDropdownItem>();
+            return View(resultModel);
         }
     }
 }

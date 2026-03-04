@@ -31,6 +31,13 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
     [HttpGet]
     public IActionResult PostCreate()
     {
+        ViewBag.Categories = dbContext.Categories
+            .Select(c => new CategorySelectDto
+            {
+                CategoryId = c.CategoryId,
+                CategoryName = c.Name
+            }).ToList();
+
         return View();
     }
 
@@ -40,6 +47,12 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
     {
         if (!ModelState.IsValid)
         {
+            ViewBag.Categories = dbContext.Categories
+                .Select(c => new CategorySelectDto
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.Name
+                }).ToList();
             return View(dto);
         }
 

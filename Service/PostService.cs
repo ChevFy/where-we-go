@@ -7,7 +7,7 @@ using where_we_go.Models;
 
 namespace where_we_go.Service
 {
-    public class PostService : IPostService
+    public class PostService : BaseService, IPostService
     {
         private readonly AppDbContext _dbContext;
 
@@ -40,30 +40,72 @@ namespace where_we_go.Service
             return PostStatus.Active;
         }
 
-        public async Task<List<PostDto>> GetAllPostsAsync()
+        public async Task<PaginatedResponseDto<PostDto>> GetAllPostsAsync(PostQueryDto query)
         {
-            var posts = await _dbContext.Posts
-                .Where(p => p.Status != PostStatus.Delete)
+            var posts = _dbContext.Posts
                 .Include(p => p.Categories)
-                .ToListAsync();
-            var result = new List<PostDto>();
-            foreach (var p in posts)
+                .AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(query.NameFilter))
             {
-                result.Add(new PostDto
+                var keyword = query.NameFilter.Trim();
+                posts = posts.Where(p => EF.Functions.Like(p.Title.ToLower(), $"%{keyword}%"));
+            }
+
+            // Filter by categories
+            if (query.Categories != null && query.Categories.Count > 0)
+            {
+                posts = posts.Where(p => query.Categories.Any(catId => p.Categories.Any(c => c.CategoryId == catId)));
+            }
+
+            // Filter by status
+            var now = DateTime.UtcNow;
+            if (!string.IsNullOrWhiteSpace(query.StatusFilter))
+            {
+                posts = query.StatusFilter.ToLower() switch
                 {
-                    PostId = p.PostId,
-                    Title = p.Title,
-                    Description = p.Description,
-                    LocationName = p.LocationName,
-                    DateDeadline = p.DateDeadline,
-                    Status = GetPostStatus(p).ToString(),
-                    PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(p.PostImageKey),
-                    Categories = p.Categories.Select(c => new CategorySimpleDto
-                    {
-                        CategoryId = c.CategoryId,
-                        Name = c.Name
-                    }).ToList()
-                });
+                    "delete" => posts.Where(p => p.Status == PostStatus.Delete),
+                    "ended" => posts.Where(p => p.Status != PostStatus.Delete && now > p.DateDeadline),
+                    "full" => posts.Where(p => p.Status != PostStatus.Delete &&
+                                              now <= p.DateDeadline &&
+                                              _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) >= p.MaxParticipants),
+                    "active" => posts.Where(p => p.Status != PostStatus.Delete &&
+                                                now <= p.DateDeadline &&
+                                                _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) < p.MaxParticipants),
+                    _ => posts.Where(p => p.Status != PostStatus.Delete)
+                };
+            }
+            else
+            {
+                posts = posts.Where(p => p.Status != PostStatus.Delete);
+            }
+
+            // Sort by
+            posts = (query.SortBy ?? "").ToLower() switch
+            {
+                "title" => posts.OrderBy(p => p.Title),
+                "title_desc" => posts.OrderByDescending(p => p.Title),
+                "latest" => posts.OrderByDescending(p => p.DateCreated),
+                "oldest" => posts.OrderBy(p => p.DateCreated),
+                _ => posts.OrderBy(p => p.PostId)
+            };
+            var result = await ToPaginatedResponseAsync(posts, query, p => new PostDto
+            {
+                PostId = p.PostId,
+                Title = p.Title,
+                Description = p.Description,
+                LocationName = p.LocationName,
+                DateDeadline = p.DateDeadline,
+                Status = GetPostStatus(p).ToString(),
+                Categories = [.. p.Categories.Select(c => new CategorySimpleDto
+                {
+                    CategoryId = c.CategoryId,
+                    Name = c.Name
+                })]
+
+            });
+            foreach (var p in result.Data)
+            {
+                p.PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(p.PostImgURL);
             }
             return result;
         }

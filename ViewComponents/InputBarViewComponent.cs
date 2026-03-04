@@ -10,6 +10,7 @@ namespace where_we_go.ViewComponents
             string targetId,
             string inputType,
             string placeHolder,
+            string? value = null,
             string width = "100%",
             string height = "50px"
             )
@@ -18,6 +19,7 @@ namespace where_we_go.ViewComponents
             ViewBag.TargetId = targetId;
             ViewBag.inputType = inputType;
             ViewBag.placeHolder = placeHolder;
+            ViewBag.value = value;
             ViewBag.width = width;
             ViewBag.height = height;
             return View();

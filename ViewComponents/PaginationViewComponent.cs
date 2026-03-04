@@ -21,20 +21,22 @@ namespace where_we_go.ViewComponents
                 Action = action,
                 Controller = controller,
                 RouteValues = new RouteValueDictionary(routeValues ?? new { }),
-                Items = BuildPageItems(meta.CurrentPage, meta.LastPage, radius)
+                Items = BuildPageItems(meta.CurrentPage, meta.LastPage, radius, isMobile: false),
+                MobileRadius = 1 // Use radius of 1 for mobile
             };
 
             return Task.FromResult<IViewComponentResult>(View(vm));
         }
 
-        private static List<PaginationItemViewModel> BuildPageItems(int currentPage, int lastPage, int radius)
+        private static List<PaginationItemViewModel> BuildPageItems(int currentPage, int lastPage, int radius, bool isMobile = false)
         {
+            var actualRadius = isMobile ? 1 : radius;
             var result = new List<PaginationItemViewModel>();
             if (lastPage <= 0) return result;
 
             var pages = new SortedSet<int> { 1, lastPage };
-            var start = Math.Max(1, currentPage - radius);
-            var end = Math.Min(lastPage, currentPage + radius);
+            var start = Math.Max(1, currentPage - actualRadius);
+            var end = Math.Min(lastPage, currentPage + actualRadius);
 
             for (var p = start; p <= end; p++) pages.Add(p);
 
@@ -71,6 +73,7 @@ namespace where_we_go.ViewComponents
         public required string Controller { get; init; }
         public required RouteValueDictionary RouteValues { get; init; }
         public required List<PaginationItemViewModel> Items { get; init; }
+        public required int MobileRadius { get; init; }
     }
 
     public class PaginationItemViewModel

@@ -4,6 +4,7 @@
     gap: .6rem;
     flex-wrap: wrap;
     margin-top: 1rem;
+    justify-content: center;
 }
 
 .wwg-page-btn {
@@ -12,24 +13,26 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--border-color, #d9d9d9);
+    border: 1px solid var(--primary-color);
     border-radius: 14px;
     text-decoration: none;
-    color: var(--text-color, #2f2f39);
-    background: var(--surface-color, #fff);
+    color: var(--option-color);
+    background: white;
     font-weight: 600;
     transition: .15s ease;
     padding: 0 .75rem;
+    font-size: var(--font-size-base);
 }
 
 .wwg-page-btn:hover {
-    border-color: var(--color-primary, var(--bs-primary, #3b82f6));
+    border-color: var(--secondary-color);
+    background: var(--tertiary-color);
 }
 
 .wwg-page-btn.is-active {
-    background: var(--color-primary, var(--bs-primary, #3b82f6));
-    border-color: var(--color-primary, var(--bs-primary, #3b82f6));
-    color: #fff;
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
 }
 
 .wwg-page-btn.is-disabled {
@@ -39,4 +42,24 @@
 
 .wwg-page-btn.is-ellipsis {
     pointer-events: none;
+    border: none;
+    background: transparent;
+}
+
+@media (max-width: 768px) {
+    .wwg-pagination {
+        gap: .4rem;
+    }
+
+    .wwg-page-btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 0 .5rem;
+        border-radius: 10px;
+    }
+
+    /* Hide middle page numbers on mobile, keep first, last, current, and nearby */
+    .wwg-page-btn:not(.is-active):not(:first-child):not(:last-child):not(:nth-last-child(2)):not(:nth-child(2)) {
+        display: none;
+    }
 }

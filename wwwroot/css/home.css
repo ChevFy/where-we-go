@@ -216,4 +216,9 @@
   transform: scale(1.1);
 }
 
-/*----*/
+.no-posts-message {
+  text-align: center;
+  padding: 4rem 2rem;
+  font-size: 1.2rem;
+  color: #666;
+}

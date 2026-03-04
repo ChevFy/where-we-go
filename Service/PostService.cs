@@ -64,6 +64,8 @@ namespace where_we_go.Service
                 Description = post.Description,
                 LocationName = post.LocationName,
                 DateDeadline = post.DateDeadline,
+                Locationlat = post.LocationLat ?? 0f,
+                Locationlon = post.LocationLon ?? 0f,
                 CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved),
                 MaxParticipants = post.MaxParticipants,
                 Categories = post.Categories.Select(c => new CategoryDetailDto
@@ -78,18 +80,20 @@ namespace where_we_go.Service
             };
         }
 
-        public async Task CreatePostAsync(PostCreateDto dto, string userId, Guid postId)
+        public async Task CreatePostAsync(PostCreateDto dto, string userId)
         {
             // Combine date and time into a single DateTime
             var combinedDateTime = dto.DateDeadline.Add(dto.TimeDeadline.ToTimeSpan());
 
             var post = new Post
             {
-                PostId = postId,
+                PostId = Guid.NewGuid(),
                 UserId = userId,
                 Title = dto.Title,
                 Description = dto.Description,
                 LocationName = dto.LocationName,
+                LocationLat = !string.IsNullOrEmpty(dto.LocationLat) ? float.Parse(dto.LocationLat) : null,
+                LocationLon = !string.IsNullOrEmpty(dto.LocationLon) ? float.Parse(dto.LocationLon) : null,
                 PostImageKey = string.IsNullOrWhiteSpace(dto.PostImgkey) ? null : dto.PostImgkey,
 
                 DateDeadline = combinedDateTime.ToUniversalTime(),

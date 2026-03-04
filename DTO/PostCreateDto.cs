@@ -16,6 +16,11 @@ namespace where_we_go.DTO
         [StringLength(200, MinimumLength = 1)]
         public required string LocationName { get; set; }
 
+        [StringLength(200, MinimumLength = 1)]
+        public string? LocationLat { get; set; }
+
+        public string? LocationLon { get; set; }
+
         [Required]
         [FutureDate]
         public required DateTime DateDeadline { get; set; }

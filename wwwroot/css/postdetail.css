@@ -96,6 +96,32 @@
     margin-top: 0.5rem;
 }
 
+.post-status {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    margin-top: 0.5rem;
+}
+
+.post-status.active {
+    background-color: #007bff;
+}
+
+.post-status.full {
+    background-color: #28a745;
+}
+
+.post-status.ended {
+    background-color: #dc3545;
+}
+
+.post-status.delete {
+    background-color: #6c757d;
+}
+
 
 
 @media (max-width: 768px) {
@@ -113,7 +139,7 @@
     }
 
     .post-thumbnail {
-        margin-top : 50px;
+        margin-top: 50px;
         height: px;
         margin-bottom: 0.75rem;
     }

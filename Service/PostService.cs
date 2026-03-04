@@ -21,6 +21,25 @@ namespace where_we_go.Service
 
 
 
+        private string GetPostStatus(Post post)
+        {
+            // Check if post is marked as deleted
+            if (post.Status == "Delete")
+                return "Delete";
+
+            // Check if deadline has passed
+            if (DateTime.UtcNow > post.DateDeadline)
+                return "Ended";
+
+            // Check if post is full
+            var participantCount = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved);
+            if (participantCount >= post.MaxParticipants)
+                return "Full";
+
+            // Otherwise active
+            return "Active";
+        }
+
         public async Task<List<PostDto>> GetAllPostsAsync()
         {
             var posts = await _dbContext.Posts
@@ -36,6 +55,7 @@ namespace where_we_go.Service
                     Description = p.Description,
                     LocationName = p.LocationName,
                     DateDeadline = p.DateDeadline,
+                    Status = GetPostStatus(p),
                     PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(p.PostImageKey),
                     Categories = p.Categories.Select(c => new CategorySimpleDto
                     {
@@ -64,6 +84,7 @@ namespace where_we_go.Service
                 Description = post.Description,
                 LocationName = post.LocationName,
                 DateDeadline = post.DateDeadline,
+                Status = GetPostStatus(post),
                 Locationlat = post.LocationLat ?? 0f,
                 Locationlon = post.LocationLon ?? 0f,
                 CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved),
@@ -133,7 +154,8 @@ namespace where_we_go.Service
                 return false;
             }
 
-            _dbContext.Posts.Remove(post);
+            post.Status = "Delete";
+            _dbContext.Posts.Update(post);
             await _dbContext.SaveChangesAsync();
             return true;
         }

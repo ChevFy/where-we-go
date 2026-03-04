@@ -46,6 +46,36 @@
   margin: 15px 0;
 }
 
+.post-status {
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  display: inline-block;
+  white-space: nowrap;
+  text-decoration: none;
+  opacity: 1;
+  visibility: visible;
+  font-weight: normal;
+  line-height: 1.2;
+}
+
+.post-status.active {
+  background-color: #007bff;
+}
+
+.post-status.full {
+  background-color: #28a745;
+}
+
+.post-status.ended {
+  background-color: #dc3545;
+}
+
+.post-status.delete {
+  background-color: #6c757d;
+}
+
 .post-card {
   background-color: var(--tertiary-color);
   width: 100%;
@@ -107,8 +137,8 @@
 }
 
 .post-category span {
-  background-color: white ;
-  color : black;
+  background-color: white;
+  color: black;
   border-radius: 25px;
   padding: 5px 10px;
   text-align: center;

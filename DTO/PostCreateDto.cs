@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace where_we_go.DTO
 {
+    [FutureDateTime]
     public class PostCreateDto
     {
         [Required]
@@ -22,7 +23,6 @@ namespace where_we_go.DTO
         public string? LocationLon { get; set; }
 
         [Required]
-        [FutureDate]
         public required DateTime DateDeadline { get; set; }
 
         [Required]

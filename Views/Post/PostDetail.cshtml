@@ -29,10 +29,11 @@
         <img class="post-thumbnail" src=@Model.PostImgURL alt="Thumbnail">
 
         <h2 class="post-title">@Model.Title</h2>
+        <p class="post-status @Model.Status?.ToLower()">@Model.Status</p>
 
         <div class="post-location">
             <a href="https://www.google.com/maps/search/?api=1&query=@Model.Locationlat,@Model.Locationlon">
-                @Model.LocationName 
+                @Model.LocationName
             </a>
         </div>
 

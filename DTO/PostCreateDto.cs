@@ -16,14 +16,17 @@ namespace where_we_go.DTO
         [StringLength(200, MinimumLength = 1)]
         public required string LocationName { get; set; }
 
-        [Required]
-        public required string LocationLat {get; set;}
-        [Required]
+        [StringLength(200, MinimumLength = 1)]
+        public string? LocationLat { get; set; }
 
-        public required string LocationLon {get; set;}
+        public string? LocationLon { get; set; }
 
         [Required]
+        [FutureDate]
         public required DateTime DateDeadline { get; set; }
+
+        [Required]
+        public required TimeOnly TimeDeadline { get; set; }
 
         [Required]
         [Range(1, int.MaxValue)]
@@ -31,6 +34,7 @@ namespace where_we_go.DTO
 
         [Required]
         [Range(1, int.MaxValue)]
+        [MinMaxValidation("MinParticipants", "MaxParticipants")]
         public required int MaxParticipants { get; set; }
 
         public string? PostImgkey { get; set; }

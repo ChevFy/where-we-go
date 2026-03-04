@@ -61,7 +61,7 @@ namespace where_we_go.Models
             Status = "ACTIVE";
             DateCreated = DateTime.UtcNow;
             DateDeadline = DateTime.UtcNow;
-            InviteCode = null!; 
+            InviteCode = null!;
         }
     }
 

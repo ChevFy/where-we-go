@@ -82,6 +82,9 @@ namespace where_we_go.Service
 
         public async Task CreatePostAsync(PostCreateDto dto, string userId)
         {
+            // Combine date and time into a single DateTime
+            var combinedDateTime = dto.DateDeadline.Add(dto.TimeDeadline.ToTimeSpan());
+
             var post = new Post
             {
                 PostId = Guid.NewGuid(),
@@ -89,11 +92,11 @@ namespace where_we_go.Service
                 Title = dto.Title,
                 Description = dto.Description,
                 LocationName = dto.LocationName,
-                LocationLat = float.Parse(dto.LocationLat),
-                LocationLon = float.Parse(dto.LocationLon),
+                LocationLat = !string.IsNullOrEmpty(dto.LocationLat) ? float.Parse(dto.LocationLat) : null,
+                LocationLon = !string.IsNullOrEmpty(dto.LocationLon) ? float.Parse(dto.LocationLon) : null,
                 PostImageKey = string.IsNullOrWhiteSpace(dto.PostImgkey) ? null : dto.PostImgkey,
 
-                DateDeadline = dto.DateDeadline.ToUniversalTime(),
+                DateDeadline = combinedDateTime.ToUniversalTime(),
 
                 MinParticipants = dto.MinParticipants,
                 MaxParticipants = dto.MaxParticipants,

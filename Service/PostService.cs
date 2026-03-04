@@ -80,6 +80,9 @@ namespace where_we_go.Service
 
         public async Task CreatePostAsync(PostCreateDto dto, string userId, Guid postId)
         {
+            // Combine date and time into a single DateTime
+            var combinedDateTime = dto.DateDeadline.Add(dto.TimeDeadline.ToTimeSpan());
+
             var post = new Post
             {
                 PostId = postId,
@@ -89,7 +92,7 @@ namespace where_we_go.Service
                 LocationName = dto.LocationName,
                 PostImageKey = string.IsNullOrWhiteSpace(dto.PostImgkey) ? null : dto.PostImgkey,
 
-                DateDeadline = dto.DateDeadline.ToUniversalTime(),
+                DateDeadline = combinedDateTime.ToUniversalTime(),
 
                 MinParticipants = dto.MinParticipants,
                 MaxParticipants = dto.MaxParticipants,

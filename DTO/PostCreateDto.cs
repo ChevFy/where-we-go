@@ -21,11 +21,15 @@ namespace where_we_go.DTO
         public required DateTime DateDeadline { get; set; }
 
         [Required]
+        public required TimeOnly TimeDeadline { get; set; }
+
+        [Required]
         [Range(1, int.MaxValue)]
         public required int MinParticipants { get; set; }
 
         [Required]
         [Range(1, int.MaxValue)]
+        [MinMaxValidation("MinParticipants", "MaxParticipants")]
         public required int MaxParticipants { get; set; }
 
         public string? PostImgkey { get; set; }

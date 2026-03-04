@@ -1,25 +1,39 @@
 @{
     var fieldName = ViewBag.Name.ToString();
     var hasError = ViewContext.ModelState.ContainsKey(fieldName) && ViewContext.ModelState[fieldName].Errors.Count > 0;
-    var errorMessage = hasError ? ViewContext.ModelState[fieldName].Errors[0].ErrorMessage : "";
+    var errorMessage = "";
+    
+    if (hasError)
+    {
+        var error = ViewContext.ModelState[fieldName].Errors[0];
+        errorMessage = error.ErrorMessage;
+        
+        // If it's a default binding error, show a more user-friendly message
+        if (errorMessage.Contains("The value") && errorMessage.Contains("is invalid"))
+        {
+            errorMessage = $"{ViewBag.Label} is required or invalid format.";
+        }
+    }
 }
 
 <div class="@ViewBag.CssClass">
     <label for="@ViewBag.Id">@ViewBag.Label</label>
-    <textarea id="@ViewBag.Id"        name="@ViewBag.Name"   rows="@ViewBag.Rows"       @if (ViewBag.Required) {
-    <text>required</text>
-}
-@if (!string.IsNullOrEmpty(ViewBag.Placeholder))
-{
-    <text>placeholder="@ViewBag.Placeholder"</text>
-}
-@if (hasError)
-{
-    <text>style="border-color: red;"</text>
-}
->@ViewBag.Value</textarea>
-@if (hasError && !string.IsNullOrEmpty(errorMessage))
-{
-    <span class="text-danger" style="color: red; font-size: 12px; display: block; margin-top: 5px;">@errorMessage</span>
-}
+    <textarea id="@ViewBag.Id" 
+              name="@ViewBag.Name"
+              rows="@ViewBag.Rows"
+              @if (ViewBag.Required) {
+                  <text>required</text>
+              }
+              @if (!string.IsNullOrEmpty(ViewBag.Placeholder))
+              {
+                  <text>placeholder="@ViewBag.Placeholder"</text>
+              }
+              @if (hasError) {
+                  <text>style="border-color: red;"</text>
+              }
+    >@ViewBag.Value</textarea>
+    @if (hasError && !string.IsNullOrEmpty(errorMessage))
+    {
+        <span class="text-danger" style="color: red; font-size: 12px; display: block; margin-top: 5px;">@errorMessage</span>
+    }
 </div>

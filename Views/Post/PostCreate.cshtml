@@ -82,6 +82,16 @@
 
             @await Component.InvokeAsync("FormInput", new
             {
+                id = "TimeDeadline",
+                name = "TimeDeadline",
+                label = "Event Time",
+                type = "time",
+                required = true,
+                value = Model?.TimeDeadline.ToString("HH:mm") ?? ""
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
                 id = "MinParticipants",
                 name = "MinParticipants",
                 label = "Min Participants",

@@ -3,6 +3,12 @@
 @{
     ViewData["Title"] = "Home Page";
     var isAuthenticated = ViewBag.IsAuth ?? false;
+    var categories = ViewBag.Categories as List<where_we_go.Models.Category> ?? new();
+    var query = ViewBag.Query as where_we_go.DTO.PostQueryDto ?? new();
+    var routeValues = Context.Request.Query.ToDictionary(
+        q => q.Key,
+        q => (object?)q.Value.ToString()
+    );
 }
 
 @section Styles {
@@ -13,6 +19,10 @@
     <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/pagination.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/Select.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/Filter.css" asp-append-version="true" />
 }
 
 <header>
@@ -49,6 +59,96 @@
 
 <div class="home-post-container" style="@(isAuthenticated ? "padding-top: 5rem;" : "")">
     
+    @* Filter Section *@
+    <div class="filter-container">
+        <form method="get" asp-action="Index" class="filter-form">
+            <div class="filter-row">
+                <div class="wwg-input-group">
+                    <label class="wwg-input-label">ค้นหา</label>
+                    @await Component.InvokeAsync("InputBar", new
+                    {
+                        targetId = "NameFilter",
+                        inputType = "text",
+                        placeHolder = "ค้นหาชื่อโพสต์...",
+                        value = query.NameFilter
+                    })
+                </div>
+
+                @await Component.InvokeAsync("Select", new
+                {
+                    name = "SortBy",
+                    options = new List<where_we_go.ViewComponents.SelectOption>
+                    {
+                        new() { Value = "", Text = "เรียงตาม..." },
+                        new() { Value = "latest", Text = "วันที่สร้าง (ใหม่-เก่า)" },
+                        new() { Value = "oldest", Text = "วันที่สร้าง (เก่า-ใหม่)" },
+                        new() { Value = "title", Text = "ชื่อ (A-Z)" },
+                        new() { Value = "title_desc", Text = "ชื่อ (Z-A)" }
+                    },
+                    selectedValue = query.SortBy,
+                    label = "เรียงตาม"
+                })
+
+                @await Component.InvokeAsync("Select", new
+                {
+                    name = "StatusFilter",
+                    options = new List<where_we_go.ViewComponents.SelectOption>
+                    {
+                        new() { Value = "", Text = "สถานะทั้งหมด" },
+                        new() { Value = "active", Text = "กำลังเปิดรับ" },
+                        new() { Value = "full", Text = "เต็มแล้ว" },
+                        new() { Value = "ended", Text = "หมดเขตแล้ว" }
+                    },
+                    selectedValue = query.StatusFilter,
+                    label = "สถานะ"
+                })
+            </div>
+
+            <div class="filter-categories">
+                <label class="wwg-select-label">หมวดหมู่</label>
+                <div class="category-chips">
+                    @foreach (var category in categories)
+                    {
+                        var isSelected = query.Categories?.Contains(category.CategoryId) ?? false;
+                        <label class="category-chip @(isSelected ? "selected" : "")">
+                            <input 
+                                type="checkbox" 
+                                name="Categories" 
+                                value="@category.CategoryId"
+                                checked="@isSelected" />
+                            <span>@category.Name</span>
+                        </label>
+                    }
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                @await Component.InvokeAsync("MainButton", new
+                {
+                    targetId = "filter-submit",
+                    buttonType = "submit",
+                    text = "ค้นหา",
+                    width = "auto",
+                    height = "45px"
+                })
+                
+                <a asp-action="Index" style="text-decoration: none;">
+                    @await Component.InvokeAsync("MainButton", new
+                    {
+                        targetId = "filter-reset",
+                        buttonType = "button",
+                        text = "ล้างตัวกรอง",
+                        color = "white",
+                        hoverColor = "#CAF0F8",
+                        textColor = "#0077B6",
+                        width = "auto",
+                        height = "45px"
+                    })
+                </a>
+            </div>
+        </form>
+    </div>
+
     @* Loop through mock database posts *@
     @foreach (var post in Model.Data)
     {
@@ -89,8 +189,19 @@
         </div>
     </a>
     }
+    @await Component.InvokeAsync("Pagination", new
+    {
+        meta = Model.Meta,
+        action = "Index",
+        controller = "Home",
+        routeValues
+    })
 </div>
 
 <footer>
     @await Component.InvokeAsync("Footer")
 </footer>
+
+@section Scripts {
+    <script src="~/js/filter.js" asp-append-version="true"></script>
+}

@@ -50,16 +50,37 @@ namespace where_we_go.Service
                 var keyword = query.NameFilter.Trim();
                 posts = posts.Where(p => p.Title.Contains(keyword));
             }
-            var now = DateTime.UtcNow;
-            posts = (query.Status ?? "").ToLower() switch
-            {
-                "delete" => posts.Where(p => p.Status == "Delete"),
-                _ => posts.Where(p => p.Status != "Delete")
-            };
+
+            // Filter by categories
             if (query.Categories != null && query.Categories.Count > 0)
             {
                 posts = posts.Where(p => query.Categories.All(catId => p.Categories.Any(c => c.CategoryId == catId)));
             }
+
+            // Filter by status
+            var now = DateTime.UtcNow;
+            if (!string.IsNullOrWhiteSpace(query.StatusFilter))
+            {
+                posts = query.StatusFilter.ToLower() switch
+                {
+                    "delete" => posts.Where(p => p.Status == "Delete"),
+                    "ended" => posts.Where(p => p.Status != "Delete" && now > p.DateDeadline),
+                    "full" => posts.Where(p => p.Status != "Delete" &&
+                                              now <= p.DateDeadline &&
+                                              _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) >= p.MaxParticipants),
+                    "active" => posts.Where(p => p.Status != "Delete" &&
+                                                now <= p.DateDeadline &&
+                                                _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) < p.MaxParticipants),
+                    _ => posts
+                };
+            }
+            else
+            {
+                // Default: exclude deleted posts
+                posts = posts.Where(p => p.Status != "Delete");
+            }
+
+            // Sort by
             posts = (query.SortBy ?? "").ToLower() switch
             {
                 "title" => posts.OrderBy(p => p.Title),

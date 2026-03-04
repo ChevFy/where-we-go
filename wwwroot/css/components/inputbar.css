@@ -2,8 +2,20 @@
 .input-bar {
   box-sizing: border-box; 
   outline: none;
-  border-radius: 25px;
-  border: 2px solid black;
-  padding: 0 3rem 0 1.2rem; 
-  font-size: 16px;
+  border-radius: 10px;
+  border: 2px solid var(--primary-color);
+  padding: 0.75rem 1rem; 
+  font-size: var(--font-size-base);
+  background: white;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.input-bar:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+}
+
+.input-bar::placeholder {
+  color: #999;
 }

@@ -8,14 +8,15 @@ namespace where_we_go.DTO
         {
             if (value is DateTime dateTime)
             {
-                return dateTime > DateTime.Now;
+                // Allow today's date or future dates
+                return dateTime.Date >= DateTime.Now.Date;
             }
             return true;
         }
 
         public override string FormatErrorMessage(string name)
         {
-            return $"{name} must be a future date.";
+            return $"{name} must be today or a future date.";
         }
     }
 }

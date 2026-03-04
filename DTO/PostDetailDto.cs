@@ -30,8 +30,18 @@ namespace where_we_go.DTO
         [Required]
         public DateTime DateDeadline { get; set; }
 
+        public string? Status { get; set; }
+
         [Display(Name = "Deadline")]
-        public string DateDeadlineFormatted => DateDeadline.ToString("dd MMM yyyy");
+        public string DateDeadlineFormatted
+        {
+            get
+            {
+                var thailandTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Bangkok");
+                var localTime = TimeZoneInfo.ConvertTime(DateDeadline, thailandTz);
+                return localTime.ToString("dd MMM yyyy HH:mm");
+            }
+        }
 
         [Display(Name = "Current Participants")]
         public int CurrentParticipants { get; set; }

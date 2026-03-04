@@ -36,6 +36,7 @@ namespace where_we_go.Service
                     Description = p.Description,
                     LocationName = p.LocationName,
                     DateDeadline = p.DateDeadline,
+                    Status = p.Status,
                     PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(p.PostImageKey),
                     Categories = p.Categories.Select(c => new CategorySimpleDto
                     {
@@ -64,6 +65,7 @@ namespace where_we_go.Service
                 Description = post.Description,
                 LocationName = post.LocationName,
                 DateDeadline = post.DateDeadline,
+                Status = post.Status,
                 Locationlat = post.LocationLat ?? 0f,
                 Locationlon = post.LocationLon ?? 0f,
                 CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved),

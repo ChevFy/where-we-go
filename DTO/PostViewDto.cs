@@ -12,9 +12,18 @@ public class PostDto
     public required string Description { get; set; }
     public string? LocationName { get; set; }
     public DateTime DateDeadline { get; set; }
+    public string? Status { get; set; }
 
     public string? PostImgURL { get; set; }
-    public string? DateDeadlineFormatted => DateDeadline.ToString("dd/MM/yyyy");
+    public string? DateDeadlineFormatted
+    {
+        get
+        {
+            var thailandTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Bangkok");
+            var localTime = TimeZoneInfo.ConvertTime(DateDeadline, thailandTz);
+            return localTime.ToString("dd/MM/yyyy HH:mm");
+        }
+    }
     public List<CategorySimpleDto> Categories { get; set; } = [];
 }
 

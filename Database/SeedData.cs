@@ -108,7 +108,7 @@ public static class SeedData
                 MinParticipants = minPart,
                 MaxParticipants = maxPart,
                 DateCreated = DateTime.UtcNow,
-                Status = "Active",
+                Status = PostStatus.Active,
                 InviteCode = inviteCode,
                 Categories = postCategories
             });

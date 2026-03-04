@@ -7,7 +7,7 @@ using where_we_go.Models;
 
 namespace where_we_go.Service
 {
-    public class PostService : IPostService
+    public class PostService : BaseService, IPostService
     {
         private readonly AppDbContext _dbContext;
 
@@ -40,29 +40,52 @@ namespace where_we_go.Service
             return "Active";
         }
 
-        public async Task<List<PostDto>> GetAllPostsAsync()
+        public async Task<PaginatedResponseDto<PostDto>> GetAllPostsAsync(PostQueryDto query)
         {
-            var posts = await _dbContext.Posts
+            var posts = _dbContext.Posts
                 .Include(p => p.Categories)
-                .ToListAsync();
-            var result = new List<PostDto>();
-            foreach (var p in posts)
+                .AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(query.NameFilter))
             {
-                result.Add(new PostDto
+                var keyword = query.NameFilter.Trim();
+                posts = posts.Where(p => p.Title.Contains(keyword));
+            }
+            var now = DateTime.UtcNow;
+            posts = (query.Status ?? "").ToLower() switch
+            {
+                "delete" => posts.Where(p => p.Status == "Delete"),
+                _ => posts.Where(p => p.Status != "Delete")
+            };
+            if (query.Categories != null && query.Categories.Count > 0)
+            {
+                posts = posts.Where(p => query.Categories.All(catId => p.Categories.Any(c => c.CategoryId == catId)));
+            }
+            posts = (query.SortBy ?? "").ToLower() switch
+            {
+                "title" => posts.OrderBy(p => p.Title),
+                "title_desc" => posts.OrderByDescending(p => p.Title),
+                "latest" => posts.OrderByDescending(p => p.DateCreated),
+                "oldest" => posts.OrderBy(p => p.DateCreated),
+                _ => posts.OrderBy(p => p.PostId)
+            };
+            var result = await ToPaginatedResponseAsync(posts, query, p => new PostDto
+            {
+                PostId = p.PostId,
+                Title = p.Title,
+                Description = p.Description,
+                LocationName = p.LocationName,
+                DateDeadline = p.DateDeadline,
+                Status = GetPostStatus(p),
+                Categories = [.. p.Categories.Select(c => new CategorySimpleDto
                 {
-                    PostId = p.PostId,
-                    Title = p.Title,
-                    Description = p.Description,
-                    LocationName = p.LocationName,
-                    DateDeadline = p.DateDeadline,
-                    Status = GetPostStatus(p),
-                    PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(p.PostImageKey),
-                    Categories = p.Categories.Select(c => new CategorySimpleDto
-                    {
-                        CategoryId = c.CategoryId,
-                        Name = c.Name
-                    }).ToList()
-                });
+                    CategoryId = c.CategoryId,
+                    Name = c.Name
+                })]
+
+            });
+            foreach (var p in result.Data)
+            {
+                p.PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(p.PostImgURL);
             }
             return result;
         }

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<where_we_go.Models.PostDto>
+﻿@model where_we_go.DTO.PaginatedResponseDto<where_we_go.Models.PostDto>
 
 @{
     ViewData["Title"] = "Home Page";
@@ -50,7 +50,7 @@
 <div class="home-post-container" style="@(isAuthenticated ? "padding-top: 5rem;" : "")">
     
     @* Loop through mock database posts *@
-    @foreach (var post in Model)
+    @foreach (var post in Model.Data)
     {
     <a asp-controller="Post" asp-action="PostDetail" asp-route-id="@post.PostId" class="post-link">
         <div class="post-card">

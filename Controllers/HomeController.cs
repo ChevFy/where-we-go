@@ -3,21 +3,19 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-using where_we_go.Database;
 using where_we_go.Models;
 using where_we_go.Service;
 
 namespace where_we_go.Controllers;
 
-public class HomeController(UserManager<User> userManager, AppDbContext dbContext, IPostService postService) : Controller
+public class HomeController(UserManager<User> userManager, IPostService postService) : Controller
 {
     private UserManager<User> _userManager { get; init; } = userManager;
     private IPostService _postService { get; init; } = postService;
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index([FromQuery] DTO.PostQueryDto query)
     {
         bool IsAuth = User.Identity?.IsAuthenticated ?? false;
         ViewBag.IsAuth = IsAuth;
@@ -27,7 +25,7 @@ public class HomeController(UserManager<User> userManager, AppDbContext dbContex
             return RedirectToAction("Index", "Admin");
         }
 
-        var posts = await _postService.GetAllPostsAsync();
+        var posts = await _postService.GetAllPostsAsync(query);
 
         return View(posts);
     }

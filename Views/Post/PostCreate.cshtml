@@ -31,8 +31,6 @@
     <div class="post-container">
         <h2 class="post-title">Create New Post</h2>
 
-        <div asp-validation-summary="All" class="text-danger" style="color: red; margin-bottom: 15px;"></div>
-
         <div onclick="document.getElementById('post-imageInput').click()" class="post-img">
             <img id="post-img-url"
                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSTgFro4TxtuXEvoGJDkuv8o972kVsSsbi2w&s"
@@ -49,7 +47,8 @@
                 name = "Title",
                 label = "Title",
                 type = "text",
-                required = true
+                required = true,
+                value = Model?.Title ?? ""
             })
 
             @await Component.InvokeAsync("FormTextarea", new
@@ -57,7 +56,8 @@
                 id = "Description",
                 name = "Description",
                 label = "Description",
-                required = true
+                required = true,
+                value = Model?.Description ?? ""
             })
 
             @await Component.InvokeAsync("FormInput", new
@@ -66,7 +66,8 @@
                 name = "LocationName",
                 label = "Location",
                 type = "text",
-                required = true
+                required = true,
+                value = Model?.LocationName ?? ""
             })
 
             @await Component.InvokeAsync("FormInput", new
@@ -75,7 +76,8 @@
                 name = "DateDeadline",
                 label = "Event Date",
                 type = "date",
-                required = true
+                required = true,
+                value = Model?.DateDeadline.ToString("yyyy-MM-dd") ?? ""
             })
 
             @await Component.InvokeAsync("FormInput", new
@@ -84,7 +86,8 @@
                 name = "MinParticipants",
                 label = "Min Participants",
                 type = "number",
-                required = true
+                required = true,
+                value = Model?.MinParticipants.ToString() ?? ""
             })
 
             @await Component.InvokeAsync("FormInput", new
@@ -93,7 +96,8 @@
                 name = "MaxParticipants",
                 label = "Max Participants",
                 type = "number",
-                required = true
+                required = true,
+                value = Model?.MaxParticipants.ToString() ?? ""
             })
 
             @await Component.InvokeAsync("MainButton", new

@@ -1,5 +1,7 @@
 @using System.Xml.Serialization
+@using Minio.DataModel
 @using where_we_go.DTO
+
 @model PostCreateDto
 @{
     ViewData["Title"] = "Create Post";
@@ -14,6 +16,7 @@
     <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/forminput.css" asp-append-version="true" />
+
 }
 
 @section Scripts
@@ -35,11 +38,11 @@
                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSTgFro4TxtuXEvoGJDkuv8o972kVsSsbi2w&s"
                  alt="">
         </div>
-            <input type="file" id="post-imageInput" style="display: none;" accept="image/*">  
+        <input type="file" id="post-imageInput" style="display: none;" accept="image/*">
 
 
         <form asp-action="PostCreate" asp-controller="Post" method="post">
-            
+
             @await Component.InvokeAsync("FormInput", new
             {
                 id = "Title",
@@ -58,6 +61,19 @@
                 required = true,
                 value = Model?.Description ?? ""
             })
+
+            <div class="form-group check-category">
+                <label>Select Category</label>
+                <div class="category-grid">
+                    @foreach (CategorySelectDto category in ViewBag.Categories){
+                        <label class="category-item">
+                            <input type="checkbox" name="CategoryIds" value="@category.CategoryId" />
+                            <span>@category.CategoryName</span>
+                        </label>
+                    }
+                </div>
+            </div>
+
 
             @await Component.InvokeAsync("FormInput", new
             {
@@ -112,19 +128,23 @@
                 value = Model?.MaxParticipants.ToString() ?? ""
             })
 
+
+
+
             @await Component.InvokeAsync("MainButton", new
             {
                 targetId = "submit-btn",
                 buttonType = "submit",
                 text = "Create Post"
             })
-            
-            
+
+
+
             <input type="hidden" name="postId" value="@ViewBag.postId" />
             <input type="hidden" id="PostImgkey" name="PostImgkey" value="" />
         </form>
-        
-                
+
+
 
 
     </div>

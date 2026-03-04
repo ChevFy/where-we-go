@@ -24,6 +24,9 @@ namespace where_we_go.DTO
         [Required]
         [FutureDate]
         public required DateTime DateDeadline { get; set; }
+        
+        [Required]
+        public List<CategoryDetailDto> Categories { get; set; } = [];
 
         [Required]
         public required TimeOnly TimeDeadline { get; set; }

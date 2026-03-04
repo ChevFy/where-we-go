@@ -1,11 +1,21 @@
+@model List<where_we_go.ViewComponents.SelectDropdownItem>
 
-<select class="select-dropdown"name="gender" id="gender-select"
-  style="width: @ViewBag.width; 
-        height : @ViewBag.height;"
->
-  <option value="">@ViewBag.mainText</option>
-  @foreach(var item in Model)
-  {
-      <option value=@item.Value>@item.Text</option>
-  }
-</select>
+<div class="custom-dropdown" style="width: @ViewBag.width;">
+    <div class="dropdown-header" onclick="toggleDropdown('@ViewBag.targetId')">
+        <span id="selected-text-@ViewBag.targetId">@ViewBag.mainText</span>
+        <i class="arrow-down"></i>
+    </div>
+
+    <div id="@ViewBag.targetId" class="dropdown-content" style="display: none; max-height: @ViewBag.height; overflow-y: auto;">
+        @if (Model != null)
+        {
+            @foreach (var item in Model)
+            {
+                <label class="dropdown-item">
+                    <input type="checkbox" value="@item.Value" name="@ViewBag.targetId" onchange="updateText('@ViewBag.targetId')">
+                    @item.Text
+                </label>
+            }
+        }
+    </div>
+</div>

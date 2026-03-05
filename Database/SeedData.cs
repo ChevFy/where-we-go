@@ -88,13 +88,18 @@ public static class SeedData
     {
         if (context.Posts.Count() >= 10) return;
 
-        var author = context.Users.FirstOrDefault();
-        if (author == null) return;
+        var users = context.Users.ToList();
+        if (!users.Any()) return;
 
         var categories = context.Categories.ToList();
+        var random = new Random();
+        var postIndex = 0;
 
         foreach (var (title, description, location, daysDeadline, minPart, maxPart, inviteCode, categoryNames) in SeedDataModels.Posts.Data)
         {
+            // Select a random user or cycle through users
+            var author = users[postIndex % users.Count];
+
             var postCategories = categories.Where(c => categoryNames.Contains(c.Name)).ToList();
 
             context.Posts.Add(new Post
@@ -112,6 +117,8 @@ public static class SeedData
                 InviteCode = inviteCode,
                 Categories = postCategories
             });
+
+            postIndex++;
         }
 
         context.SaveChanges();

@@ -1,0 +1,38 @@
+@model where_we_go.Models.PostDto
+
+<a asp-controller="Post" asp-action="PostDetail" asp-route-id="@Model.PostId" class="user-post-link">
+    <div class="user-post-card">
+        <div class="user-post-image">
+            <img src="@Model.PostImgURL" alt="@Model.Title">
+        </div>
+
+        <div class="user-post-content">
+            <div class="user-post-header">
+                <h3 class="user-post-title">@Model.Title</h3>
+                <span class="user-post-status @Model.Status?.ToLower()">@Model.Status</span>
+                <span class="user-post-date">@Model.DateDeadlineFormatted</span>
+            </div>
+
+            <div class="user-post-meta">
+                <div class="user-post-categories">
+                    @if (Model.Categories.Count > 0)
+                    {
+                        @foreach (var category in Model.Categories)
+                        {
+                            <span class="user-post-category-tag">@category.Name</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="user-post-category-tag">Uncategorized</span>
+                    }
+                </div>
+                <div class="user-post-spaces">
+                    <span>@Model.CurrentParticipants/@Model.MaxParticipants คน</span>
+                </div>
+            </div>
+
+            <p class="user-post-description">@Model.Description</p>
+        </div>
+    </div>
+</a>

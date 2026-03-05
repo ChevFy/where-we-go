@@ -1,0 +1,72 @@
+@model where_we_go.DTO.PaginatedResponseDto<where_we_go.Models.PostDto>
+
+@{
+    ViewData["Title"] = "โพสต์ที่สร้าง";
+    var userResponse = ViewBag.UserResponse as where_we_go.DTO.UserResponseDto;
+    var query = new where_we_go.DTO.PostQueryDto
+    {
+        Page = Model.Meta.CurrentPage,
+        PageSize = Model.Meta.PageSize
+    };
+    var routeValues = Context.Request.Query.ToDictionary(
+        q => q.Key,
+        q => (object?)q.Value.ToString()
+    );
+    routeValues["username"] = userResponse?.UserName;
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/userprofile.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/userposts.css" asp-append-version="true" />
+
+    @* Import component css *@
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/pagination.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/userpostcard.css" asp-append-version="true" />
+}
+
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
+
+<div class="profile-layout">
+    @await Html.PartialAsync("_UserProfileSidebar", userResponse)
+
+    <div class="profile-main-content">
+        <div class="posts-header">
+            <h1>โพสต์ที่สร้าง</h1>
+            <p class="posts-count">ทั้งหมด @Model.Meta.Total โพสต์</p>
+        </div>
+
+        @if (Model.Data.Count == 0)
+        {
+            <div class="no-posts-message">
+                <p>ยังไม่มีโพสต์ที่สร้าง</p>
+            </div>
+        }
+        else
+        {
+            <div class="user-posts-grid">
+                @foreach (var post in Model.Data)
+                {
+                    @await Component.InvokeAsync("UserPostCard", post)
+                }
+            </div>
+            
+            @await Component.InvokeAsync("Pagination", new
+            {
+                meta = Model.Meta,
+                action = "UserPostsCreated",
+                controller = "User",
+                routeValues
+            })
+        }
+    </div>
+</div>
+
+<footer>
+    @await Component.InvokeAsync("Footer")
+</footer>

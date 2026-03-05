@@ -95,6 +95,7 @@ namespace where_we_go.Service
                 Description = p.Description,
                 LocationName = p.LocationName,
                 DateDeadline = p.DateDeadline,
+                PostImgURL = p.PostImageKey,
                 Status = GetPostStatus(p).ToString(),
                 Categories = [.. p.Categories.Select(c => new CategorySimpleDto
                 {

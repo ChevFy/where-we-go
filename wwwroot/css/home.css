@@ -12,6 +12,7 @@
   justify-content: center;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 25px;
 }
 
 .home-bg-container .main-text {
@@ -101,7 +102,7 @@
 
 .post-img img {
   width: 100%;
-  height: 100%;
+  height: 15rem;
   object-fit: cover;
   display: block;
 }

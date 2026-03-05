@@ -46,6 +46,7 @@
             @await Component.InvokeAsync("MainButton", new { targetId = "started", buttonType = "submit", text = "เริ่มต้นใช้งาน" })   
         </a>
     </div>
+
 }
 
 @if (isAuthenticated)
@@ -58,8 +59,9 @@
 }
 
 <div class="home-post-container" style="@(isAuthenticated ? "padding-top: 5rem;" : "")">
-    
     @* Filter Section *@
+    @if (isAuthenticated)
+    {
     <div class="filter-container">
         <form method="get" asp-action="Index" class="filter-form">
             <div class="filter-row">
@@ -148,6 +150,7 @@
             </div>
         </form>
     </div>
+    }
 
     @* Loop through mock database posts *@
     @if (Model.Data.Count == 0)

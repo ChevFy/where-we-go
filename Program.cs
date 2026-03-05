@@ -41,6 +41,8 @@ namespace where_we_go
 
             builder.Services.AddHostedService<MinioInitializationService>();
 
+            builder.Services.AddHostedService<CronService>();
+
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())

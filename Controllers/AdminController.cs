@@ -4,15 +4,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
+using where_we_go.Database;
 using where_we_go.DTO;
 using where_we_go.Models;
 
 
 [Authorize(Roles = "Admin")]
 [Route("admin")]
-public class AdminController(UserManager<User> userManager, IMemoryCache cache) : Controller
+public class AdminController(UserManager<User> userManager, IMemoryCache cache, AppDbContext dbContext) : Controller
 {
     private IMemoryCache _cache { get; init; } = cache;
+    private AppDbContext _dbContext { get; init; } = dbContext;
 
     [HttpGet("index")]
     public IActionResult Index() => View();
@@ -120,4 +122,58 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache) 
 
         return await GetUsers(query);
     }
+
+    [HttpGet("categories")]
+    public async Task<IActionResult> GetCategories()
+    {
+        var categories = await _dbContext.Categories
+            .AsNoTracking()
+            .Select(c => new CategoryDto
+            {
+                CategoryId = c.CategoryId,
+                Name = c.Name,
+                Description = c.Description,
+                PostCount = c.Posts.Count
+            })
+            .ToListAsync();
+
+        return Json(categories);
+    }
+
+    [HttpPost("categories")]
+    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+        }
+
+        // Check if category name already exists
+        var existingCategory = await _dbContext.Categories
+            .FirstOrDefaultAsync(c => c.Name.ToLower() == dto.Name.ToLower());
+        
+        if (existingCategory != null)
+        {
+            return BadRequest(new { details = "A category with this name already exists" });
+        }
+
+        var category = new Category
+        {
+            CategoryId = Guid.NewGuid(),
+            Name = dto.Name,
+            Description = dto.Description
+        };
+
+        _dbContext.Categories.Add(category);
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(new CategoryDto
+        {
+            CategoryId = category.CategoryId,
+            Name = category.Name,
+            Description = category.Description,
+            PostCount = 0
+        });
+    }
+
 }

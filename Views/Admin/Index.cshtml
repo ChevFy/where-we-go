@@ -62,9 +62,22 @@
     
     <!-- Categories Tab Content -->
     <div id="categories" class="tab-content">
-        <div class="coming-soon">
-            <h3>Category Management</h3>
+        <div class="category-header">
+            <button class="btn-add-category" onclick="openCategoryModal()">+ Add Category</button>
         </div>
+        
+        <table class="category-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Post Count</th>
+                </tr>
+            </thead>
+            <tbody id="categoryList">
+                <!-- Categories will be loaded here via JavaScript -->
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -94,6 +107,29 @@
                 <button type="button" class="btn-cancel" onclick="closeBanModal()">Cancel</button>
                
                 <button type="button" class="btn-submit" onclick="performBan()">Ban User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Category Modal -->
+<div id="categoryModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">Add Category</div>
+        <form id="categoryForm" onsubmit="return false;">
+            @Html.AntiForgeryToken()
+            <div class="form-group">
+                <label for="categoryName">Category Name:</label>
+                <input type="text" id="categoryName" name="name" required placeholder="Enter category name..." />
+            </div>
+            <div class="form-group">
+                <label for="categoryDescription">Description:</label>
+                <textarea id="categoryDescription" name="description" rows="3" placeholder="Enter description (optional)..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeCategoryModal()">Cancel</button>
+               
+                <button type="button" class="btn-submit" onclick="createCategory()">Create Category</button>
             </div>
         </form>
     </div>

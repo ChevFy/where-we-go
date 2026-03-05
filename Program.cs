@@ -39,7 +39,7 @@ namespace where_we_go
 
             builder.Services.AddScoped<IFileService, FileService>();
 
-            //builder.Services.AddHostedService<MinioInitializationService>();
+            builder.Services.AddHostedService<MinioInitializationService>();
 
             var app = builder.Build();
 

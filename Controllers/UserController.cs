@@ -15,14 +15,8 @@ using where_we_go.Service;
 
 namespace where_we_go.Controllers;
 
-public class UserController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IUserService userService, IFileService fileService) : Controller
+public class UserController(UserManager<User> userManager, IUserService userService, IFileService fileService) : Controller
 {
-    private UserManager<User> _userManager { get; init; } = userManager;
-    private RoleManager<IdentityRole> _roleManager { get; init; } = roleManager;
-    private IUserService _userService { get; init; } = userService;
-
-    private IFileService _fileService { get; init; } = fileService;
-
 
     [HttpGet]
     public async Task<IActionResult> UserProfile(string? username)
@@ -30,21 +24,20 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
         if (username is null)
             return RedirectToAction("Index", "Home"); // ทำเป็น redirect ไปหน้า Home ไปก่อน
 
-        var targetUser = await _userManager.FindByNameAsync(username);
+        var targetUser = await userManager.FindByNameAsync(username);
         if (targetUser is null)
             return RedirectToAction("Index", "Home"); // ทำเป็น redirect ไปหน้า Home ไปก่อน
 
-        var roles = (await _userManager.GetRolesAsync(targetUser)).ToArray();
-        var profileUrl = await _fileService.GeneratePresignedProfileUrlAsync(targetUser.ProfileImageKey);
-        if(profileUrl is null)
-                profileUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+        var roles = (await userManager.GetRolesAsync(targetUser)).ToArray();
+        var defaultUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+        var profileUrl = (await fileService.GeneratePresignedProfileUrlAsync(targetUser.ProfileImageKey)) ?? defaultUrl;
 
 
-        var userResponse = new UserResponseDto(targetUser, roles,profileUrl);
+        var userResponse = new UserResponseDto(targetUser, roles, profileUrl);
 
-        bool IsAuth = User.Identity?.IsAuthenticated ?? false;
+        bool isAuth = User.Identity?.IsAuthenticated ?? false;
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        bool isOwner = IsAuth && currentUserId == targetUser.Id;
+        bool isOwner = isAuth && currentUserId == targetUser.Id;
         ViewBag.isOwner = isOwner;
 
         return View(userResponse);
@@ -54,16 +47,14 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
     [HttpGet]
     public async Task<IActionResult> UserEdit()
     {
-        var user = await _userManager.GetUserAsync(User);
+        var user = await userManager.GetUserAsync(User);
         if (user is null)
             return NotFound();
-        var roles = (await _userManager.GetRolesAsync(user)).ToArray();
-        var profileUrl = await _fileService.GeneratePresignedProfileUrlAsync(user.ProfileImageKey);
-        if(profileUrl is null)
-                profileUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+        var roles = (await userManager.GetRolesAsync(user)).ToArray();
+        var defaultUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+        var profileUrl = (await fileService.GeneratePresignedProfileUrlAsync(user.ProfileImageKey)) ?? defaultUrl;
 
-        var userResponse = new UserResponseDto(user, roles,profileUrl);
-
+        var userResponse = new UserResponseDto(user, roles, profileUrl);
 
         return View(userResponse);
     }
@@ -84,28 +75,29 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
             return BadRequest(new { message = "Username is required" });
 
 
-        var user = await _userManager.GetUserAsync(User);
+        var user = await userManager.GetUserAsync(User);
         if (user is null)
             return NotFound();
 
         //Check duplicate
-        var existUser = await  userManager.Users.FirstOrDefaultAsync(u => u.UserName == model.userName && u.Id != user.Id);
+        var existUser = await userManager.Users.FirstOrDefaultAsync(u => u.UserName == model.userName && u.Id != user.Id);
         if (existUser is not null)
         {
             return BadRequest(new { message = "This Username already exist" });
         }
 
-        user.Name = model.Name;
+        if (!string.IsNullOrWhiteSpace(model.Name))
+            user.Name = model.Name;
         user.UserName = model.userName;
         user.Bio = model.Bio;
         user.DateUpdated = DateTime.UtcNow;
-        
-        if (string.IsNullOrWhiteSpace(model.ProfileUrl))
-                user.ProfileImageKey =  user.ProfileImageKey;
-        else    
-                 user.ProfileImageKey = model.ProfileUrl ;
 
-        var result = await _userManager.UpdateAsync(user);
+        if (string.IsNullOrWhiteSpace(model.ProfileUrl))
+            user.ProfileImageKey = user.ProfileImageKey;
+        else
+            user.ProfileImageKey = model.ProfileUrl;
+
+        var result = await userManager.UpdateAsync(user);
 
         if (result.Succeeded)
         {
@@ -129,7 +121,7 @@ public class UserController(UserManager<User> userManager, RoleManager<IdentityR
     [HttpGet]
     public async Task<IActionResult> Test([FromQuery] UserQueryDto query)
     {
-        var user = await _userService.GetUsersAsync(query);
+        var user = await userService.GetUsersAsync(query);
         return View(user);
     }
 }

@@ -97,7 +97,6 @@ namespace where_we_go.Service
                 DateDeadline = p.DateDeadline,
                 PostImgURL = p.PostImageKey,
                 Status = GetPostStatus(p).ToString(),
-                PostImgURL = p.PostImageKey,
                 MaxParticipants = p.MaxParticipants,
                 CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved),
                 Categories = [.. p.Categories.Select(c => new CategorySimpleDto

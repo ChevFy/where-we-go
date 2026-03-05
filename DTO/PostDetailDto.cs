@@ -22,11 +22,26 @@ namespace where_we_go.DTO
         [Display(Name = "Location")]
         public required string LocationName { get; set; }
 
+        public required float Locationlat { get; set; }
+
+        public required float Locationlon { get; set; }
+
+
         [Required]
         public DateTime DateDeadline { get; set; }
 
+        public string? Status { get; set; }
+
         [Display(Name = "Deadline")]
-        public string DateDeadlineFormatted => DateDeadline.ToString("dd MMM yyyy");
+        public string DateDeadlineFormatted
+        {
+            get
+            {
+                var thailandTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Bangkok");
+                var localTime = TimeZoneInfo.ConvertTime(DateDeadline, thailandTz);
+                return localTime.ToString("dd MMM yyyy HH:mm");
+            }
+        }
 
         [Display(Name = "Current Participants")]
         public int CurrentParticipants { get; set; }
@@ -36,15 +51,21 @@ namespace where_we_go.DTO
         [Display(Name = "Max Participants")]
         public int MaxParticipants { get; set; }
 
-        [Required]
-        [Display(Name = "Category")]
-        public required string CategoryName { get; set; }
+        [Display(Name = "Categories")]
+        public List<CategoryDetailDto> Categories { get; set; } = [];
 
-        public string? PostImgURL {get; set;}
+        public string? PostImgURL { get; set; }
 
         [Required]
         public required string UserId { get; set; }
         public bool IsJoined { get; set; }
         public bool IsPending { get; set; }
+    }
+
+    public class CategoryDetailDto
+    {
+        public Guid CategoryId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
     }
 }

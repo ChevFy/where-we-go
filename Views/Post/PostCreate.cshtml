@@ -1,5 +1,7 @@
 @using System.Xml.Serialization
+@using Minio.DataModel
 @using where_we_go.DTO
+
 @model PostCreateDto
 @{
     ViewData["Title"] = "Create Post";
@@ -14,6 +16,7 @@
     <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/forminput.css" asp-append-version="true" />
+
 }
 
 @section Scripts
@@ -24,32 +27,30 @@
 
 <header>
     @await Component.InvokeAsync("Navbar")
-    <div id="hidden-post-id" style="display : none">@ViewBag.postId</div>
 </header>
 
 <div class="post-bg-container">
     <div class="post-container">
         <h2 class="post-title">Create New Post</h2>
 
-        <div asp-validation-summary="All" class="text-danger" style="color: red; margin-bottom: 15px;"></div>
-
         <div onclick="document.getElementById('post-imageInput').click()" class="post-img">
             <img id="post-img-url"
                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSTgFro4TxtuXEvoGJDkuv8o972kVsSsbi2w&s"
                  alt="">
         </div>
-            <input type="file" id="post-imageInput" style="display: none;" accept="image/*">  
+        <input type="file" id="post-imageInput" style="display: none;" accept="image/*">
 
 
         <form asp-action="PostCreate" asp-controller="Post" method="post">
-            
+
             @await Component.InvokeAsync("FormInput", new
             {
                 id = "Title",
                 name = "Title",
                 label = "Title",
                 type = "text",
-                required = true
+                required = true,
+                value = Model?.Title ?? ""
             })
 
             @await Component.InvokeAsync("FormTextarea", new
@@ -57,17 +58,35 @@
                 id = "Description",
                 name = "Description",
                 label = "Description",
-                required = true
+                required = true,
+                value = Model?.Description ?? ""
             })
+
+            <div class="form-group check-category">
+                <label>Select Category</label>
+                <div class="category-grid">
+                    @foreach (CategorySelectDto category in ViewBag.Categories){
+                        <label class="category-item">
+                            <input type="checkbox" name="CategoryIds" value="@category.CategoryId" />
+                            <span>@category.CategoryName</span>
+                        </label>
+                    }
+                </div>
+            </div>
+
 
             @await Component.InvokeAsync("FormInput", new
             {
                 id = "LocationName",
                 name = "LocationName",
-                label = "Location",
+                label = "Location Name",
                 type = "text",
-                required = true
+                required = true,
+                value = Model?.LocationName ?? ""
             })
+            <div id="map" style="height: 500px; width: 100%;"></div>
+            <input id="location-lat" type="hidden" name="LocationLat" />
+            <input id="location-lon" type="hidden" name="LocationLon" />
 
             @await Component.InvokeAsync("FormInput", new
             {
@@ -75,7 +94,18 @@
                 name = "DateDeadline",
                 label = "Event Date",
                 type = "date",
-                required = true
+                required = true,
+                value = Model?.DateDeadline.ToString("yyyy-MM-dd") ?? ""
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "TimeDeadline",
+                name = "TimeDeadline",
+                label = "Event Time",
+                type = "time",
+                required = true,
+                value = Model?.TimeDeadline.ToString("HH:mm") ?? ""
             })
 
             @await Component.InvokeAsync("FormInput", new
@@ -84,7 +114,8 @@
                 name = "MinParticipants",
                 label = "Min Participants",
                 type = "number",
-                required = true
+                required = true,
+                value = Model?.MinParticipants.ToString() ?? ""
             })
 
             @await Component.InvokeAsync("FormInput", new
@@ -93,8 +124,12 @@
                 name = "MaxParticipants",
                 label = "Max Participants",
                 type = "number",
-                required = true
+                required = true,
+                value = Model?.MaxParticipants.ToString() ?? ""
             })
+
+
+
 
             @await Component.InvokeAsync("MainButton", new
             {
@@ -102,10 +137,14 @@
                 buttonType = "submit",
                 text = "Create Post"
             })
-            
+
+
+
             <input type="hidden" name="postId" value="@ViewBag.postId" />
             <input type="hidden" id="PostImgkey" name="PostImgkey" value="" />
         </form>
+
+
 
 
     </div>

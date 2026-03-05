@@ -4,12 +4,13 @@
     width: 100%;
     display: flex;
     justify-content: center;
-    padding: 5rem 0 2rem;
 }
 
 .post-container {
     padding: 1rem;
-    width: 60%;
+    margin: 5rem 2.5rem;
+    width: 100%;
+    max-width: 700px;
     background-color: var(--tertiary-color);
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -17,32 +18,150 @@
 
 .post-thumbnail {
     width: 100%;
-    height: 50%;
-    object-fit:cover;
+    height: 350px;
+    object-fit: cover;
     border-radius: 8px;
     margin-bottom: 1rem;
 }
 
 .post-title {
-    font-size: var(--font-size-large);
+    font-size: var(--font-size-medium);
     color: var(--primary-color);
     margin-bottom: 1rem;
     text-align: center;
+    word-break: break-word;
+}
+
+.post-location,
+.post-date,
+.post-population {
+    margin-bottom: 0.5rem;
+    font-size: var(--font-size-base);
+}
+
+.post-category {
+    margin-bottom: 0.75rem;
+}
+
+.post-category ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.post-category li {
+    background-color: white;
+    color: black;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: var(--font-size-small);
+}
+
+.post-description {
+    margin-bottom: 1rem;
+    font-size: var(--font-size-base);
+    line-height: 1.6;
+    word-break: break-word;
 }
 
 .post-card {
     overflow: hidden;
 }
 
+.join-section {
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+
 .btn {
     width: 100%;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 20px;
     border-radius: 5px;
     cursor: pointer;
+    font-size: var(--font-size-base);
+    transition: opacity 0.2s ease;
 }
 
 .btn:hover {
     opacity: 0.8;
+}
+
+.btn-danger {
+    background-color: rgb(220, 53, 69);
+    margin-top: 0.5rem;
+}
+
+.post-status {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    margin-top: 0.5rem;
+}
+
+.post-status.active {
+    background-color: #007bff;
+}
+
+.post-status.full {
+    background-color: #28a745;
+}
+
+.post-status.ended {
+    background-color: #dc3545;
+}
+
+.post-status.delete {
+    background-color: #6c757d;
+}
+
+
+
+@media (max-width: 768px) {
+    .post-bg-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .post-container {
+        margin-top: 25px;
+        padding: 1rem;
+        max-width: 100%;
+        height: 100vh;
+    }
+
+    .post-thumbnail {
+        margin-top: 50px;
+        height: px;
+        margin-bottom: 0.75rem;
+    }
+
+    .post-title {
+        font-size: 1.5rem;
+    }
+
+    .post-location,
+    .post-date,
+    .post-population {
+        font-size: 0.9rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .post-description {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        font-size: 0.95rem;
+    }
 }

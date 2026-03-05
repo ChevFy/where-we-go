@@ -1,0 +1,28 @@
+.wwg-select-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.wwg-select-label {
+    font-size: var(--font-size-base);
+    color: var(--option-color);
+    font-weight: 600;
+}
+
+.wwg-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--primary-color);
+    border-radius: 10px;
+    font-size: var(--font-size-base);
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wwg-select:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+}

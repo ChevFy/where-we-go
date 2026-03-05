@@ -1,0 +1,16 @@
+@model where_we_go.ViewComponents.SelectViewModel
+
+<div class="wwg-select-group">
+    @if (!string.IsNullOrEmpty(Model.Label))
+    {
+        <label for="@Model.Name" class="wwg-select-label">@Model.Label</label>
+    }
+    <select name="@Model.Name" id="@Model.Name" class="wwg-select @Model.CssClass">
+        @foreach (var option in Model.Options)
+        {
+            <option value="@option.Value" selected="@(option.Value == Model.SelectedValue)">
+                @option.Text
+            </option>
+        }
+    </select>
+</div>

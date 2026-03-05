@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.AspNetCore.Identity;
 
+using where_we_go.Models.Enums;
+
 
 namespace where_we_go.Models
 {
@@ -39,7 +41,7 @@ namespace where_we_go.Models
 
         public DateTime DateDeadline { get; set; }
 
-        public string Status { get; set; }
+        public PostStatus Status { get; set; }
 
         [Required]
         public required string LocationName { get; set; }
@@ -58,10 +60,10 @@ namespace where_we_go.Models
 
         public Post()
         {
-            Status = "ACTIVE";
+            Status = PostStatus.Active;
             DateCreated = DateTime.UtcNow;
             DateDeadline = DateTime.UtcNow;
-            InviteCode = null!; 
+            InviteCode = null!;
         }
     }
 

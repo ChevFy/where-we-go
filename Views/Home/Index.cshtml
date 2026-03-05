@@ -1,8 +1,14 @@
-﻿@model IEnumerable<where_we_go.Models.PostDto>
+﻿@model where_we_go.DTO.PaginatedResponseDto<where_we_go.Models.PostDto>
 
 @{
     ViewData["Title"] = "Home Page";
     var isAuthenticated = ViewBag.IsAuth ?? false;
+    var categories = ViewBag.Categories as List<where_we_go.Models.Category> ?? new();
+    var query = ViewBag.Query as where_we_go.DTO.PostQueryDto ?? new();
+    var routeValues = Context.Request.Query.ToDictionary(
+        q => q.Key,
+        q => (object?)q.Value.ToString()
+    );
 }
 
 @section Styles {
@@ -13,6 +19,10 @@
     <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/pagination.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/Select.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/Filter.css" asp-append-version="true" />
 }
 
 <header>
@@ -49,35 +59,158 @@
 
 <div class="home-post-container" style="@(isAuthenticated ? "padding-top: 5rem;" : "")">
     
-    @* Loop through mock database posts *@
-    @foreach (var post in Model)
-    {
-    <a asp-controller="Post" asp-action="PostDetail" asp-route-id="@post.PostId" class="post-link">
-        <div class="post-card">
-            <div class="post-img">
-                <img src=@post.PostImgURL alt="https://steamcdn-a.akamaihd.net/steam/apps/398970/header.jpg">
-            </div>
-            
-            <div class="post-content">
-                <div class="post-content-1">
-                    <h2 class="post-title">@post.Title</h2>
-                    <div class="post-category">
-                        <span>@post.CategoryName</span>
-                    </div>
-                    <p>
-                        @post.Description
-                    </p>
+    @* Filter Section *@
+    <div class="filter-container">
+        <form method="get" asp-action="Index" class="filter-form">
+            <div class="filter-row">
+                <div class="wwg-input-group">
+                    <label class="wwg-input-label">ค้นหา</label>
+                    @await Component.InvokeAsync("InputBar", new
+                    {
+                        targetId = "NameFilter",
+                        inputType = "text",
+                        placeHolder = "ค้นหาชื่อโพสต์...",
+                        value = query.NameFilter
+                    })
                 </div>
 
-                <div class="post-content-2">
-                    <p class="post-date">@post.DateDeadlineFormatted</p>
+                @await Component.InvokeAsync("Select", new
+                {
+                    name = "SortBy",
+                    options = new List<where_we_go.ViewComponents.SelectOption>
+                    {
+                        new() { Value = "", Text = "เรียงตาม..." },
+                        new() { Value = "latest", Text = "วันที่สร้าง (ใหม่-เก่า)" },
+                        new() { Value = "oldest", Text = "วันที่สร้าง (เก่า-ใหม่)" },
+                        new() { Value = "title", Text = "ชื่อ (A-Z)" },
+                        new() { Value = "title_desc", Text = "ชื่อ (Z-A)" }
+                    },
+                    selectedValue = query.SortBy,
+                    label = "เรียงตาม"
+                })
+
+                @await Component.InvokeAsync("Select", new
+                {
+                    name = "StatusFilter",
+                    options = new List<where_we_go.ViewComponents.SelectOption>
+                    {
+                        new() { Value = "", Text = "สถานะทั้งหมด" },
+                        new() { Value = "active", Text = "กำลังเปิดรับ" },
+                        new() { Value = "full", Text = "เต็มแล้ว" },
+                        new() { Value = "ended", Text = "หมดเขตแล้ว" }
+                    },
+                    selectedValue = query.StatusFilter,
+                    label = "สถานะ"
+                })
+            </div>
+
+            <div class="filter-categories">
+                <label class="wwg-select-label">หมวดหมู่</label>
+                <div class="category-chips">
+                    @foreach (var category in categories)
+                    {
+                        var isSelected = query.Categories?.Contains(category.CategoryId) ?? false;
+                        <label class="category-chip @(isSelected ? "selected" : "")">
+                            <input 
+                                type="checkbox" 
+                                name="Categories" 
+                                value="@category.CategoryId"
+                                checked="@isSelected" />
+                            <span>@category.Name</span>
+                        </label>
+                    }
                 </div>
             </div>
+
+            <div class="filter-actions">
+                @await Component.InvokeAsync("MainButton", new
+                {
+                    targetId = "filter-submit",
+                    buttonType = "submit",
+                    text = "ค้นหา",
+                    width = "auto",
+                    height = "45px"
+                })
+                
+                <a asp-action="Index" style="text-decoration: none;">
+                    @await Component.InvokeAsync("MainButton", new
+                    {
+                        targetId = "filter-reset",
+                        buttonType = "button",
+                        text = "ล้างตัวกรอง",
+                        color = "white",
+                        hoverColor = "#CAF0F8",
+                        textColor = "#0077B6",
+                        width = "auto",
+                        height = "45px"
+                    })
+                </a>
+            </div>
+        </form>
+    </div>
+
+    @* Loop through mock database posts *@
+    @if (Model.Data.Count == 0)
+    {
+        <div class="no-posts-message">
+            <p>ไม่พบโพสต์ที่ตรงกับเงื่อนไขการค้นหา</p>
         </div>
-    </a>
     }
+    else
+    {
+        @foreach (var post in Model.Data)
+        {
+        <a asp-controller="Post" asp-action="PostDetail" asp-route-id="@post.PostId" class="post-link">
+            <div class="post-card">
+                <div class="post-img">
+                    <img src=@post.PostImgURL alt="https://steamcdn-a.akamaihd.net/steam/apps/398970/header.jpg">
+                </div>
+                
+                <div class="post-content">
+                    <div class="post-content-1">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h2 class="post-title">@post.Title</h2>
+                            <span class="post-status @post.Status?.ToLower()">@post.Status</span>
+                        </div>
+                        <div class="post-category">
+                            @if (post.Categories.Count > 0)
+                            {
+                                @foreach (var category in post.Categories)
+                                {
+                                    <span>@category.Name</span>
+                                }
+                            }
+                            else
+                            {
+                                <span>Uncategorized</span>
+                            }
+                        </div>
+                        <p>
+                            @post.Description
+                        </p>
+                    </div>
+
+                    <div class="post-content-2">
+                        <p class="post-date">@post.DateDeadlineFormatted</p>
+                    </div>
+                </div>
+            </div>
+        </a>
+        }
+    }
+    @await Component.InvokeAsync("Pagination", new
+    {
+        meta = Model.Meta,
+        action = "Index",
+        controller = "Home",
+        routeValues
+    })
 </div>
 
 <footer>
     @await Component.InvokeAsync("Footer")
 </footer>
+
+@section Scripts {
+    <script src="~/js/filter.js" asp-append-version="true"></script>
+}

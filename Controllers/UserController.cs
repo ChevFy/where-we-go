@@ -15,9 +15,8 @@ using where_we_go.Service;
 
 namespace where_we_go.Controllers;
 
-public class UserController(UserManager<User> userManager, IUserService userService, IFileService fileService) : Controller
+public class UserController(UserManager<User> userManager, IUserService userService, IFileService fileService, IPostService postService) : Controller
 {
-
     [HttpGet]
     public async Task<IActionResult> UserProfile(string? username)
     {
@@ -39,6 +38,18 @@ public class UserController(UserManager<User> userManager, IUserService userServ
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         bool isOwner = isAuth && currentUserId == targetUser.Id;
         ViewBag.isOwner = isOwner;
+
+        if (isOwner)
+        {
+
+            var createdPostsQuery = new PostQueryDto { Page = 1, PageSize = 10 };
+            var createdPosts = await postService.GetPostsByUserIdAsync(targetUser.Id, createdPostsQuery);
+            ViewBag.CreatedPosts = createdPosts;
+
+            var joinedPostsQuery = new PostQueryDto { Page = 1, PageSize = 10 };
+            var joinedPosts = await postService.GetPostsJoinedByUserIdAsync(targetUser.Id, joinedPostsQuery);
+            ViewBag.JoinedPosts = joinedPosts;
+        }
 
         return View(userResponse);
     }
@@ -123,5 +134,59 @@ public class UserController(UserManager<User> userManager, IUserService userServ
     {
         var user = await userService.GetUsersAsync(query);
         return View(user);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> UserPostsCreated(string? username, [FromQuery] PostQueryDto query)
+    {
+        if (username is null)
+            return RedirectToAction("Index", "Home");
+
+        var targetUser = await userManager.FindByNameAsync(username);
+        if (targetUser is null)
+            return RedirectToAction("Index", "Home");
+
+        var roles = (await userManager.GetRolesAsync(targetUser)).ToArray();
+        var defaultUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+        var profileUrl = (await fileService.GeneratePresignedProfileUrlAsync(targetUser.ProfileImageKey)) ?? defaultUrl;
+
+        var userResponse = new UserResponseDto(targetUser, roles, profileUrl);
+
+        bool isAuth = User.Identity?.IsAuthenticated ?? false;
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        bool isOwner = isAuth && currentUserId == targetUser.Id;
+        ViewBag.isOwner = isOwner;
+        ViewBag.UserResponse = userResponse;
+
+        var createdPosts = await postService.GetPostsByUserIdAsync(targetUser.Id, query);
+
+        return View(createdPosts);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> UserPostsJoined(string? username, [FromQuery] PostQueryDto query)
+    {
+        if (username is null)
+            return RedirectToAction("Index", "Home");
+
+        var targetUser = await userManager.FindByNameAsync(username);
+        if (targetUser is null)
+            return RedirectToAction("Index", "Home");
+
+        var roles = (await userManager.GetRolesAsync(targetUser)).ToArray();
+        var defaultUrl = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+        var profileUrl = (await fileService.GeneratePresignedProfileUrlAsync(targetUser.ProfileImageKey)) ?? defaultUrl;
+
+        var userResponse = new UserResponseDto(targetUser, roles, profileUrl);
+
+        bool isAuth = User.Identity?.IsAuthenticated ?? false;
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        bool isOwner = isAuth && currentUserId == targetUser.Id;
+        ViewBag.isOwner = isOwner;
+        ViewBag.UserResponse = userResponse;
+
+        var joinedPosts = await postService.GetPostsJoinedByUserIdAsync(targetUser.Id, query);
+
+        return View(joinedPosts);
     }
 }

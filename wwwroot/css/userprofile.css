@@ -1,9 +1,21 @@
 @import url("site.css");
 
+/* Keep for backward compatibility */
 .profile-container {
     padding: 5em;
     display: flex;
     justify-content: center;
+}
+
+/* Updated for new layout */
+.profile-main-content .profile-card {
+    background-color: var(--tertiary-color);
+    width: 100%;
+    max-width: 900px;
+    height: auto;
+    border-radius: 25px;
+    margin: 0 auto;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .profile-card {
@@ -31,13 +43,14 @@
     margin: 25px;
     height: 12em;
     border-radius: 25px;
+    object-fit: cover;
 }
 
 .profile-top-content {
     margin: 25px 25px 25px 0;
 }
 
-.profile-top-contentp {
+.profile-top-content p {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -103,14 +116,16 @@
     box-sizing: border-box;
 }
 
-.logout-wrapper,.edit-wrapper {
+.logout-wrapper,
+.edit-wrapper {
     flex: 1;
     max-width: 200px;
     text-decoration: none;
     transition: transform 0.2s ease;
 }
 
-.logout-wrapper:hover,.edit-wrapper:hover {
+.logout-wrapper:hover,
+.edit-wrapper:hover {
     transform: translateY(-3px);
 }
 

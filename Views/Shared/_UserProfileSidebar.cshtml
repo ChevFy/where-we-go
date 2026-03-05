@@ -1,0 +1,36 @@
+@model where_we_go.DTO.UserResponseDto
+
+@{
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var username = Model.UserName;
+}
+
+<div class="profile-sidebar">
+    <div class="sidebar-header">
+        <img src="@Model.ProfileUrl" alt="Profile" class="sidebar-avatar" />
+        <div class="sidebar-user-info">
+            <h3>@Model.Name</h3>
+            <p class="sidebar-username">@Model.UserName</p>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a asp-controller="User" asp-action="UserProfile" asp-route-username="@username"
+               class="sidebar-link @(currentAction == "UserProfile" ? "active" : "")">
+            <span class="sidebar-icon">👤</span>
+            <span>โปรไฟล์</span>
+        </a>
+
+        <a asp-controller="User" asp-action="UserPostsCreated" asp-route-username="@username"
+               class="sidebar-link @(currentAction == "UserPostsCreated" ? "active" : "")">
+            <span class="sidebar-icon">📝</span>
+            <span>โพสต์ที่สร้าง</span>
+        </a>
+
+        <a asp-controller="User" asp-action="UserPostsJoined" asp-route-username="@username"
+               class="sidebar-link @(currentAction == "UserPostsJoined" ? "active" : "")">
+            <span class="sidebar-icon">👥</span>
+            <span>โพสต์ที่เข้าร่วม</span>
+        </a>
+    </nav>
+</div>

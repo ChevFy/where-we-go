@@ -40,11 +40,9 @@ namespace where_we_go.Service
             return PostStatus.Active;
         }
 
-        public async Task<PaginatedResponseDto<PostDto>> GetAllPostsAsync(PostQueryDto query)
+        private async Task<PaginatedResponseDto<PostDto>> ApplyFiltersAndGetPaginatedPostsAsync(IQueryable<Post> posts, PostQueryDto query)
         {
-            var posts = _dbContext.Posts
-                .Include(p => p.Categories)
-                .AsNoTracking();
+            // Filter by name
             if (!string.IsNullOrWhiteSpace(query.NameFilter))
             {
                 var keyword = query.NameFilter.Trim();
@@ -88,6 +86,8 @@ namespace where_we_go.Service
                 "oldest" => posts.OrderBy(p => p.DateCreated),
                 _ => posts.OrderBy(p => p.PostId)
             };
+
+            // Map to PostDto and paginate
             var result = await ToPaginatedResponseAsync(posts, query, p => new PostDto
             {
                 PostId = p.PostId,
@@ -96,18 +96,32 @@ namespace where_we_go.Service
                 LocationName = p.LocationName,
                 DateDeadline = p.DateDeadline,
                 Status = GetPostStatus(p).ToString(),
+                PostImgURL = p.PostImageKey,
+                MaxParticipants = p.MaxParticipants,
+                CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved),
                 Categories = [.. p.Categories.Select(c => new CategorySimpleDto
                 {
                     CategoryId = c.CategoryId,
                     Name = c.Name
                 })]
-
             });
+
+            // Generate presigned URLs for post images
             foreach (var p in result.Data)
             {
                 p.PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(p.PostImgURL);
             }
+
             return result;
+        }
+
+        public async Task<PaginatedResponseDto<PostDto>> GetAllPostsAsync(PostQueryDto query)
+        {
+            var posts = _dbContext.Posts
+                .Include(p => p.Categories)
+                .AsNoTracking();
+
+            return await ApplyFiltersAndGetPaginatedPostsAsync(posts, query);
         }
 
         public async Task<PostDetailDto?> GetPostDetailAsync(Guid id, string? currentUserId = null)
@@ -274,6 +288,28 @@ namespace where_we_go.Service
 
             await _dbContext.SaveChangesAsync();
             return "Success";
+        }
+
+        public async Task<PaginatedResponseDto<PostDto>> GetPostsByUserIdAsync(string userId, PostQueryDto query)
+        {
+            var posts = _dbContext.Posts
+                .Include(p => p.Categories)
+                .Where(p => p.UserId == userId)
+                .AsNoTracking();
+
+            return await ApplyFiltersAndGetPaginatedPostsAsync(posts, query);
+        }
+
+        public async Task<PaginatedResponseDto<PostDto>> GetPostsJoinedByUserIdAsync(string userId, PostQueryDto query)
+        {
+            var posts = _dbContext.Posts
+                .Include(p => p.Categories)
+                .Where(p => _dbContext.Participants.Any(part => part.PostId == p.PostId &&
+                                                               part.UserId == userId &&
+                                                               part.Status == ParticipantStatus.Approved))
+                .AsNoTracking();
+
+            return await ApplyFiltersAndGetPaginatedPostsAsync(posts, query);
         }
 
 

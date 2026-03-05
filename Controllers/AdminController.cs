@@ -132,8 +132,7 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
             {
                 CategoryId = c.CategoryId,
                 Name = c.Name,
-                Description = c.Description,
-                PostCount = c.Posts.Count
+                Description = c.Description
             })
             .ToListAsync();
 
@@ -171,8 +170,7 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
         {
             CategoryId = category.CategoryId,
             Name = category.Name,
-            Description = category.Description,
-            PostCount = 0
+            Description = category.Description
         });
     }
 

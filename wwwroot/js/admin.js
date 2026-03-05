@@ -418,12 +418,8 @@ function renderCategories(categories) {
         const descTd = document.createElement('td');
         descTd.textContent = category.description || '-';
         
-        const countTd = document.createElement('td');
-        countTd.textContent = category.postCount;
-        
         tr.appendChild(nameTd);
         tr.appendChild(descTd);
-        tr.appendChild(countTd);
         
         tbody.appendChild(tr);
     }

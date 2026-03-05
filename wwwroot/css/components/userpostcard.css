@@ -1,6 +1,5 @@
 @import url("site.css");
 
-/* User Post Card Styles */
 .user-post-link {
     text-decoration: none;
     color: inherit;
@@ -35,7 +34,6 @@
     display: block;
 }
 
-/* Content Section */
 .user-post-content {
     padding: 15px;
     display: flex;
@@ -44,7 +42,6 @@
     flex: 1;
 }
 
-/* Header: Title, Status, Date */
 .user-post-header {
     display: flex;
     align-items: center;
@@ -93,7 +90,6 @@
     white-space: nowrap;
 }
 
-/* Meta: Categories and Spaces */
 .user-post-meta {
     display: flex;
     justify-content: space-between;
@@ -128,7 +124,6 @@
     white-space: nowrap;
 }
 
-/* Description */
 .user-post-description {
     font-size: var(--font-size-small);
     color: #333;
@@ -140,7 +135,6 @@
     overflow: hidden;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .user-post-title {
         font-size: var(--font-size-small);

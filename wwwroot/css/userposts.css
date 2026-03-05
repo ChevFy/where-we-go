@@ -1,12 +1,10 @@
 @import url("site.css");
 
-/* Ensure proper box sizing */
 .profile-layout,
 .profile-layout * {
     box-sizing: border-box;
 }
 
-/* Profile Layout with Sidebar */
 .profile-layout {
     display: flex;
     min-height: calc(100vh - 80px);
@@ -17,7 +15,6 @@
     margin: 0 auto;
 }
 
-/* Sidebar Styles */
 .profile-sidebar {
     width: 280px;
     background-color: var(--tertiary-color);
@@ -97,13 +94,11 @@
     box-shadow: 0 2px 8px rgba(0, 119, 182, 0.3);
 }
 
-/* Main Content Area */
 .profile-main-content {
     flex: 1;
     min-width: 0;
 }
 
-/* Posts Header */
 .posts-header {
     margin-bottom: 2rem;
 }
@@ -120,7 +115,6 @@
     margin: 0;
 }
 
-/* Posts Grid */
 .posts-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -128,7 +122,6 @@
     margin-bottom: 2rem;
 }
 
-/* User Posts Grid - for new post card layout */
 .user-posts-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -136,7 +129,6 @@
     margin-bottom: 2rem;
 }
 
-/* No Posts Message */
 .no-posts-message {
     text-align: center;
     padding: 4rem 2rem;
@@ -156,7 +148,6 @@
     margin: 0;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
     .profile-layout {
         flex-direction: column;

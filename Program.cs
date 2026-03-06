@@ -37,6 +37,8 @@ namespace where_we_go
 
             builder.Services.AddScoped<IPostService, PostService>();
 
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+
             builder.Services.AddScoped<IFileService, FileService>();
 
             builder.Services.AddHostedService<MinioInitializationService>();

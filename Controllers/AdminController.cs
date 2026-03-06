@@ -4,15 +4,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
+using where_we_go.Database;
 using where_we_go.DTO;
 using where_we_go.Models;
+using where_we_go.Service;
 
 
 [Authorize(Roles = "Admin")]
 [Route("admin")]
-public class AdminController(UserManager<User> userManager, IMemoryCache cache) : Controller
+public class AdminController(UserManager<User> userManager, IMemoryCache cache, AppDbContext dbContext, ICategoryService categoryService) : Controller
 {
     private IMemoryCache _cache { get; init; } = cache;
+    private AppDbContext _dbContext { get; init; } = dbContext;
+    private ICategoryService _categoryService { get; init; } = categoryService;
 
     [HttpGet("index")]
     public IActionResult Index() => View();
@@ -120,4 +124,72 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache) 
 
         return await GetUsers(query);
     }
+
+    [HttpGet("categories")]
+    public async Task<IActionResult> GetCategories()
+    {
+        var categories = await _categoryService.GetAllAsync();
+        return Json(categories);
+    }
+
+    [HttpPost("categories")]
+    public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+        }
+
+        try
+        {
+            var category = await _categoryService.CreateAsync(dto);
+            return Ok(category);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { details = ex.Message });
+        }
+    }
+
+    [HttpPut("categories/{id}")]
+    public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] CreateCategoryDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+        }
+
+        try
+        {
+            var category = await _categoryService.UpdateAsync(id, dto);
+            if (category == null)
+            {
+                return NotFound(new { details = "Category not found" });
+            }
+            return Ok(category);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { details = ex.Message });
+        }
+    }
+
+    [HttpDelete("categories/{id:guid}")]
+    public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+    {
+        try
+        {
+            var result = await _categoryService.DeleteAsync(id);
+            if (!result)
+            {
+                return NotFound(new { details = "Category not found" });
+            }
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { details = "Cannot delete category: " + ex.Message });
+        }
+    }
+
 }

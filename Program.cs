@@ -41,12 +41,7 @@ namespace where_we_go
 
             builder.Services.AddScoped<IFileService, FileService>();
 
-            builder.Services.AddScoped<IAdminUserService, AdminUserService>();
-
-            builder.Services.AddScoped<IAdminPostService, AdminPostService>();
-
-            // add SignalR for real-time chat
-            builder.Services.AddSignalR();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
 
             builder.Services.AddHostedService<MinioInitializationService>();
 

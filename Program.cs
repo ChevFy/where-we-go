@@ -37,12 +37,16 @@ namespace where_we_go
 
             builder.Services.AddScoped<IPostService, PostService>();
 
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+
             builder.Services.AddScoped<IFileService, FileService>();
 
             // add SignalR for real-time chat
             builder.Services.AddSignalR();
 
             //builder.Services.AddHostedService<MinioInitializationService>();
+
+            builder.Services.AddHostedService<CronService>();
 
             var app = builder.Build();
 

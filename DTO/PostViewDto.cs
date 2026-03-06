@@ -14,6 +14,9 @@ public class PostDto
     public DateTime DateDeadline { get; set; }
     public string? Status { get; set; }
 
+    public int MaxParticipants { get; set; }
+    public int CurrentParticipants { get; set; }
+
     public string? PostImgURL { get; set; }
     public string? DateDeadlineFormatted
     {

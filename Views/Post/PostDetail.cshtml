@@ -73,6 +73,16 @@
                     <form asp-action="LeavePost" asp-controller="Post" asp-route-id="@Model.PostId" method="post">
                         <button type="submit" class="btn" style="background-color: rgb(243, 49, 49);">Leave Activity</button>
                     </form>
+
+                    @* show chat link if chat exists *@
+                    @if (Model.ChatId != null)
+                    {
+                        <div style="margin-top:1rem;">
+                            <a asp-controller="GroupChat" asp-action="Chat" asp-route-group_chat_id="@Model.ChatId" class="btn btn-primary">
+                                Go to Activity Chat
+                            </a>
+                        </div>
+                    }
                 }
                 else
                 {

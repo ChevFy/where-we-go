@@ -1,14 +1,11 @@
 namespace where_we_go.DTO;
+
 public class MessageDto
 {
-    public string SenderName { get; set; }
-    public string Content { get; set; }
-    public bool IsMe { get; set; }
-
-    public MessageDto(string senderName, string content, bool isMe)
-    {
-        SenderName = senderName;
-        Content = content;
-        IsMe = isMe;
-    }
+    public Guid message_id { get; set; }
+    public string? user_id { get; set; }
+    public string sender_name { get; set; } = "";
+    public string message { get; set; } = "";
+    public DateTime sent_at { get; set; }
+    public bool is_me { get; set; }
 }

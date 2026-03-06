@@ -60,6 +60,9 @@ namespace where_we_go.DTO
         public required string UserId { get; set; }
         public bool IsJoined { get; set; }
         public bool IsPending { get; set; }
+
+        // group chat associated with this activity (nullable until created)
+        public Guid? ChatId { get; set; }
     }
 
     public class CategoryDetailDto

@@ -120,7 +120,7 @@ namespace where_we_go.Service
             if (post == null)
                 return null;
 
-            return new PostDetailDto
+            var result = new PostDetailDto
             {
                 PostId = post.PostId,
                 Title = post.Title,
@@ -140,8 +140,28 @@ namespace where_we_go.Service
                 }).ToList(),
                 PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(post.PostImageKey),
                 UserId = post.UserId,
-                IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved)
+                IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved),
+                ChatId = await _dbContext.GroupChats
+                    .Where(g => g.PostId == post.PostId)
+                    .Select(g => (Guid?)g.GroupChatId)
+                    .FirstOrDefaultAsync()
             };
+
+            // if the current user is joined but there is no chat yet, create one lazily
+            if (result.IsJoined && result.ChatId == null)
+            {
+                var newChat = new GroupChat
+                {
+                    GroupChatId = Guid.NewGuid(),
+                    PostId = post.PostId,
+                    GroupChatName = post.Title
+                };
+                _dbContext.GroupChats.Add(newChat);
+                await _dbContext.SaveChangesAsync();
+                result.ChatId = newChat.GroupChatId;
+            }
+
+            return result;
         }
 
         public async Task CreatePostAsync(PostCreateDto dto, string userId)
@@ -258,6 +278,24 @@ namespace where_we_go.Service
 
             _dbContext.Participants.Add(participant);
             await _dbContext.SaveChangesAsync();
+
+            // if approved and there is no group chat yet, create one now
+            if (assignedStatus == ParticipantStatus.Approved)
+            {
+                var existingChat = await _dbContext.GroupChats
+                    .FirstOrDefaultAsync(g => g.PostId == postId);
+                if (existingChat == null)
+                {
+                    var newChat = new GroupChat
+                    {
+                        GroupChatId = Guid.NewGuid(),
+                        PostId = postId,
+                        GroupChatName = post.Title
+                    };
+                    _dbContext.GroupChats.Add(newChat);
+                    await _dbContext.SaveChangesAsync();
+                }
+            }
 
             return assignedStatus == ParticipantStatus.Pending ? "Pending" : "Success";
         }

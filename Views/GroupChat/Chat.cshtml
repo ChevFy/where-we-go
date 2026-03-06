@@ -1,0 +1,119 @@
+@model where_we_go.DTO.GroupChatViewDto
+
+@{
+    ViewData["Title"] = "Group Chat";
+}
+
+<link rel="stylesheet" href="~/css/GroupChat.css" />
+
+<div class="chat-page">
+
+
+    <div class="chat-header">
+        <h2>@Model.name</h2>
+    </div>
+
+
+    <div class="chat-messages">
+        @foreach (var m in Model.messages)
+        {
+            if (m.is_me)
+            {
+
+                <div class="message-row me">
+                    <div class="message-bubble">
+                        <div class="message-text">@m.message</div>
+                        <div class="message-time">
+                            @m.sent_at.ToString("HH:mm")
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+
+                <div class="message-row other">
+                    <div class="sender">@m.sender_name</div>
+                    <div class="message-bubble">
+                        <div class="message-text">@m.message</div>
+                        <div class="message-time">
+                            @m.sent_at.ToString("HH:mm")
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="chat-input">
+        <form asp-action="SendMessage" asp-controller="GroupChat" method="post" style="display:flex; width:100%">
+            <input type="hidden" name="group_chat_id" value="@Model.group_chat_id" />
+            <input type="text" name="message" placeholder="Type your message..." required style="flex:1;" />
+            <button type="submit" class="btn" style="margin-left:.5rem;">Send</button>
+        </form>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js" integrity="sha512-Dtjxk0+7qGpH2Zj6Kau0jo5F5N+vFj8vmF5Uy1wHnQVotlJwjBMIBohvdHLeB/pY8jciLFn+YTVgW0S/OP3wkw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        (function() {
+            const chatId = '@Model.group_chat_id';
+            const messagesDiv = document.querySelector('.chat-messages');
+            const form = document.querySelector('.chat-input form');
+            const input = form.querySelector('input[name="message"]');
+
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl('/chathub')
+                .build();
+
+            connection.on('ReceiveMessage', function(message) {
+                appendMessage(message);
+            });
+
+            connection.start().then(function() {
+                return connection.invoke('JoinGroup', chatId);
+            }).catch(function(err) {
+                console.error(err.toString());
+            });
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const msg = input.value.trim();
+                if (!msg) return;
+                connection.invoke('SendMessage', chatId, msg).catch(function(err) {
+                    console.error(err.toString());
+                });
+                input.value = '';
+            });
+
+            function appendMessage(m) {
+                const row = document.createElement('div');
+                row.className = 'message-row ' + (m.is_me ? 'me' : 'other');
+                let html;
+                if (m.is_me) {
+                    html = `<div class="message-bubble">
+                                <div class="message-text"></div>
+                                <div class="message-time"></div>
+                            </div>`;
+                } else {
+                    html = `<div class="sender"></div>
+                            <div class="message-bubble">
+                                <div class="message-text"></div>
+                                <div class="message-time"></div>
+                            </div>`;
+                }
+                row.innerHTML = html;
+                if (!m.is_me) {
+                    row.querySelector('.sender').textContent = m.sender_name;
+                }
+                row.querySelector('.message-text').textContent = m.message;
+                row.querySelector('.message-time').textContent = new Date(m.sent_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                messagesDiv.appendChild(row);
+
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        })();
+    </script>
+}

@@ -174,4 +174,81 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
         });
     }
 
+    [HttpPut("categories/{id}")]
+    public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] CreateCategoryDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+        }
+
+        var category = await _dbContext.Categories.FindAsync(id);
+        if (category == null)
+        {
+            return NotFound(new { details = "Category not found" });
+        }
+
+        // Check if category name already exists (excluding current category)
+        var duplicateCategory = await _dbContext.Categories
+            .FirstOrDefaultAsync(c => c.Name.ToLower() == dto.Name.ToLower() && c.CategoryId != id);
+        
+        if (duplicateCategory != null)
+        {
+            return BadRequest(new { details = "A category with this name already exists" });
+        }
+
+        category.Name = dto.Name;
+        category.Description = dto.Description;
+
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(new CategoryDto
+        {
+            CategoryId = category.CategoryId,
+            Name = category.Name,
+            Description = category.Description
+        });
+    }
+
+    [HttpDelete("categories/{id:guid}")]
+    public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+    {
+        try
+        {
+            var category = await _dbContext.Categories.FindAsync(id);
+                
+            if (category == null)
+            {
+                return NotFound(new { details = "Category not found" });
+            }
+
+            // Remove category from all related posts (cascade delete from join table)
+            var postsWithCategory = await _dbContext.Posts
+                .Include(p => p.Categories)
+                .Where(p => p.Categories.Any(c => c.CategoryId == id))
+                .ToListAsync();
+
+            foreach (var post in postsWithCategory)
+            {
+                var categoryToRemove = post.Categories.FirstOrDefault(c => c.CategoryId == id);
+                if (categoryToRemove != null)
+                {
+                    post.Categories.Remove(categoryToRemove);
+                }
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            // Now delete the category
+            _dbContext.Categories.Remove(category);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { details = "Cannot delete category: " + ex.Message });
+        }
+    }
+
 }

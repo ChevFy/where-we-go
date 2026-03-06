@@ -418,8 +418,26 @@ function renderCategories(categories) {
         const descTd = document.createElement('td');
         descTd.textContent = category.description || '-';
         
+        const actionTd = document.createElement('td');
+        actionTd.className = 'action-buttons';
+        
+        // Edit button
+        const editButton = document.createElement('button');
+        editButton.className = 'btn-edit';
+        editButton.textContent = 'Edit';
+        editButton.onclick = function() { openEditCategoryModal(category); };
+        actionTd.appendChild(editButton);
+        
+        // Delete button
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'btn-delete';
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = function() { deleteCategory(category.categoryId); };
+        actionTd.appendChild(deleteButton);
+        
         tr.appendChild(nameTd);
         tr.appendChild(descTd);
+        tr.appendChild(actionTd);
         
         tbody.appendChild(tr);
     }
@@ -445,6 +463,11 @@ window.onclick = function(event) {
     const categoryModal = document.getElementById('categoryModal');
     if (event.target == categoryModal) {
         closeCategoryModal();
+    }
+    
+    const editCategoryModal = document.getElementById('editCategoryModal');
+    if (event.target == editCategoryModal) {
+        closeEditCategoryModal();
     }
 }
 
@@ -500,6 +523,120 @@ function createCategory() {
     .catch(function(error) {
         console.error('Create category error:', error);
         alert('Error creating category: ' + error.message);
+    });
+}
+
+// Store the category being edited
+let editingCategoryId = null;
+
+function openEditCategoryModal(category) {
+    console.log('Opening edit category modal for:', category);
+    editingCategoryId = category.categoryId;
+    document.getElementById('editCategoryName').value = category.name;
+    document.getElementById('editCategoryDescription').value = category.description || '';
+    document.getElementById('editCategoryModal').style.display = 'block';
+}
+
+function closeEditCategoryModal() {
+    document.getElementById('editCategoryModal').style.display = 'none';
+    document.getElementById('editCategoryForm').reset();
+    editingCategoryId = null;
+}
+
+function updateCategory() {
+    console.log('Updating category...');
+    const name = document.getElementById('editCategoryName').value;
+    const description = document.getElementById('editCategoryDescription').value;
+    
+    console.log('Category ID:', editingCategoryId);
+    console.log('Category Name:', name);
+    console.log('Category Description:', description);
+    
+    if (!editingCategoryId) {
+        alert('No category selected for editing');
+        return;
+    }
+    
+    if (!name || !name.trim()) {
+        alert('Please enter a category name');
+        return;
+    }
+    
+    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+    if (!tokenInput) {
+        alert('Security token not found. Please refresh the page.');
+        return;
+    }
+    const token = tokenInput.value;
+    
+    const requestBody = JSON.stringify({
+        name: name,
+        description: description || null
+    });
+    
+    console.log('Sending request to /admin/categories/' + editingCategoryId + '...');
+    
+    fetch('/admin/categories/' + editingCategoryId, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token
+        },
+        body: requestBody
+    })
+    .then(function(response) {
+        console.log('Update category response status:', response.status);
+        if (response.ok) {
+            closeEditCategoryModal();
+            loadCategories();
+            alert('Category updated successfully!');
+        } else {
+            response.json().then(function(data) {
+                alert('Error updating category: ' + (data.details || response.statusText));
+            }).catch(function() {
+                alert('Error updating category: ' + response.statusText);
+            });
+        }
+    })
+    .catch(function(error) {
+        console.error('Update category error:', error);
+        alert('Error updating category: ' + error.message);
+    });
+}
+
+function deleteCategory(categoryId) {
+    console.log('Deleting category:', categoryId);
+    if (!confirm('Are you sure you want to delete this category?')) return;
+    
+    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+    if (!tokenInput) {
+        alert('Security token not found. Please refresh the page.');
+        return;
+    }
+    const token = tokenInput.value;
+    
+    fetch('/admin/categories/' + categoryId, {
+        method: 'DELETE',
+        headers: {
+            'RequestVerificationToken': token
+        }
+    })
+    .then(function(response) {
+        console.log('Delete category response status:', response.status);
+        if (response.ok) {
+            loadCategories();
+            alert('Category deleted successfully!');
+        } else {
+            response.json().then(function(data) {
+                alert('Error deleting category: ' + (data.details || response.statusText));
+            }).catch(function() {
+                alert('Error deleting category: ' + response.statusText);
+            });
+        }
+    })
+    .catch(function(error) {
+        console.error('Delete category error:', error);
+        alert('Error deleting category: ' + error.message);
     });
 }
 

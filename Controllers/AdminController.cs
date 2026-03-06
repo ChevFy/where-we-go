@@ -7,14 +7,16 @@ using Microsoft.Extensions.Caching.Memory;
 using where_we_go.Database;
 using where_we_go.DTO;
 using where_we_go.Models;
+using where_we_go.Service;
 
 
 [Authorize(Roles = "Admin")]
 [Route("admin")]
-public class AdminController(UserManager<User> userManager, IMemoryCache cache, AppDbContext dbContext) : Controller
+public class AdminController(UserManager<User> userManager, IMemoryCache cache, AppDbContext dbContext, ICategoryService categoryService) : Controller
 {
     private IMemoryCache _cache { get; init; } = cache;
     private AppDbContext _dbContext { get; init; } = dbContext;
+    private ICategoryService _categoryService { get; init; } = categoryService;
 
     [HttpGet("index")]
     public IActionResult Index() => View();
@@ -126,16 +128,7 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
     [HttpGet("categories")]
     public async Task<IActionResult> GetCategories()
     {
-        var categories = await _dbContext.Categories
-            .AsNoTracking()
-            .Select(c => new CategoryDto
-            {
-                CategoryId = c.CategoryId,
-                Name = c.Name,
-                Description = c.Description
-            })
-            .ToListAsync();
-
+        var categories = await _categoryService.GetAllAsync();
         return Json(categories);
     }
 
@@ -147,31 +140,15 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
             return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
         }
 
-        // Check if category name already exists
-        var existingCategory = await _dbContext.Categories
-            .FirstOrDefaultAsync(c => c.Name.ToLower() == dto.Name.ToLower());
-        
-        if (existingCategory != null)
+        try
         {
-            return BadRequest(new { details = "A category with this name already exists" });
+            var category = await _categoryService.CreateAsync(dto);
+            return Ok(category);
         }
-
-        var category = new Category
+        catch (InvalidOperationException ex)
         {
-            CategoryId = Guid.NewGuid(),
-            Name = dto.Name,
-            Description = dto.Description
-        };
-
-        _dbContext.Categories.Add(category);
-        await _dbContext.SaveChangesAsync();
-
-        return Ok(new CategoryDto
-        {
-            CategoryId = category.CategoryId,
-            Name = category.Name,
-            Description = category.Description
-        });
+            return BadRequest(new { details = ex.Message });
+        }
     }
 
     [HttpPut("categories/{id}")]
@@ -182,32 +159,19 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
             return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
         }
 
-        var category = await _dbContext.Categories.FindAsync(id);
-        if (category == null)
+        try
         {
-            return NotFound(new { details = "Category not found" });
+            var category = await _categoryService.UpdateAsync(id, dto);
+            if (category == null)
+            {
+                return NotFound(new { details = "Category not found" });
+            }
+            return Ok(category);
         }
-
-        // Check if category name already exists (excluding current category)
-        var duplicateCategory = await _dbContext.Categories
-            .FirstOrDefaultAsync(c => c.Name.ToLower() == dto.Name.ToLower() && c.CategoryId != id);
-        
-        if (duplicateCategory != null)
+        catch (InvalidOperationException ex)
         {
-            return BadRequest(new { details = "A category with this name already exists" });
+            return BadRequest(new { details = ex.Message });
         }
-
-        category.Name = dto.Name;
-        category.Description = dto.Description;
-
-        await _dbContext.SaveChangesAsync();
-
-        return Ok(new CategoryDto
-        {
-            CategoryId = category.CategoryId,
-            Name = category.Name,
-            Description = category.Description
-        });
     }
 
     [HttpDelete("categories/{id:guid}")]
@@ -215,34 +179,11 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
     {
         try
         {
-            var category = await _dbContext.Categories.FindAsync(id);
-                
-            if (category == null)
+            var result = await _categoryService.DeleteAsync(id);
+            if (!result)
             {
                 return NotFound(new { details = "Category not found" });
             }
-
-            // Remove category from all related posts (cascade delete from join table)
-            var postsWithCategory = await _dbContext.Posts
-                .Include(p => p.Categories)
-                .Where(p => p.Categories.Any(c => c.CategoryId == id))
-                .ToListAsync();
-
-            foreach (var post in postsWithCategory)
-            {
-                var categoryToRemove = post.Categories.FirstOrDefault(c => c.CategoryId == id);
-                if (categoryToRemove != null)
-                {
-                    post.Categories.Remove(categoryToRemove);
-                }
-            }
-
-            await _dbContext.SaveChangesAsync();
-
-            // Now delete the category
-            _dbContext.Categories.Remove(category);
-            await _dbContext.SaveChangesAsync();
-
             return Ok();
         }
         catch (Exception ex)

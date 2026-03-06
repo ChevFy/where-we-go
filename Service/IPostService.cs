@@ -5,11 +5,13 @@ namespace where_we_go.Service
 {
     public interface IPostService
     {
-        Task<List<PostDto>> GetAllPostsAsync();
+        Task<PaginatedResponseDto<PostDto>> GetAllPostsAsync(PostQueryDto query);
         Task<PostDetailDto?> GetPostDetailAsync(Guid id, string? currentUserId = null);
         Task CreatePostAsync(PostCreateDto dto, string userId);
         Task<bool> DeletePostAsync(Guid id, string userId);
         Task<string> JoinPostAsync(Guid postId, string userId);
         Task<string> LeavePostAsync(Guid postId, string userId);
+        Task<PaginatedResponseDto<PostDto>> GetPostsByUserIdAsync(string userId, PostQueryDto query);
+        Task<PaginatedResponseDto<PostDto>> GetPostsJoinedByUserIdAsync(string userId, PostQueryDto query);
     }
 }

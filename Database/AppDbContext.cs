@@ -30,8 +30,17 @@ namespace where_we_go.Database
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Post>()
+                .Property(p => p.Status)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Post>()
                 .HasMany(p => p.Categories)
-                .WithMany(c => c.Posts);
+                .WithMany(c => c.Posts)
+                .UsingEntity<Dictionary<string, object>>(
+                    "PostCategories",
+                    j => j.HasOne<Category>().WithMany().HasForeignKey("CategoryId"),
+                    j => j.HasOne<Post>().WithMany().HasForeignKey("PostId")
+                );
 
             modelBuilder.Entity<Participant>()
                 .HasOne(p => p.User)

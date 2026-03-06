@@ -11,22 +11,37 @@ namespace where_we_go.DTO
         [MinLength(2, ErrorMessage = "Title must be at least 2 characters")]
         [StringLength(100)]
         [Display(Name = "Post Title")]
-        public string Title { get; set; }
+        public required string Title { get; set; }
 
         [StringLength(200, ErrorMessage = "Description must be at most 200 characters")]
         [Display(Name = "Description")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         [StringLength(200)]
         [Display(Name = "Location")]
-        public string LocationName { get; set; }
+        public required string LocationName { get; set; }
+
+        public required float Locationlat { get; set; }
+
+        public required float Locationlon { get; set; }
+
 
         [Required]
         public DateTime DateDeadline { get; set; }
 
+        public string? Status { get; set; }
+
         [Display(Name = "Deadline")]
-        public string DateDeadlineFormatted => DateDeadline.ToString("dd MMM yyyy");
+        public string DateDeadlineFormatted
+        {
+            get
+            {
+                var thailandTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Bangkok");
+                var localTime = TimeZoneInfo.ConvertTime(DateDeadline, thailandTz);
+                return localTime.ToString("dd MMM yyyy HH:mm");
+            }
+        }
 
         [Display(Name = "Current Participants")]
         public int CurrentParticipants { get; set; }
@@ -36,13 +51,21 @@ namespace where_we_go.DTO
         [Display(Name = "Max Participants")]
         public int MaxParticipants { get; set; }
 
-        [Required]
-        [Display(Name = "Category")]
-        public string CategoryName { get; set; }
+        [Display(Name = "Categories")]
+        public List<CategoryDetailDto> Categories { get; set; } = [];
+
+        public string? PostImgURL { get; set; }
 
         [Required]
-        public string UserId { get; set; }
+        public required string UserId { get; set; }
         public bool IsJoined { get; set; }
         public bool IsPending { get; set; }
+    }
+
+    public class CategoryDetailDto
+    {
+        public Guid CategoryId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; }
     }
 }

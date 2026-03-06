@@ -32,7 +32,7 @@
     margin: 0;
     box-sizing: border-box;
     position: fixed;
-    z-index: 100;
+    z-index: 9999;
   }
   
 
@@ -178,6 +178,10 @@
   }
 
   .logo-icon {
+    display: none;
+  }
+
+  .login-container .login-link {
     display: none;
   }
 

@@ -31,7 +31,7 @@
     <div class="profile-card">
         <div class="profile-top">
 
-            
+
             <img onclick="document.getElementById('imageInput').click()" id="profile-img-display" src=@Model.ProfileUrl>
             <input type="file" id="imageInput" style="display: none;" accept="image/*">
 
@@ -72,7 +72,7 @@
                         <div class="profile-info-group">
                             <div class="info-row">
                                 <div class="info-label">
-                                    <i class="fas fa-user"></i> <span>Username</span>
+                                    <span>👤 Username</span>
                                 </div>
 
                                 <div class="info-value" id="profile-username">@Model.UserName</div>
@@ -90,8 +90,7 @@
 
                             <div class="info-row">
                                 <div class="info-label">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>Email</span>
+                                    <span>✉️ Email</span>
                                 </div>
                                 <div class="info-value">@Model.Email</div>
                             </div>
@@ -109,7 +108,8 @@
                                         text = "ยินยัน",
                                     })
                                 </a>
-                                <a asp-controller="User" asp-action="UserProfile" asp-route-username="@Model.UserName" class="logout-wrapper">
+                                <a asp-controller="User" asp-action="UserProfile" asp-route-username="@Model.UserName"
+                                       class="logout-wrapper">
                                     @await Component.InvokeAsync("MainButton", new
                                     {
                                         targetId = "abort",

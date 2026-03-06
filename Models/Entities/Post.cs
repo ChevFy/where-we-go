@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.AspNetCore.Identity;
 
+using where_we_go.Models.Enums;
+
 
 namespace where_we_go.Models
 {
@@ -39,7 +41,7 @@ namespace where_we_go.Models
 
         public DateTime DateDeadline { get; set; }
 
-        public string Status { get; set; }
+        public PostStatus Status { get; set; }
 
         [Required]
         public required string LocationName { get; set; }
@@ -48,7 +50,7 @@ namespace where_we_go.Models
 
         public float? LocationLon { get; set; }
 
-        public string? PostUrl { get; set; }
+        public string? PostImageKey { get; set; }
 
         [Required]
         public required string InviteCode { get; set; }
@@ -58,11 +60,10 @@ namespace where_we_go.Models
 
         public Post()
         {
-            Status = "ACTIVE";
-            DateCreated = DateTime.Now;
-            DateDeadline = DateTime.Now;
-            PostUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiyTHhPsApqZdEyUNhkGYS40BBOU8Oeb1vgw&s";
-            InviteCode = null!; // ต้องทำ service generate code
+            Status = PostStatus.Active;
+            DateCreated = DateTime.UtcNow;
+            DateDeadline = DateTime.UtcNow;
+            InviteCode = null!;
         }
     }
 

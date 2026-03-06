@@ -11,13 +11,14 @@ using where_we_go.Service;
 
 namespace where_we_go.Controllers;
 
-public class HomeController(UserManager<User> userManager, AppDbContext dbContext, IPostService postService) : Controller
+public class HomeController(UserManager<User> userManager, IPostService postService, AppDbContext dbContext) : Controller
 {
     private UserManager<User> _userManager { get; init; } = userManager;
     private IPostService _postService { get; init; } = postService;
+    private AppDbContext _dbContext { get; init; } = dbContext;
 
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index([FromQuery] DTO.PostQueryDto query)
     {
         bool IsAuth = User.Identity?.IsAuthenticated ?? false;
         ViewBag.IsAuth = IsAuth;
@@ -27,7 +28,12 @@ public class HomeController(UserManager<User> userManager, AppDbContext dbContex
             return RedirectToAction("Index", "Admin");
         }
 
-        var posts = await _postService.GetAllPostsAsync();
+        var posts = await _postService.GetAllPostsAsync(query);
+
+        // Get all categories
+        var categories = await _dbContext.Categories.AsNoTracking().ToListAsync();
+        ViewBag.Categories = categories;
+        ViewBag.Query = query;
 
         return View(posts);
     }

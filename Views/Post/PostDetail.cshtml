@@ -26,14 +26,15 @@
 
 <div class="post-bg-container">
     <div class="post-container">
-        <img class="post-thumbnail"
-             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5Jh6aeVy2nximD5wGNlR35zeMJEtVfslboA&s"
-             alt="Thumbnail">
+        <img class="post-thumbnail" src=@Model.PostImgURL alt="Thumbnail">
 
         <h2 class="post-title">@Model.Title</h2>
+        <p class="post-status @Model.Status?.ToLower()">@Model.Status</p>
 
         <div class="post-location">
-            <p>📍 @Model.LocationName</p>
+            <a href="https://www.google.com/maps/search/?api=1&query=@Model.Locationlat,@Model.Locationlon">
+                @Model.LocationName
+            </a>
         </div>
 
         <div class="post-date">
@@ -46,7 +47,17 @@
 
         <div class="post-category">
             <ul>
-                <li>@Model.CategoryName</li>
+                @if (Model.Categories.Count > 0)
+                {
+                    @foreach (var category in Model.Categories)
+                    {
+                        <li>@category.Name</li>
+                    }
+                }
+                else
+                {
+                    <li>Uncategorized</li>
+                }
             </ul>
         </div>
 
@@ -81,9 +92,3 @@
         }
     </div>
 </div>
-@if (TempData["AlertMessage"] != null)
-{
-    <script type="text/javascript">
-        alert('@TempData["AlertMessage"]');
-    </script>
-}

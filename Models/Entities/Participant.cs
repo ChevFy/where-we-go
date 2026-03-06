@@ -1,6 +1,7 @@
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+using where_we_go.Models.Enums;
 
 namespace where_we_go.Models
 {
@@ -11,28 +12,17 @@ namespace where_we_go.Models
         [Required]
         public required Guid ParticipantId { get; set; }
 
-        public required string UserId { get; set; }
-
-        [ForeignKey("UserId")]
-        public virtual User User { get; set; } = null!;
-
         [ForeignKey("PostId")]
         public required Guid PostId { get; set; }
+        public virtual Post Post { get; set; } = null!;
 
-        public Post Post { get; set; } = null!;
+        [ForeignKey("UserId")]
+        public required string UserId { get; set; }
+        public virtual User User { get; set; } = null!;
 
-        public required DateTime DateJoin
-        { get; set; }
+        [Required]
+        public ParticipantStatus Status { get; set; } = ParticipantStatus.Pending;
 
-        public required string Status { get; set; }
-
-        public Participant()
-        {
-            DateJoin = DateTime.Now;
-            Status = ParticipantStatus.Pending;
-        }
-
-
+        public DateTime DateJoin { get; set; } = DateTime.UtcNow;
     }
-
 }

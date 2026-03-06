@@ -4,24 +4,34 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 using where_we_go.Database;
 using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.Service;
 
-public class PostController(IPostService postService) : Controller
+public class PostController(IPostService postService , AppDbContext dbContext) : Controller
 {
     private IPostService _postService { get; init; } = postService;
     [HttpGet]
     public async Task<IActionResult> PostDetail(Guid id)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
         var postDto = await _postService.GetPostDetailAsync(id, userId);
 
         if (postDto == null) return NotFound();
+
+        // Check if post is deleted - only owner or admin can view
+        if (postDto.Status == "Delete")
+        {
+            if (userId != postDto.UserId && !User.IsInRole("Admin"))
+            {
+                return NotFound();
+            }
+        }
 
         return View(postDto);
     }
@@ -29,15 +39,28 @@ public class PostController(IPostService postService) : Controller
     [HttpGet]
     public IActionResult PostCreate()
     {
+        ViewBag.Categories = dbContext.Categories
+            .Select(c => new CategorySelectDto
+            {
+                CategoryId = c.CategoryId,
+                CategoryName = c.Name
+            }).ToList();
+
         return View();
     }
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> PostCreate(PostCreateDto dto)
+    public async Task<IActionResult> PostCreate(PostCreateDto dto )
     {
         if (!ModelState.IsValid)
         {
+            ViewBag.Categories = dbContext.Categories
+                .Select(c => new CategorySelectDto
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.Name
+                }).ToList();
             return View(dto);
         }
 
@@ -112,4 +135,26 @@ public class PostController(IPostService postService) : Controller
 
         return RedirectToAction("PostDetail", new { id = id });
     }
+
+    [HttpPost]
+    [Route("api/post/locationsave")]
+    public async Task<IActionResult> PostLocationSave([FromBody] PostLocationSaveDto model )
+    {
+        if(!ModelState.IsValid)
+        {
+            return BadRequest();
+        }
+
+        var post = await dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == Guid.Parse(model.PostId));
+        if(post is null)
+            return NotFound();
+
+        post.LocationLat = float.Parse(model.LocationLat);
+        post.LocationLon = float.Parse(model.LocationLon);
+
+
+        return Ok(new { message = "Suceess"});
+    }
+
+    
 }

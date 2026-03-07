@@ -41,6 +41,8 @@ namespace where_we_go.Models
 
         public DateTime DateDeadline { get; set; }
 
+        public DateTime EventDate { get; set; }
+
         public PostStatus Status { get; set; }
 
         [Required]

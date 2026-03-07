@@ -32,13 +32,17 @@
         <p class="post-status @Model.Status?.ToLower()">@Model.Status</p>
 
         <div class="post-location">
-            <a href="https://www.google.com/maps/search/?api=1&query=@Model.Locationlat,@Model.Locationlon">
+            <a target="_blank" href="https://www.google.com/maps/search/?api=1&query=@Model.Locationlat,@Model.Locationlon">
                 @Model.LocationName
             </a>
         </div>
 
         <div class="post-date">
             <p>📅 @Model.DateDeadlineFormatted</p>
+        </div>
+
+        <div class="post-event-date">
+            <p>🎉 @Model.EventDateFormatted</p>
         </div>
 
         <div class="post-population">

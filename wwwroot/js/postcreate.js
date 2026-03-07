@@ -30,9 +30,7 @@ const UploadPostImage = async () => {
 
 const LocationValidate = async (lat, lon) => {
     try {
-
-
-        if (!lat || !lng) {
+        if (!lat || !lon) {
             return { success: false, error: 'Please Select location on the map' };
         }
 

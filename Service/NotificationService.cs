@@ -6,15 +6,8 @@ using where_we_go.Models;
 
 namespace where_we_go.Service
 {
-    public class NotificationService : BaseService, INotificationService
+    public class NotificationService(AppDbContext _dbContext) : BaseService, INotificationService
     {
-        private readonly AppDbContext _dbContext;
-
-        public NotificationService(AppDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         public async Task<Guid> CreateNotificationAsync(NotificationCreateDto dto)
         {
             var notification = new Notification

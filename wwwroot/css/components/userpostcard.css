@@ -14,7 +14,7 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     display: flex;
     flex-direction: column;
-    height: 80%;
+    height: 100%;
 }
 
 .user-post-link:hover .user-post-card {

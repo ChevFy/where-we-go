@@ -70,6 +70,8 @@ namespace where_we_go.DTO
 
         public string? PostImgURL { get; set; }
 
+        public List<ParticipantDetailDto> CurrentParticipantsDetail { get; set; } = [];
+
         [Required]
         public required string UserId { get; set; }
         public bool IsJoined { get; set; }
@@ -77,6 +79,13 @@ namespace where_we_go.DTO
 
         // group chat associated with this activity (nullable until created)
         public Guid? ChatId { get; set; }
+    }
+
+    public class ParticipantDetailDto
+    {
+        public string UserId { get; set; } = string.Empty;
+        public string userName { get; set; } = string.Empty;
+        public string? ProfileImgURL { get; set; }
     }
 
     public class CategoryDetailDto

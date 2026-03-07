@@ -95,6 +95,7 @@ namespace where_we_go.Service
                 Description = p.Description,
                 LocationName = p.LocationName,
                 DateDeadline = p.DateDeadline,
+                EventDate = p.EventDate,
                 PostImgURL = p.PostImageKey,
                 Status = GetPostStatus(p).ToString(),
                 MaxParticipants = p.MaxParticipants,
@@ -141,6 +142,7 @@ namespace where_we_go.Service
                 Description = post.Description,
                 LocationName = post.LocationName,
                 DateDeadline = post.DateDeadline,
+                EventDate = post.EventDate,
                 Status = GetPostStatus(post).ToString(),
                 Locationlat = post.LocationLat ?? 0f,
                 Locationlon = post.LocationLon ?? 0f,
@@ -163,6 +165,8 @@ namespace where_we_go.Service
             // Combine date and time into a single DateTime
             var combinedDateTime = dto.DateDeadline.Add(dto.TimeDeadline.ToTimeSpan());
 
+            var dateDeadline = combinedDateTime.ToUniversalTime();
+
             var post = new Post
             {
                 PostId = Guid.NewGuid(),
@@ -174,7 +178,8 @@ namespace where_we_go.Service
                 LocationLon = !string.IsNullOrEmpty(dto.LocationLon) ? float.Parse(dto.LocationLon) : null,
                 PostImageKey = string.IsNullOrWhiteSpace(dto.PostImgkey) ? null : dto.PostImgkey,
 
-                DateDeadline = combinedDateTime.ToUniversalTime(),
+                DateDeadline = dateDeadline,
+                EventDate = dateDeadline,
 
                 MinParticipants = dto.MinParticipants,
                 MaxParticipants = dto.MaxParticipants,

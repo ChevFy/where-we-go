@@ -32,6 +32,9 @@ namespace where_we_go.DTO
         public required TimeOnly TimeDeadline { get; set; }
 
         [Required]
+        public DateTime EventDate { get; set; }
+
+        [Required]
         [Range(1, int.MaxValue)]
         public required int MinParticipants { get; set; }
 

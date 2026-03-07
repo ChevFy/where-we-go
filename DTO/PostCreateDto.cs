@@ -36,9 +36,12 @@ namespace where_we_go.DTO
         public DateTime EventDate { get; set; }
 
         [Required]
+<<<<<<< HEAD
         public TimeOnly EventTime { get; set; }
 
         [Required]
+=======
+>>>>>>> 9f7059e (add event date to post)
         [Range(1, int.MaxValue)]
         public required int MinParticipants { get; set; }
 

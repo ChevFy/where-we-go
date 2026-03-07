@@ -164,8 +164,10 @@ namespace where_we_go.Service
         {
             // Combine date and time into a single DateTime
             var combinedDateTime = dto.DateDeadline.Add(dto.TimeDeadline.ToTimeSpan());
+            var combinedEventDateTime = dto.EventDate.Add(dto.EventTime.ToTimeSpan());
 
             var dateDeadline = combinedDateTime.ToUniversalTime();
+            var eventDate = combinedEventDateTime.ToUniversalTime();
 
             var post = new Post
             {
@@ -179,7 +181,7 @@ namespace where_we_go.Service
                 PostImageKey = string.IsNullOrWhiteSpace(dto.PostImgkey) ? null : dto.PostImgkey,
 
                 DateDeadline = dateDeadline,
-                EventDate = dateDeadline,
+                EventDate = eventDate,
 
                 MinParticipants = dto.MinParticipants,
                 MaxParticipants = dto.MaxParticipants,

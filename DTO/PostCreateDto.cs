@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace where_we_go.DTO
 {
     [FutureDateTime]
+    [EventAfterDeadline]
     public class PostCreateDto
     {
         [Required]
@@ -14,7 +15,7 @@ namespace where_we_go.DTO
         public required string Description { get; set; }
 
         [Required]
-        [StringLength(200, MinimumLength = 1)]
+        [StringLength(1000, MinimumLength = 1)]
         public required string LocationName { get; set; }
 
         [StringLength(200, MinimumLength = 1)]
@@ -33,6 +34,9 @@ namespace where_we_go.DTO
 
         [Required]
         public DateTime EventDate { get; set; }
+
+        [Required]
+        public TimeOnly EventTime { get; set; }
 
         [Required]
         [Range(1, int.MaxValue)]

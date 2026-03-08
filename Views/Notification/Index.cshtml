@@ -1,0 +1,94 @@
+@model where_we_go.DTO.PaginatedResponseDto<where_we_go.DTO.NotificationDto>
+
+
+@{
+    ViewData["Title"] = $"Notification ({ViewBag.unReadCount})";
+    var currentFilter = ViewBag.CurrentFilter as bool?;
+}
+
+@section Styles {
+
+    @* Import component css *@
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notification.css" asp-append-version="true" />
+}
+
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
+
+<div class="noti-container">
+    <h1 style="color: var(--primary-color); margin-bottom: 20px;">Notifications</h1>
+
+    <!-- Filter Section -->
+    <div class="filter-container">
+        <a href="@Url.Action("Index")" class="filter-btn @(currentFilter == null ? "active" : "")">
+            All
+        </a>
+        <a href="@Url.Action("Index", new { IsReadFilter = false })"
+               class="filter-btn @(currentFilter == false ? "active" : "")">
+            Unread
+        </a>
+        <a href="@Url.Action("Index", new { IsReadFilter = true })"
+               class="filter-btn @(currentFilter == true ? "active" : "")">
+            Read
+        </a>
+    </div>
+
+    <!-- Notifications List -->
+    @if (Model.Data.Count == 0)
+    {
+        <div class="no-notifications">
+            <p>No notifications found</p>
+        </div>
+    }
+    else
+    {
+        <div class="notifications-list">
+            @foreach (var noti in Model.Data)
+            {
+                <div class="notification-item @(noti.IsRead ? "read" : "unread")">
+                    <div class="notification-content">
+                        <p class="notification-text">@noti.Content</p>
+                        <span class="notification-type">@noti.Type</span>
+                    </div>
+
+                    @if (!noti.IsRead)
+                    {
+                        <form method="post" asp-action="MarkAsRead" style="display: inline;">
+                            <input type="hidden" name="notificationId" value="@noti.NotificationId" />
+                            <input type="hidden" name="returnFilter"
+                                   value="@(currentFilter == false ? "unread" : currentFilter == true ? "read" : "all")" />
+                            <button type="submit" class="mark-read-btn">✓ Mark as Read</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="read-label">Read</span>
+                    }
+                </div>
+            }
+        </div>
+    }
+
+    @if (Model.Meta.Total > Model.Meta.PageSize)
+    {
+        <div class="noti-pagination">
+            <span class="pagination-info">
+                Showing @((Model.Meta.CurrentPage - 1) * Model.Meta.PageSize + 1)-@Math.Min(Model.Meta.CurrentPage *
+                                            Model.Meta.PageSize, Model.Meta.Total) of @Model.Meta.Total
+            </span>
+            <div class="pagination-controls">
+                <a href="@Url.Action("Index", new { Page = Model.Meta.PrevPage, IsReadFilter = currentFilter })"
+                       class="page-nav-btn @(Model.Meta.PrevPage == null ? "disabled" : "")">
+                    ← Previous
+                </a>
+                <a href="@Url.Action("Index", new { Page = Model.Meta.NextPage, IsReadFilter = currentFilter })"
+                       class="page-nav-btn @(Model.Meta.NextPage == null ? "disabled" : "")">
+                    Next →
+                </a>
+            </div>
+        </div>
+    }
+</div>

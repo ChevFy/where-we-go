@@ -153,7 +153,54 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
         post.LocationLon = float.Parse(model.LocationLon);
 
 
-        return Ok(new { message = "Suceess" });
+        return Ok(new { message = "Success" });
+    }
+
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetPostApplicants(Guid id)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId == null) return Unauthorized();
+
+        var applicants = await _postService.GetPostApplicantsAsync(id, currentUserId);
+
+        // Returns a JSON list of applicants (Name, Status, etc.)
+        return Ok(applicants);
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> ApproveApplicant(Guid postId, string applicantId)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId == null) return Unauthorized();
+
+        var result = await _postService.ApproveJoinAsync(postId, applicantId, currentUserId);
+
+        if (result == "Success")
+        {
+            return Ok(new { success = true, message = "Participant approved successfully." });
+        }
+
+        return BadRequest(new { success = false, message = result });
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> RejectApplicant(Guid postId, string applicantId)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId == null) return Unauthorized();
+
+        var result = await _postService.RejectJoinAsync(postId, applicantId, currentUserId);
+
+        if (result == "Success")
+        {
+            return Ok(new { success = true, message = "Participant request declined." });
+        }
+
+        return BadRequest(new { success = false, message = result });
     }
 
 

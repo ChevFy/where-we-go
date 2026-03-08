@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+using where_we_go.Models.Enums;
+
 namespace where_we_go.DTO
 {
     public class NotificationDto
@@ -19,7 +21,7 @@ namespace where_we_go.DTO
 
         public bool IsRead { get; set; }
 
-        public string? Type { get; set; }
+        public NotificationType Type { get; set; }
 
         public string? DateCreatedFormatted
         {

@@ -355,6 +355,36 @@ namespace where_we_go.Service
 
             return "Success";
         }
+        public async Task<List<ApplicantDto>> GetPostApplicantsAsync(Guid postId, string currentUserId)
+        {
+            // 1. Verify the post exists and the current user is actually the owner
+            var post = await _dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == postId);
+            if (post == null || post.UserId != currentUserId)
+            {
+                return new List<ApplicantDto>(); // Return empty if unauthorized
+            }
+
+            // 2. Fetch the raw entities from the database FIRST (this prevents the EF translation error)
+            var participants = await _dbContext.Participants
+                .Include(p => p.User)
+                .Where(p => p.PostId == postId &&
+                           (p.Status == ParticipantStatus.Pending || p.Status == ParticipantStatus.Approved))
+                .OrderBy(p => p.DateJoin)
+                .ToListAsync();
+
+            // 3. Map to DTO in memory (just like your old GetPostDetailAsync code)
+            var applicants = participants.Select(p => new ApplicantDto
+            {
+                UserId = p.UserId,
+                // Add ?. and ?? to safely check if User is null
+                Name = p.User?.Name ?? "Unknown User",
+                ProfileImageKey = p.User?.ProfileImageKey,
+                Status = p.Status.ToString(),
+                DateJoin = p.DateJoin
+            }).ToList();
+
+            return applicants;
+        }
 
         public async Task<PaginatedResponseDto<PostDto>> GetPostsByUserIdAsync(string userId, PostQueryDto query)
         {

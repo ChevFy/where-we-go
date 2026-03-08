@@ -97,9 +97,11 @@
                     options = new List<where_we_go.ViewComponents.SelectOption>
                     {
                         new() { Value = "", Text = "สถานะทั้งหมด" },
-                        new() { Value = "active", Text = "กำลังเปิดรับ" },
+                        new() { Value = "open", Text = "กำลังเปิดรับ" },
                         new() { Value = "full", Text = "เต็มแล้ว" },
-                        new() { Value = "ended", Text = "หมดเขตแล้ว" }
+                        new() { Value = "closed", Text = "ปิดรับแล้ว" },
+                        new() { Value = "completed", Text = "เสร็จสิ้น" },
+                        new() { Value = "cancelled", Text = "ยกเลิก" }
                     },
                     selectedValue = query.StatusFilter,
                     label = "สถานะ"

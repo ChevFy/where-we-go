@@ -22,6 +22,7 @@ public static class SeedData
         SeedCategories(context);
         SeedPosts(context);
         SeedParticipants(context);
+        SeedNotifications(context);
 
         Console.WriteLine("Seeding completed.");
     }
@@ -117,7 +118,7 @@ public static class SeedData
                 EventDate = dateDeadline.AddDays(1),
                 MinParticipants = minPart,
                 MaxParticipants = maxPart,
-                Status = PostStatus.Active,
+                Status = PostStatus.Open,
                 InviteCode = inviteCode,
                 Categories = postCategories
             });
@@ -155,6 +156,36 @@ public static class SeedData
                     DateJoin = DateTime.UtcNow.AddDays(-1)
                 });
             }
+        }
+
+        context.SaveChanges();
+    }
+
+    private static void SeedNotifications(AppDbContext context)
+    {
+        if (context.Notifications.Any()) return;
+
+        var posts = context.Posts.OrderBy(p => p.DateCreated).ToList();
+        var users = context.Users.ToList();
+
+        foreach (var (postIndex, userEmail, content, isRead, type) in SeedDataModels.Notifications.Data)
+        {
+            if (postIndex >= posts.Count) continue;
+
+            var post = posts[postIndex];
+            var user = users.FirstOrDefault(u => u.Email == userEmail);
+            if (user == null) continue;
+
+            context.Notifications.Add(new Notification
+            {
+                NotificationId = Guid.NewGuid(),
+                UserId = user.Id,
+                PostId = post.PostId,
+                Content = content,
+                IsRead = isRead,
+                Type = type,
+                DateCreated = DateTime.UtcNow
+            });
         }
 
         context.SaveChanges();

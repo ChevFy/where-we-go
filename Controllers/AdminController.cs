@@ -7,6 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using where_we_go.Database;
 using where_we_go.DTO;
 using where_we_go.Models;
+using where_we_go.Models.Enums;
 using where_we_go.Service;
 
 
@@ -202,6 +203,146 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
         {
             return StatusCode(500, new { details = "Cannot delete category: " + ex.Message });
         }
+    }
+
+    [HttpGet("posts")]
+    public async Task<IActionResult> GetPosts([FromQuery] PostQueryDto query)
+    {
+        var postsQuery = _dbContext.Posts
+            .Include(p => p.User)
+            .AsNoTracking();
+
+        // Apply name filter
+        if (!string.IsNullOrWhiteSpace(query.NameFilter))
+        {
+            var keyword = query.NameFilter.Trim();
+            postsQuery = postsQuery.Where(p =>
+                EF.Functions.Like(p.Title.ToLower(), $"%{keyword}%"));
+        }
+
+        // Filter by status
+        if (!string.IsNullOrWhiteSpace(query.StatusFilter))
+        {
+            var status = query.StatusFilter.ToLower() switch
+            {
+                "active" => PostStatus.Active,
+                "full" => PostStatus.Full,
+                "ended" => PostStatus.Ended,
+                "deleted" => PostStatus.Delete,
+                _ => PostStatus.Active
+            };
+            postsQuery = postsQuery.Where(p => p.Status == status);
+        }
+
+        var totalCount = await postsQuery.CountAsync();
+
+        // Sorting
+        postsQuery = (query.SortBy ?? "").ToLower() switch
+        {
+            "title" => postsQuery.OrderBy(p => p.Title),
+            "title_desc" => postsQuery.OrderByDescending(p => p.Title),
+            "latest" => postsQuery.OrderByDescending(p => p.DateCreated),
+            "oldest" => postsQuery.OrderBy(p => p.DateCreated),
+            _ => postsQuery.OrderByDescending(p => p.DateCreated)
+        };
+
+        // Pagination
+        var posts = await postsQuery
+            .Skip((query.PageSave - 1) * query.PageSizeSave)
+            .Take(query.PageSizeSave)
+            .Select(p => new AdminPostDto
+            {
+                PostId = p.PostId,
+                Title = p.Title,
+                Description = p.Description,
+                OwnerEmail = p.User.Email ?? string.Empty,
+                OwnerName = p.User.Name ?? string.Empty,
+                Status = p.Status.ToString(),
+                CurrentParticipants = _dbContext.Participants
+                    .Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved),
+                MaxParticipants = p.MaxParticipants,
+                DateDeadline = p.DateDeadline,
+                EventDate = p.EventDate,
+                DateCreated = p.DateCreated,
+                LocationName = p.LocationName
+            })
+            .ToListAsync();
+
+        var response = new PaginatedResponseDto<AdminPostDto>(posts, query.PageSizeSave, query.PageSave, totalCount);
+        return Json(response);
+    }
+
+    [HttpGet("posts/{id:guid}")]
+    public async Task<IActionResult> GetPostDetail([FromRoute] Guid id)
+    {
+        var post = await _dbContext.Posts
+            .Include(p => p.User)
+            .Include(p => p.Categories)
+            .Include(p => p.Participants)
+                .ThenInclude(part => part.User)
+            .FirstOrDefaultAsync(p => p.PostId == id);
+
+        if (post == null) return NotFound(new { details = "Post not found" });
+
+        var result = new AdminPostDetailDto
+        {
+            PostId = post.PostId,
+            Title = post.Title,
+            Description = post.Description,
+            OwnerId = post.UserId,
+            OwnerEmail = post.User.Email ?? string.Empty,
+            OwnerName = post.User.Name ?? string.Empty,
+            Status = post.Status.ToString(),
+            CurrentParticipants = post.Participants.Count(p => p.Status == ParticipantStatus.Approved),
+            MaxParticipants = post.MaxParticipants,
+            MinParticipants = post.MinParticipants,
+            DateDeadline = post.DateDeadline,
+            EventDate = post.EventDate,
+            DateCreated = post.DateCreated,
+            LocationName = post.LocationName,
+            LocationLat = post.LocationLat,
+            LocationLon = post.LocationLon,
+            PostImageKey = post.PostImageKey,
+            InviteCode = post.InviteCode,
+            Categories = post.Categories.Select(c => new CategorySimpleDto
+            {
+                CategoryId = c.CategoryId,
+                Name = c.Name
+            }).ToList(),
+            Participants = post.Participants.Select(p => new ParticipantInfoDto
+            {
+                ParticipantId = p.ParticipantId,
+                UserId = p.UserId,
+                UserName = p.User.Name ?? string.Empty,
+                UserEmail = p.User.Email ?? string.Empty,
+                Status = p.Status.ToString(),
+                DateJoin = p.DateJoin
+            }).ToList()
+        };
+
+        return Json(result);
+    }
+
+    [HttpPost("posts/{id:guid}/delete")]
+    public async Task<IActionResult> DeletePost([FromRoute] Guid id)
+    {
+        var post = await _dbContext.Posts.FindAsync(id);
+        if (post == null) return NotFound(new { details = "Post not found" });
+
+        post.Status = PostStatus.Delete;
+        await _dbContext.SaveChangesAsync();
+        return Ok();
+    }
+
+    [HttpPost("posts/{id:guid}/restore")]
+    public async Task<IActionResult> RestorePost([FromRoute] Guid id)
+    {
+        var post = await _dbContext.Posts.FindAsync(id);
+        if (post == null) return NotFound(new { details = "Post not found" });
+
+        post.Status = PostStatus.Active;
+        await _dbContext.SaveChangesAsync();
+        return Ok();
     }
 
 }

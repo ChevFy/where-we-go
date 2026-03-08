@@ -55,9 +55,41 @@
     
     <!-- Posts Tab Content -->
     <div id="posts" class="tab-content">
-        <div class="coming-soon">
-            <h3>Post Management</h3>
+        <div class="search-container">
+            <div class="search-input">
+                @await Component.InvokeAsync("InputBar", new {
+                    targetId = "postSearchInput",
+                    inputType = "text",
+                    placeHolder = "Search by title...",
+                    width = "100%"
+                })
+            </div>
+            <div class="status-filter">
+                <select id="postStatusFilter" onchange="loadPosts(1, 20)">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="full">Full</option>
+                    <option value="ended">Ended</option>
+                    <option value="deleted">Deleted</option>
+                </select>
+            </div>
         </div>
+        
+        <table class="post-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                    <th>Participants</th>
+                    <th>Event Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="postList">
+                <!-- Posts will be loaded here via JavaScript -->
+            </tbody>
+        </table>
     </div>
     
     <!-- Categories Tab Content -->
@@ -155,6 +187,23 @@
                 <button type="button" class="btn-submit" onclick="updateCategory()">Update Category</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- Post Details Modal -->
+<div id="postDetailModal" class="modal">
+    <div class="modal-content modal-large">
+        <div class="modal-header">
+            <span>Post Details</span>
+            <button type="button" class="btn-close" onclick="closePostDetailModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="postDetailContent">
+            <!-- Post details will be loaded here -->
+            <div class="loading">Loading...</div>
+        </div>
+        <div class="modal-actions" id="postDetailActions">
+            <!-- Action buttons will be rendered here -->
+        </div>
     </div>
 </div>
 

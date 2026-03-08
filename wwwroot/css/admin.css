@@ -269,3 +269,247 @@
     background: #f9f9f9;
 }
 
+/* Post Management Styles */
+.post-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.post-table th {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+}
+
+.post-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.post-table tr:hover {
+    background: #f9f9f9;
+}
+
+.post-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.post-status.active {
+    background: #28a745;
+    color: white;
+}
+
+.post-status.full {
+    background: #ffc107;
+    color: #333;
+}
+
+.post-status.ended {
+    background: #6c757d;
+    color: white;
+}
+
+.post-status.delete {
+    background: #dc3545;
+    color: white;
+}
+
+.status-filter select {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-restore {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background: #ffc107;
+    color: #333;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Modal Large */
+.modal-large {
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-large .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    float: right;
+}
+
+.btn-close:hover {
+    color: #333;
+}
+
+/* Post Detail Styles */
+.post-detail-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.post-detail-section:last-child {
+    border-bottom: none;
+}
+
+.post-detail-section h4 {
+    margin-bottom: 0.75rem;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.post-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.post-detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.post-detail-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.post-detail-value {
+    color: #333;
+}
+
+.post-detail-description {
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+
+.category-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.category-tag {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.participant-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.participant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.participant-item:last-child {
+    border-bottom: none;
+}
+
+.participant-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.participant-name {
+    font-weight: 500;
+}
+
+.participant-email {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.participant-status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.participant-status.Approved {
+    background: #28a745;
+    color: white;
+}
+
+.participant-status.Pending {
+    background: #ffc107;
+    color: #333;
+}
+
+.participant-status.Left {
+    background: #6c757d;
+    color: white;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.post-detail-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.btn-details {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+

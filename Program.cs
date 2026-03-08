@@ -45,7 +45,7 @@ namespace where_we_go
 
             builder.Services.AddSignalR();
 
-            //builder.Services.AddHostedService<MinioInitializationService>();
+            builder.Services.AddHostedService<MinioInitializationService>();
 
             builder.Services.AddHostedService<CronService>();
 

@@ -7,6 +7,8 @@ using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.ViewModels;
 using where_we_go.Database;
+using where_we_go.Service;
+using Microsoft.AspNetCore.SignalR;
 
 namespace where_we_go.Controllers;
 
@@ -15,13 +17,19 @@ public class GroupChatController : Controller
 {
     private readonly AppDbContext _context;
     private readonly UserManager<User> _userManager;
+    private readonly IChatService _chatService;
+    private readonly Microsoft.AspNetCore.SignalR.IHubContext<where_we_go.Hubs.ChatHub> _hubContext;
 
     public GroupChatController(
         AppDbContext context,
-        UserManager<User> userManager)
+        UserManager<User> userManager,
+        IChatService chatService,
+        Microsoft.AspNetCore.SignalR.IHubContext<where_we_go.Hubs.ChatHub> hubContext)
     {
         _context = context;
         _userManager = userManager;
+        _chatService = chatService;
+        _hubContext = hubContext;
     }
 
     public async Task<IActionResult> Chat(Guid group_chat_id)
@@ -31,17 +39,12 @@ public class GroupChatController : Controller
             return Unauthorized();
 
         var groupchat = await _context.GroupChats
-            .Include(g => g.ChatMessages)
-                .ThenInclude(m => m.User)
             .FirstOrDefaultAsync(g => g.GroupChatId == group_chat_id);
 
         if (groupchat == null)
             return NotFound();
 
-        var isMember = await _context.Participants
-            .AnyAsync(p => p.PostId == groupchat.PostId
-                           && p.UserId == current_user.Id
-                           && p.Status == Models.Enums.ParticipantStatus.Approved);
+        var isMember = await _chatService.IsUserMemberAsync(group_chat_id, current_user.Id);
         if (!isMember)
             return Forbid();
 
@@ -49,8 +52,7 @@ public class GroupChatController : Controller
         {
             group_chat_id = groupchat.GroupChatId,
             name = groupchat.GroupChatName,
-            messages = groupchat.ChatMessages
-                .OrderBy(m => m.SentAt)
+            messages = (await _chatService.GetMessagesAsync(group_chat_id))
                 .Select(m => new MessageDto
                 {
                     message_id = m.MessageId,
@@ -68,8 +70,35 @@ public class GroupChatController : Controller
 
     [HttpPost]
     [Authorize]
-    public Task<IActionResult> SendMessage(Guid group_chat_id, string message)
+    public async Task<IActionResult> SendMessage(Guid group_chat_id, string message)
     {
-        return Task.FromResult<IActionResult>(RedirectToAction("Chat", new { group_chat_id }));
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return RedirectToAction("Chat", new { group_chat_id });
+        }
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Unauthorized();
+
+
+        if (!await _chatService.IsUserMemberAsync(group_chat_id, user.Id))
+            return Forbid();
+
+        var msg = await _chatService.CreateMessageAsync(group_chat_id, user.Id, message);
+
+        var dto = new MessageDto
+        {
+            message_id = msg.MessageId,
+            user_id = msg.UserId,
+            sender_name = user.Name,
+            message = msg.Message,
+            sent_at = msg.SentAt,
+            is_me = true
+        };
+        await _hubContext.Clients.Group(group_chat_id.ToString())
+            .SendAsync("ReceiveMessage", dto);
+
+        return RedirectToAction("Chat", new { group_chat_id });
     }
 }

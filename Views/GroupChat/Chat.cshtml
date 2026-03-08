@@ -56,7 +56,8 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js" integrity="sha512-Dtjxk0+7qGpH2Zj6Kau0jo5F5N+vFj8vmF5Uy1wHnQVotlJwjBMIBohvdHLeB/pY8jciLFn+YTVgW0S/OP3wkw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- use same major version as server to avoid incompatibilities -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/10.0.0/signalr.min.js" integrity="sha512-+MC6YJb4GhVNhgWgJgqI9Zb3zf6IrO0N5Jrq0/xuxQClMQ2Zjgnj91qO4+e1QlfB8K9v1M33DyN4JCvs5Pn4dg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         (function() {
             const chatId = '@Model.group_chat_id';
@@ -64,29 +65,58 @@
             const form = document.querySelector('.chat-input form');
             const input = form.querySelector('input[name="message"]');
 
+            // create connection with automatic reconnect to mimic tutorial
             const connection = new signalR.HubConnectionBuilder()
                 .withUrl('/chathub')
+                .withAutomaticReconnect()
                 .build();
 
+            connection.onreconnecting(error => {
+                console.warn('SignalR reconnecting', error);
+            });
+            connection.onreconnected(connectionId => {
+                console.log('SignalR reconnected', connectionId);
+            });
+            connection.onclose(error => {
+                console.error('SignalR connection closed', error);
+            });
+
             connection.on('ReceiveMessage', function(message) {
+                console.log('SignalR: received message', message);
                 appendMessage(message);
             });
 
-            connection.start().then(function() {
-                return connection.invoke('JoinGroup', chatId);
-            }).catch(function(err) {
-                console.error(err.toString());
-            });
+            input.disabled = true;
+            form.querySelector('button').disabled = true;
 
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const msg = input.value.trim();
-                if (!msg) return;
-                connection.invoke('SendMessage', chatId, msg).catch(function(err) {
+            connection.start()
+                .then(function() {
+                    console.log('SignalR connected');
+                    return connection.invoke('JoinGroup', chatId);
+                })
+                .then(function() {
+                    input.disabled = false;
+                    form.querySelector('button').disabled = false;
+
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        const msg = input.value.trim();
+                        if (!msg) return;
+                        connection.invoke('SendMessage', chatId, msg)
+                            .catch(function(err) {
+                                console.error('SignalR send failed', err.toString());
+                                form.removeEventListener('submit', arguments.callee);
+                                form.submit();
+                            });
+                        input.value = '';
+                    });
+                })
+                .catch(function(err) {
                     console.error(err.toString());
+
+                    input.disabled = false;
+                    form.querySelector('button').disabled = false;
                 });
-                input.value = '';
-            });
 
             function appendMessage(m) {
                 const row = document.createElement('div');

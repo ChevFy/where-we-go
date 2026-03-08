@@ -41,7 +41,8 @@ namespace where_we_go
 
             builder.Services.AddScoped<IFileService, FileService>();
 
-            // add SignalR for real-time chat
+            builder.Services.AddScoped<IChatService, ChatService>();
+
             builder.Services.AddSignalR();
 
             //builder.Services.AddHostedService<MinioInitializationService>();

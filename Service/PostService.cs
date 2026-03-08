@@ -12,31 +12,33 @@ namespace where_we_go.Service
         private readonly AppDbContext _dbContext;
 
         private readonly IFileService _fileService;
+        private readonly IChatService _chatService;
 
-        public PostService(AppDbContext dbContext, IFileService fileService)
+        public PostService(AppDbContext dbContext, IFileService fileService, IChatService chatService)
         {
             _dbContext = dbContext;
             _fileService = fileService;
+            _chatService = chatService;
         }
 
 
 
         private PostStatus GetPostStatus(Post post)
         {
-            // Check if post is marked as deleted
+
             if (post.Status == PostStatus.Delete)
                 return PostStatus.Delete;
 
-            // Check if deadline has passed
+
             if (DateTime.UtcNow > post.DateDeadline)
                 return PostStatus.Ended;
 
-            // Check if post is full
+
             var participantCount = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved);
             if (participantCount >= post.MaxParticipants)
                 return PostStatus.Full;
 
-            // Otherwise active
+
             return PostStatus.Active;
         }
 
@@ -164,15 +166,7 @@ namespace where_we_go.Service
             // if the current user is joined but there is no chat yet, create one lazily
             if (result.IsJoined && result.ChatId == null)
             {
-                var newChat = new GroupChat
-                {
-                    GroupChatId = Guid.NewGuid(),
-                    PostId = post.PostId,
-                    GroupChatName = post.Title
-                };
-                _dbContext.GroupChats.Add(newChat);
-                await _dbContext.SaveChangesAsync();
-                result.ChatId = newChat.GroupChatId;
+                result.ChatId = await _chatService.EnsureGroupChatExistsForPostAsync(post.PostId, post.Title);
             }
 
             return result;
@@ -293,22 +287,10 @@ namespace where_we_go.Service
             _dbContext.Participants.Add(participant);
             await _dbContext.SaveChangesAsync();
 
-            // if approved and there is no group chat yet, create one now
+            // if approved and there is no group chat yet, create one now via service
             if (assignedStatus == ParticipantStatus.Approved)
             {
-                var existingChat = await _dbContext.GroupChats
-                    .FirstOrDefaultAsync(g => g.PostId == postId);
-                if (existingChat == null)
-                {
-                    var newChat = new GroupChat
-                    {
-                        GroupChatId = Guid.NewGuid(),
-                        PostId = postId,
-                        GroupChatName = post.Title
-                    };
-                    _dbContext.GroupChats.Add(newChat);
-                    await _dbContext.SaveChangesAsync();
-                }
+                await _chatService.EnsureGroupChatExistsForPostAsync(postId, post.Title);
             }
 
             return assignedStatus == ParticipantStatus.Pending ? "Pending" : "Success";

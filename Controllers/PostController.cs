@@ -24,7 +24,6 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
 
         if (postDto == null) return NotFound();
 
-        // Check if post is deleted - only owner or admin can view
         if (postDto.Status == "Delete")
         {
             if (userId != postDto.UserId && !User.IsInRole("Admin"))

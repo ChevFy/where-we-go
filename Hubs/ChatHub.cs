@@ -1,27 +1,41 @@
 using Microsoft.AspNetCore.SignalR;
 using where_we_go.DTO;
-using where_we_go.Database;
 using where_we_go.Models;
+using where_we_go.Service;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace where_we_go.Hubs;
 
 public class ChatHub : Hub
 {
-    private readonly AppDbContext _db;
     private readonly UserManager<User> _userManager;
+    private readonly IChatService _chatService;
 
-    public ChatHub(AppDbContext db, UserManager<User> userManager)
+    public ChatHub(UserManager<User> userManager, IChatService chatService)
     {
-        _db = db;
         _userManager = userManager;
+        _chatService = chatService;
+    }
+
+    // helpful debug logging so you can watch what the hub sees
+    public override Task OnConnectedAsync()
+    {
+        Console.WriteLine($"[ChatHub] Client connected: {Context.ConnectionId}");
+        return base.OnConnectedAsync();
+    }
+
+    public override Task OnDisconnectedAsync(Exception? exception)
+    {
+        Console.WriteLine($"[ChatHub] Client disconnected: {Context.ConnectionId} (exc={exception})");
+        return base.OnDisconnectedAsync(exception);
     }
 
     public async Task JoinGroup(Guid groupChatId)
     {
+        Console.WriteLine($"[ChatHub] {Context.ConnectionId} joining group {groupChatId}");
         await Groups.AddToGroupAsync(Context.ConnectionId, groupChatId.ToString());
     }
+    
 
     public async Task LeaveGroup(Guid groupChatId)
     {
@@ -30,31 +44,17 @@ public class ChatHub : Hub
 
     public async Task SendMessage(Guid groupChatId, string message)
     {
+        Console.WriteLine($"[ChatHub] SendMessage called by {Context.ConnectionId} for group {groupChatId}: '{message}'");
         if (string.IsNullOrWhiteSpace(message)) return;
 
         var user = await _userManager.GetUserAsync(Context.User as System.Security.Claims.ClaimsPrincipal);
         if (user == null) return;
 
-        var chat = await _db.GroupChats.FindAsync(groupChatId);
-        if (chat == null) return;
-
         
-        var isMember = await _db.Participants.AnyAsync(p => p.PostId == chat.PostId
-                                                             && p.UserId == user.Id
-                                                             && p.Status == Models.Enums.ParticipantStatus.Approved);
+        var isMember = await _chatService.IsUserMemberAsync(groupChatId, user.Id);
         if (!isMember) return;
 
-        var msg = new ChatMessage
-        {
-            MessageId = Guid.NewGuid(),
-            GroupChatId = groupChatId,
-            UserId = user.Id,
-            Message = message,
-            SentAt = DateTime.UtcNow
-        };
-        _db.ChatMessages.Add(msg);
-        await _db.SaveChangesAsync();
-
+        var msg = await _chatService.CreateMessageAsync(groupChatId, user.Id, message);
         var dto = new MessageDto
         {
             message_id = msg.MessageId,

@@ -1051,6 +1051,9 @@ function renderPostDetail(post) {
         </div>
     `;
     
+    // Store post data globally for edit action
+    window.currentPostForEdit = post;
+    
     // Build action buttons based on status
     if (post.status === 'Delete') {
         actionsDiv.innerHTML = `
@@ -1060,6 +1063,7 @@ function renderPostDetail(post) {
     } else {
         actionsDiv.innerHTML = `
             <button type="button" class="btn-cancel" onclick="closePostDetailModal()">Close</button>
+            <button type="button" class="btn-edit" onclick="closePostDetailModal(); openEditPostModal(window.currentPostForEdit);">Edit Post</button>
             <button type="button" class="btn-delete" onclick="deletePostFromModal()">Delete Post</button>
         `;
     }
@@ -1120,6 +1124,191 @@ function restorePostFromModal() {
         alert('Error restoring post: ' + error.message);
     });
 }
+
+// ==================== Post Edit Functionality ====================
+
+let editingPostData = null;
+
+function openEditPostModal(post) {
+    console.log('Opening edit post modal for:', post.postId);
+    editingPostData = post;
+    
+    // Populate form fields - only editable: Status, MinParticipants, MaxParticipants
+    document.getElementById('editPostId').value = post.postId;
+    document.getElementById('editPostMinParticipants').value = post.minParticipants || 1;
+    document.getElementById('editPostMaxParticipants').value = post.maxParticipants || 10;
+    document.getElementById('editPostStatus').value = post.status || 'Active';
+    
+    // Load categories
+    loadCategoriesForEdit(post);
+    
+    // Display participants list
+    const participantsContainer = document.getElementById('editPostParticipants');
+    if (post.participants && post.participants.length > 0) {
+        participantsContainer.innerHTML = post.participants.map(p => `
+            <div class="participant-edit-item">
+                <span class="participant-name">${p.userName || p.userEmail || 'Unknown'}</span>
+                <span class="participant-status ${p.status.toLowerCase()}">${p.status}</span>
+                <button type="button" class="btn-remove-participant" onclick="removeParticipant('${post.postId}', '${p.participantId}')">Remove</button>
+            </div>
+        `).join('');
+    } else {
+        participantsContainer.innerHTML = '<div class="no-participants">No participants yet</div>';
+    }
+    
+    // Show modal
+    document.getElementById('editPostModal').style.display = 'block';
+}
+
+async function loadCategoriesForEdit(post) {
+    const container = document.getElementById('editPostCategories');
+    
+    try {
+        const response = await fetch('/admin/categories');
+        if (response.ok) {
+            const categories = await response.json();
+            const postCategoryIds = post.categories ? post.categories.map(c => c.categoryId) : [];
+            
+            if (categories.length > 0) {
+                container.innerHTML = categories.map(cat => `
+                    <label class="category-checkbox">
+                        <input type="checkbox" name="editCategories" value="${cat.categoryId}" ${postCategoryIds.includes(cat.categoryId) ? 'checked' : ''}>
+                        <span>${cat.name}</span>
+                    </label>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="no-categories">No categories available</div>';
+            }
+        } else {
+            container.innerHTML = '<div class="no-categories">Error loading categories</div>';
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
+        container.innerHTML = '<div class="no-categories">Error loading categories</div>';
+    }
+}
+
+function closeEditPostModal() {
+    document.getElementById('editPostModal').style.display = 'none';
+    editingPostData = null;
+    document.getElementById('editPostForm').reset();
+}
+
+function removeParticipant(postId, participantId) {
+    if (!confirm('Are you sure you want to remove this participant from the post?')) return;
+    
+    console.log('Removing participant:', participantId, 'from post:', postId);
+    
+    fetch('/admin/posts/' + postId + '/participants/' + participantId, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(function(response) {
+        console.log('Remove participant response status:', response.status);
+        if (response.ok) {
+            // Refresh the post detail to get updated participants
+            openPostDetailModal(postId).then(function() {
+                // Re-open edit modal with updated data
+                fetch('/admin/posts/' + postId)
+                    .then(function(res) { return res.json(); })
+                    .then(function(post) {
+                        openEditPostModal(post);
+                    });
+            });
+            alert('Participant removed successfully!');
+        } else {
+            response.text().then(function(text) {
+                alert('Error removing participant: ' + text);
+            });
+        }
+    })
+    .catch(function(error) {
+        console.error('Remove participant error:', error);
+        alert('Error removing participant: ' + error.message);
+    });
+}
+
+function savePostEdit() {
+    if (!editingPostData) {
+        alert('No post selected for editing');
+        return;
+    }
+    
+    const postId = editingPostData.postId;
+    const minParticipants = parseInt(document.getElementById('editPostMinParticipants').value) || 1;
+    const maxParticipants = parseInt(document.getElementById('editPostMaxParticipants').value) || 10;
+    const status = document.getElementById('editPostStatus').value;
+    
+    // Get selected category IDs
+    const categoryCheckboxes = document.querySelectorAll('input[name="editCategories"]:checked');
+    const categoryIds = Array.from(categoryCheckboxes).map(cb => cb.value);
+    
+    // Validation
+    if (minParticipants < 1) {
+        alert('Minimum participants must be at least 1');
+        return;
+    }
+    if (maxParticipants < minParticipants) {
+        alert('Maximum participants must be greater than or equal to minimum participants');
+        return;
+    }
+    if (editingPostData.currentParticipants > maxParticipants) {
+        alert('Maximum participants cannot be less than current participants (' + editingPostData.currentParticipants + ')');
+        return;
+    }
+    
+    const requestBody = JSON.stringify({
+        status: status,
+        minParticipants: minParticipants,
+        maxParticipants: maxParticipants,
+        categoryIds: categoryIds
+    });
+    
+    console.log('Sending update request for post:', postId);
+    
+    fetch('/admin/posts/' + postId, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: requestBody
+    })
+    .then(function(response) {
+        console.log('Update post response status:', response.status);
+        if (response.ok) {
+            closeEditPostModal();
+            closePostDetailModal();
+            loadPosts(currentPostPage, currentPostPageSize);
+            alert('Post updated successfully!');
+        } else {
+            response.json().then(function(data) {
+                alert('Error updating post: ' + (data.details || response.statusText));
+            }).catch(function() {
+                alert('Error updating post: ' + response.statusText);
+            });
+        }
+    })
+    .catch(function(error) {
+        console.error('Update post error:', error);
+        alert('Error updating post: ' + error.message);
+    });
+}
+
+// Update window.onclick to handle edit post modal
+const originalWindowOnclick2 = window.onclick;
+window.onclick = function(event) {
+    // Call original handlers
+    if (originalWindowOnclick2) {
+        originalWindowOnclick2(event);
+    }
+    
+    const editPostModal = document.getElementById('editPostModal');
+    if (event.target == editPostModal) {
+        closeEditPostModal();
+    }
+};
 
 // Update window.onclick to handle post detail modal
 const originalWindowOnclick = window.onclick;

@@ -5,6 +5,8 @@ using where_we_go.DTO;
 using where_we_go.Models.Enums;
 using where_we_go.Models;
 
+using Minio.DataModel;
+
 namespace where_we_go.Service
 {
     public class PostService : BaseService, IPostService
@@ -143,6 +145,22 @@ namespace where_we_go.Service
             if (post == null)
                 return null;
 
+            var participants = await _dbContext.Participants
+                .Include(part => part.User)
+                .Where(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved)
+                .ToListAsync();
+
+            var participantDetails = new List<ParticipantDetailDto>();
+            foreach (var part in participants)
+            {
+                participantDetails.Add(new ParticipantDetailDto
+                {
+                    UserId = part.UserId,
+                    userName = part.User.UserName,
+                    ProfileImgURL = await _fileService.GeneratePresignedProfileUrlAsync(part.User.ProfileImageKey)
+                });
+            }
+
             var result = new PostDetailDto
             {
                 PostId = post.PostId,
@@ -154,8 +172,9 @@ namespace where_we_go.Service
                 Status = GetPostStatus(post).ToString(),
                 Locationlat = post.LocationLat ?? 0f,
                 Locationlon = post.LocationLon ?? 0f,
-                CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved),
+                CurrentParticipants = participants.Count,
                 MaxParticipants = post.MaxParticipants,
+                CurrentParticipantsDetail = participantDetails,
                 Categories = post.Categories.Select(c => new CategoryDetailDto
                 {
                     CategoryId = c.CategoryId,

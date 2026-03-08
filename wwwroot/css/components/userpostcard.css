@@ -25,6 +25,7 @@
 .user-post-image {
     aspect-ratio: 1;
     width: 100%;
+    height: 50%;
 }
 
 .user-post-image img {
@@ -61,28 +62,44 @@
     white-space: nowrap;
 }
 
-.user-post-status {
+/* .user-post-status {
     padding: 4px 12px;
     border-radius: 12px;
     font-size: var(--font-size-small);
     font-weight: 600;
     white-space: nowrap;
+} */
+
+.user-post-status {
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: var(--font-size-small);
+  display: inline-block;
+  white-space: nowrap;
+  text-decoration: none;
+  opacity: 1;
+  visibility: visible;
+  font-weight: normal;
+  line-height: 1.2;
 }
 
 .user-post-status.active {
-    background-color: #d4edda;
-    color: #155724;
+  background-color: #007bff;
 }
 
 .user-post-status.full {
-    background-color: #fff3cd;
-    color: #856404;
+  background-color: #000000;
 }
 
 .user-post-status.ended {
-    background-color: #f8d7da;
-    color: #721c24;
+  background-color: #dc3545;
 }
+
+.user-post-status.delete {
+  background-color: #6c757d;
+}
+
 
 .user-post-date {
     font-size: var(--font-size-small);

@@ -19,6 +19,9 @@ namespace where_we_go.Models
         public required string GroupChatName { get; set; }
 
         public virtual ICollection<User> Users { get; set; } = [];
+
+        public ICollection<ChatMessage> ChatMessages { get; set; }
+        = new List<ChatMessage>();
     }
 
 }

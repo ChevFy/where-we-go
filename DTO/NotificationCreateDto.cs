@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+using where_we_go.Models.Enums;
+
 namespace where_we_go.DTO
 {
     public class NotificationCreateDto
@@ -13,7 +15,7 @@ namespace where_we_go.DTO
         [StringLength(500)]
         public string? Content { get; set; }
 
-        [StringLength(50)]
-        public string? Type { get; set; }
+        [Required]
+        public NotificationType Type { get; set; }
     }
 }

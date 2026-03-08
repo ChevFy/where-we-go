@@ -1,3 +1,4 @@
+using where_we_go.Models.Enums;
 namespace where_we_go.DTO
 {
     public class NotificationQueryDto : PaginatedQueryDto
@@ -8,5 +9,6 @@ namespace where_we_go.DTO
         public string? SortBy { get; set; }
         public bool? IsReadFilter { get; set; }
         public Guid? PostIdFilter { get; set; }
+        public NotificationType? TypeFilter { get; set; }
     }
 }

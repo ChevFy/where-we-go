@@ -5,22 +5,10 @@ using where_we_go.DTO;
 using where_we_go.Models.Enums;
 using where_we_go.Models;
 
-using Minio.DataModel;
-
 namespace where_we_go.Service
 {
-    public class PostService : BaseService, IPostService
+    public class PostService(AppDbContext _dbContext, IFileService _fileService, INotificationService _notificationService) : BaseService, IPostService
     {
-        private readonly AppDbContext _dbContext;
-
-        private readonly IFileService _fileService;
-
-        public PostService(AppDbContext dbContext, IFileService fileService)
-        {
-            _dbContext = dbContext;
-            _fileService = fileService;
-        }
-
         private PostStatus GetPostStatus(Post post)
         {
             // 1. Check for manual/explicit states first
@@ -156,7 +144,7 @@ namespace where_we_go.Service
                 participantDetails.Add(new ParticipantDetailDto
                 {
                     UserId = part.UserId,
-                    userName = part.User.UserName,
+                    userName = part.User.UserName ?? "",
                     ProfileImgURL = await _fileService.GeneratePresignedProfileUrlAsync(part.User.ProfileImageKey)
                 });
             }
@@ -271,16 +259,22 @@ namespace where_we_go.Service
             _dbContext.Posts.Update(post);
 
             // TODO: Notify every participant (except status == reject, withdrawn)
-            /* var participantsToNotify = await _dbContext.Participants
-                .Where(p => p.PostId == id && 
-                            p.Status != ParticipantStatus.Rejected && 
-                            p.Status != ParticipantStatus.Withdrawn)
-                .ToListAsync();
+            var participantsToNotify = await _dbContext.Participants
+               .Where(p => p.PostId == id &&
+                           p.Status != ParticipantStatus.Rejected &&
+                           p.Status != ParticipantStatus.Withdrawn)
+               .ToListAsync();
 
-            foreach(var participant in participantsToNotify) {
-                // notificationService.SendNotification(participant.UserId, "The activity has been cancelled.");
+            foreach (var participant in participantsToNotify)
+            {
+                await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+                {
+                    UserId = participant.UserId,
+                    PostId = post.PostId,
+                    Content = $"The activity '{post.Title}' you joined has been cancelled.",
+                    Type = NotificationType.ActivityCancelled
+                });
             }
-            */
 
             await _dbContext.SaveChangesAsync();
             return true;
@@ -313,7 +307,13 @@ namespace where_we_go.Service
                     await _dbContext.SaveChangesAsync();
 
                     // TODO: Notify owner here
-                    // notificationService.NotifyOwner(post.UserId, "Someone requested to join!");
+                    await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+                    {
+                        UserId = post.UserId,
+                        PostId = post.PostId,
+                        Content = "Someone requested to join your activity.",
+                        Type = NotificationType.ParticipantRequested
+                    });
 
                     return "Pending";
                 }
@@ -333,7 +333,13 @@ namespace where_we_go.Service
             await _dbContext.SaveChangesAsync();
 
             // TODO: Notify owner here
-            // notificationService.NotifyOwner(post.UserId, "Someone requested to join!");
+            await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+            {
+                UserId = post.UserId,
+                PostId = post.PostId,
+                Content = "Someone requested to join your activity.",
+                Type = NotificationType.ParticipantRequested
+            });
 
             // if approved and there is no group chat yet, create one now
             if (participant.Status == ParticipantStatus.Approved)
@@ -368,6 +374,19 @@ namespace where_we_go.Service
             participant.Status = ParticipantStatus.Withdrawn; // Changed from Left to Withdrawn
 
             await _dbContext.SaveChangesAsync();
+
+            // TODO: Notify owner here
+            var post = await _dbContext.Posts.FindAsync(postId);
+            if (post != null)
+            {
+                await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+                {
+                    UserId = post.UserId,
+                    PostId = post.PostId,
+                    Content = $"{participant.User.Name} left your activity.",
+                    Type = NotificationType.ParticipantWithdrawn
+                });
+            }
             return "Success";
         }
 
@@ -389,7 +408,13 @@ namespace where_we_go.Service
             await _dbContext.SaveChangesAsync();
 
             // TODO: Notify participant
-            // notificationService.NotifyUser(participantUserId, "Your request to join was approved!");
+            await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+            {
+                UserId = participantUserId,
+                PostId = postId,
+                Content = "Your request to join was approved!",
+                Type = NotificationType.ParticipantApproved
+            });
 
             return "Success";
         }
@@ -408,7 +433,13 @@ namespace where_we_go.Service
             await _dbContext.SaveChangesAsync();
 
             // TODO: Notify participant
-            // notificationService.NotifyUser(participantUserId, "Your request to join was declined.");
+            await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+            {
+                UserId = participantUserId,
+                PostId = postId,
+                Content = "Your request to join was declined.",
+                Type = NotificationType.ParticipantRejected
+            });
 
             return "Success";
         }

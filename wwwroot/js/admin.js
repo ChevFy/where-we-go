@@ -123,7 +123,13 @@ function renderUsers(users) {
         actionTd.className = 'action-buttons';
         
         const actionButton = document.createElement('button');
-        if (user.isBanned) {
+        if (user.isAdmin) {
+            actionButton.className = 'btn-admin';
+            actionButton.textContent = 'Admin';
+            actionButton.disabled = true;
+            actionButton.style.opacity = '0.6';
+            actionButton.style.cursor = 'not-allowed';
+        } else if (user.isBanned) {
             actionButton.className = 'btn-unban';
             actionButton.textContent = 'Unban';
             actionButton.onclick = function() { unbanUser(user.id); };

@@ -1,5 +1,6 @@
 @model where_we_go.DTO.PostDetailDto
 @using System.Security.Claims
+@using Minio.DataModel
 
 @{
     // Get the ID of the person currently looking at the page
@@ -47,6 +48,25 @@
 
         <div class="post-population">
             <p>👥 @Model.CurrentParticipants / @Model.MaxParticipants People</p>
+        </div>
+        <div class="participants">
+            @foreach (var participant in Model.CurrentParticipantsDetail)
+            {
+                <div class="participant-avatar" title="@participant.userName">
+                    @if (!string.IsNullOrEmpty(participant.ProfileImgURL))
+                    {
+                        <a asp-controller="User" asp-action="UserProfile" asp-route-username=@participant.userName>
+                        <img src="@participant.ProfileImgURL"  />
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="participant-avatar-placeholder">
+                            @participant.userName.Substring(0, 1).ToUpper()
+                        </div>
+                    }
+                </div>
+            }
         </div>
 
         <div class="post-category">

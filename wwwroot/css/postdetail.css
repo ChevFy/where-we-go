@@ -39,6 +39,35 @@
     font-size: var(--font-size-base);
 }
 
+.participants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.participant-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+}
+
+.participant-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-small);
+    font-weight: bold;
+    border: 2px solid var(--primary-color);
+}
+
 .post-location a {
     color: var(--primary-color);
     text-decoration: none;
@@ -127,7 +156,14 @@
     background-color: #6c757d;
 }
 
+.participant-avatar a {
+    display: inline-block; /* สำคัญมาก: เพื่อให้ transform ทำงานได้ */
+    transition: 0.2s ease; /* เพิ่มความนุ่มนวล */
+}
 
+.participant-avatar a:hover {
+    transform: translateY(-2px);
+}
 
 @media (max-width: 768px) {
     .post-bg-container {
@@ -137,15 +173,16 @@
     }
 
     .post-container {
-        margin-top: 25px;
+        margin-top: 100px;
         padding: 1rem;
         max-width: 100%;
-        height: 100vh;
+        min-height: 100vh;
+        height: auto;
     }
 
     .post-thumbnail {
         margin-top: 50px;
-        height: px;
+        height: 200px;
         margin-bottom: 0.75rem;
     }
 

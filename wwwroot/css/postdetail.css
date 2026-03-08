@@ -39,6 +39,11 @@
     font-size: var(--font-size-base);
 }
 
+.post-location a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
 .post-category {
     margin-bottom: 0.75rem;
 }

@@ -12,6 +12,7 @@ public class PostDto
     public required string Description { get; set; }
     public string? LocationName { get; set; }
     public DateTime DateDeadline { get; set; }
+    public DateTime EventDate { get; set; }
     public string? Status { get; set; }
 
     public int MaxParticipants { get; set; }
@@ -24,6 +25,15 @@ public class PostDto
         {
             var thailandTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Bangkok");
             var localTime = TimeZoneInfo.ConvertTime(DateDeadline, thailandTz);
+            return localTime.ToString("dd/MM/yyyy HH:mm");
+        }
+    }
+    public string? EventDateFormatted
+    {
+        get
+        {
+            var thailandTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Bangkok");
+            var localTime = TimeZoneInfo.ConvertTime(EventDate, thailandTz);
             return localTime.ToString("dd/MM/yyyy HH:mm");
         }
     }

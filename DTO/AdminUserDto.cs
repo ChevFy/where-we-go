@@ -10,6 +10,7 @@ public class AdminUserDto
     public bool IsBanned { get; set; }
     public string? BanReason { get; set; }
     public DateTime? BanExpiresAt { get; set; }
+    public bool IsAdmin { get; set; } 
 }
 public class AdminUpdateUserDto
 {

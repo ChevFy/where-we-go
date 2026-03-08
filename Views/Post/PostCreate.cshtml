@@ -92,7 +92,7 @@
             {
                 id = "DateDeadline",
                 name = "DateDeadline",
-                label = "Event Date",
+                label = "Rigistration Deadline",
                 type = "date",
                 required = true,
                 value = Model?.DateDeadline.ToString("yyyy-MM-dd") ?? ""
@@ -102,10 +102,30 @@
             {
                 id = "TimeDeadline",
                 name = "TimeDeadline",
-                label = "Event Time",
+                label = "Registration Deadline Time",
                 type = "time",
                 required = true,
                 value = Model?.TimeDeadline.ToString("HH:mm") ?? ""
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "EventDate",
+                name = "EventDate",
+                label = "Event Date",
+                type = "date",
+                required = true,
+                value = Model?.EventDate.ToString("yyyy-MM-dd") ?? ""
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "EventTime",
+                name = "EventTime",
+                label = "Event Time",
+                type = "time",
+                required = true,
+                value = Model?.EventTime.ToString("HH:mm") ?? ""
             })
 
             @await Component.InvokeAsync("FormInput", new
@@ -127,8 +147,6 @@
                 required = true,
                 value = Model?.MaxParticipants.ToString() ?? ""
             })
-
-
 
 
             @await Component.InvokeAsync("MainButton", new

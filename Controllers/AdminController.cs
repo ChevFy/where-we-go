@@ -59,7 +59,11 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
                 Name = u.Name,
                 IsBanned = u.IsBanned,
                 BanReason = u.BanReason,
-                BanExpiresAt = u.BanExpiresAt
+                BanExpiresAt = u.BanExpiresAt,
+                IsAdmin = _dbContext.UserRoles
+                    .Where(ur => ur.UserId == u.Id)
+                    .Join(_dbContext.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
+                    .Contains("Admin")
             })
             .ToListAsync();
 
@@ -79,7 +83,11 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
 
         var user = await userManager.FindByIdAsync(dto.UserId);
         if (user == null) return NotFound(new { details = "User not found" });
-
+        var userRoles = await userManager.GetRolesAsync(user);
+        if (userRoles.Contains("Admin"))
+        {
+            return BadRequest(new { details = "Cannot ban an admin user" });
+        }
         user.IsBanned = true;
         user.BanReason = dto.Reason;
         user.BanExpiresAt = DateTime.UtcNow.AddDays(dto.DurationDays);
@@ -102,7 +110,11 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
 
         var user = await userManager.FindByIdAsync(dto.UserId);
         if (user == null) return NotFound(new { details = "User not found" });
-
+        var userRoles = await userManager.GetRolesAsync(user);
+        if (userRoles.Contains("Admin"))
+        {
+            return BadRequest(new { details = "Cannot modify ban status for admin users" });
+        }
         user.IsBanned = false;
         user.BanReason = null;
         user.BanExpiresAt = null;

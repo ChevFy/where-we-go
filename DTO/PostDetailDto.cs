@@ -30,6 +30,9 @@ namespace where_we_go.DTO
         [Required]
         public DateTime DateDeadline { get; set; }
 
+        [Required]
+        public DateTime EventDate { get; set; }
+
         public string? Status { get; set; }
 
         [Display(Name = "Deadline")]
@@ -39,6 +42,17 @@ namespace where_we_go.DTO
             {
                 var thailandTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Bangkok");
                 var localTime = TimeZoneInfo.ConvertTime(DateDeadline, thailandTz);
+                return localTime.ToString("dd MMM yyyy HH:mm");
+            }
+        }
+
+        [Display(Name = "EventDate")]
+        public string EventDateFormatted
+        {
+            get
+            {
+                var thailandTz = TimeZoneInfo.FindSystemTimeZoneById("Asia/Bangkok");
+                var localTime = TimeZoneInfo.ConvertTime(EventDate, thailandTz);
                 return localTime.ToString("dd MMM yyyy HH:mm");
             }
         }

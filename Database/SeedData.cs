@@ -102,6 +102,9 @@ public static class SeedData
 
             var postCategories = categories.Where(c => categoryNames.Contains(c.Name)).ToList();
 
+            var dateCreated = DateTime.UtcNow;
+            var dateDeadline = dateCreated.AddDays(daysDeadline);
+
             context.Posts.Add(new Post
             {
                 PostId = Guid.NewGuid(),
@@ -109,10 +112,11 @@ public static class SeedData
                 Title = title,
                 Description = description,
                 LocationName = location,
-                DateDeadline = DateTime.UtcNow.AddDays(daysDeadline),
+                DateCreated = dateCreated,
+                DateDeadline = dateDeadline,
+                EventDate = dateDeadline.AddDays(1),
                 MinParticipants = minPart,
                 MaxParticipants = maxPart,
-                DateCreated = DateTime.UtcNow,
                 Status = PostStatus.Active,
                 InviteCode = inviteCode,
                 Categories = postCategories

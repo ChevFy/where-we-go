@@ -13,6 +13,7 @@ namespace where_we_go.Service
         Task<string> LeavePostAsync(Guid postId, string userId);
         Task<string> ApproveJoinAsync(Guid postId, string participantUserId, string currentUserId);
         Task<string> RejectJoinAsync(Guid postId, string participantUserId, string currentUserId);
+        Task<List<ApplicantDto>> GetPostApplicantsAsync(Guid postId, string currentUserId);
         Task<PaginatedResponseDto<PostDto>> GetPostsByUserIdAsync(string userId, PostQueryDto query);
         Task<PaginatedResponseDto<PostDto>> GetPostsJoinedByUserIdAsync(string userId, PostQueryDto query);
     }

@@ -61,7 +61,7 @@
   line-height: 1.2;
 }
 
-.post-status.active {
+.post-status.open {
   background-color: #007bff;
 }
 
@@ -69,11 +69,15 @@
   background-color: #28a745;
 }
 
-.post-status.ended {
+.post-status.closed {
   background-color: #dc3545;
 }
 
-.post-status.delete {
+.post-status.completed {
+  background-color: #8b0000;
+}
+
+.post-status.cancelled {
   background-color: #6c757d;
 }
 

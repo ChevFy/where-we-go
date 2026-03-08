@@ -1,3 +1,5 @@
+using where_we_go.Models.Enums;
+
 namespace where_we_go.Database;
 
 public static class SeedDataModels
@@ -63,16 +65,16 @@ public static class SeedDataModels
     public static class Notifications
     {
         // (PostIndex, UserEmail, Content, IsRead, Type)
-        public static readonly (int PostIndex, string UserEmail, string Content, bool IsRead, string Type)[] Data =
+        public static readonly (int PostIndex, string UserEmail, string Content, bool IsRead, NotificationType Type)[] Data =
         [
-            // Unread notification from post john joins (Post 0: Mountain Trip)
-            (0, "john@example.com", "New update on the Mountain Trip event you're participating in!", false, "ParticipantUpdate"),
+            // Notification for participant who joined Mountain Trip (Post 0)
+            (0, "john@example.com", "You have successfully requested to join the Mountain Trip event!", false, NotificationType.ParticipantRequested),
             
-            // Unread notification from post john created (Post 1: Cafe Hopping)
-            (1, "john@example.com", "Someone has joined your Cafe Hopping event!", false, "NewParticipant"),
+            // Notification for post owner about new participant request (Post 1: Cafe Hopping)
+            (1, "jane@example.com", "alice@example.com has requested to join your Cafe Hopping event!", false, NotificationType.ParticipantRequested),
             
-            // Read notification from post john created (Post 1: Cafe Hopping) 
-            (1, "john@example.com", "Your Cafe Hopping event has reached maximum participants!", true, "EventFull")
+            // Notification for approved participant (Post 2: Beach Day) 
+            (2, "john@example.com", "You have been approved to join the Beach Day event!", true, NotificationType.ParticipantApproved)
         ];
     }
 }

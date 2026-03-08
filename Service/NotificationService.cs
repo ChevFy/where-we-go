@@ -27,7 +27,7 @@ namespace where_we_go.Service
             return notification.NotificationId;
         }
 
-        public async Task<PaginatedResponseDto<NotificationDto>> GetNotificationsByUserIdAsync(string userId, NotificationQueryDto query)
+        public async Task<(PaginatedResponseDto<NotificationDto>, int)> GetNotificationsByUserIdAsync(string userId, NotificationQueryDto query)
         {
             var notifications = _dbContext.Notifications
                 .Where(n => n.UserId == userId)
@@ -65,13 +65,15 @@ namespace where_we_go.Service
                 Type = n.Type
             });
 
-            return result;
+            var unReadCount = await _dbContext.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
+
+            return (result, unReadCount);
         }
 
-        public async Task<bool> UpdateNotificationReadStatusAsync(Guid notificationId, bool isRead)
+        public async Task<bool> UpdateNotificationReadStatusAsync(Guid notificationId, string userId, bool isRead)
         {
             var notification = await _dbContext.Notifications
-                .FirstOrDefaultAsync(n => n.NotificationId == notificationId);
+                .FirstOrDefaultAsync(n => n.NotificationId == notificationId && n.UserId == userId);
 
             if (notification == null)
             {

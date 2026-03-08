@@ -59,4 +59,20 @@ public static class SeedDataModels
             (2, new[] { "john@example.com", "jane@example.com", "charlie@example.com", "alice@example.com" })
         ];
     }
+
+    public static class Notifications
+    {
+        // (PostIndex, UserEmail, Content, IsRead, Type)
+        public static readonly (int PostIndex, string UserEmail, string Content, bool IsRead, string Type)[] Data =
+        [
+            // Unread notification from post john joins (Post 0: Mountain Trip)
+            (0, "john@example.com", "New update on the Mountain Trip event you're participating in!", false, "ParticipantUpdate"),
+            
+            // Unread notification from post john created (Post 1: Cafe Hopping)
+            (1, "john@example.com", "Someone has joined your Cafe Hopping event!", false, "NewParticipant"),
+            
+            // Read notification from post john created (Post 1: Cafe Hopping) 
+            (1, "john@example.com", "Your Cafe Hopping event has reached maximum participants!", true, "EventFull")
+        ];
+    }
 }

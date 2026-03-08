@@ -1,3 +1,5 @@
+
+
 namespace where_we_go.DTO
 {
     public class AdminPostDto
@@ -14,5 +16,13 @@ namespace where_we_go.DTO
         public DateTime EventDate { get; set; }
         public DateTime DateCreated { get; set; }
         public string LocationName { get; set; } = string.Empty;
+    }
+
+    public class AdminPostUpdateDto
+    {
+        public string Status { get; set; } = string.Empty;
+        public int MinParticipants { get; set; }
+        public int MaxParticipants { get; set; }
+        public List<Guid> CategoryIds { get; set; } = [];
     }
 }

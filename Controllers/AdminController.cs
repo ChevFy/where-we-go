@@ -334,6 +334,49 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
         return Ok();
     }
 
+    [HttpPut("posts/{id:guid}")]
+    public async Task<IActionResult> UpdatePost([FromRoute] Guid id, [FromBody] AdminPostUpdateDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+        }
+
+        var post = await _dbContext.Posts
+            .Include(p => p.Categories)
+            .FirstOrDefaultAsync(p => p.PostId == id);
+
+        if (post == null) return NotFound(new { details = "Post not found" });
+
+        // Update editable fields: Status, Participants, Categories
+        post.MinParticipants = dto.MinParticipants;
+        post.MaxParticipants = dto.MaxParticipants;
+
+        // Parse and update status
+        if (Enum.TryParse<PostStatus>(dto.Status, true, out var status))
+        {
+            post.Status = status;
+        }
+
+        // Update categories if provided
+        if (dto.CategoryIds != null && dto.CategoryIds.Count > 0)
+        {
+            var categories = await _dbContext.Categories
+                .Where(c => dto.CategoryIds.Contains(c.CategoryId))
+                .ToListAsync();
+
+            post.Categories.Clear();
+            foreach (var category in categories)
+            {
+                post.Categories.Add(category);
+            }
+        }
+
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(new { message = "Post updated successfully" });
+    }
+
     [HttpPost("posts/{id:guid}/restore")]
     public async Task<IActionResult> RestorePost([FromRoute] Guid id)
     {
@@ -343,6 +386,21 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
         post.Status = PostStatus.Active;
         await _dbContext.SaveChangesAsync();
         return Ok();
+    }
+
+    [HttpDelete("posts/{postId:guid}/participants/{participantId:guid}")]
+    public async Task<IActionResult> RemoveParticipant([FromRoute] Guid postId, [FromRoute] Guid participantId)
+    {
+        var participant = await _dbContext.Participants
+            .FirstOrDefaultAsync(p => p.ParticipantId == participantId && p.PostId == postId);
+
+        if (participant == null)
+            return NotFound(new { details = "Participant not found" });
+
+        _dbContext.Participants.Remove(participant);
+        await _dbContext.SaveChangesAsync();
+
+        return Ok(new { message = "Participant removed successfully" });
     }
 
 }

@@ -48,20 +48,20 @@ namespace where_we_go.Service
 
             var expiredPosts = await dbContext.Posts
                 .Where(p => p.DateDeadline <= now
-                         && p.Status != PostStatus.Ended
-                         && p.Status != PostStatus.Delete)
+                         && p.Status != PostStatus.Closed
+                         && p.Status != PostStatus.Cancelled)
                 .ToListAsync();
 
             if (expiredPosts.Count == 0) return;
 
             foreach (var post in expiredPosts)
             {
-                post.Status = PostStatus.Ended;
+                post.Status = PostStatus.Closed;
             }
 
             await dbContext.SaveChangesAsync();
 
-            _logger.LogInformation("Updated {Count} expired post(s) to Ended status.", expiredPosts.Count);
+            _logger.LogInformation("Updated {Count} expired post(s) to Closed status.", expiredPosts.Count);
         }
     }
 }

@@ -13,7 +13,7 @@ using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.Service;
 
-public class PostController(IPostService postService , AppDbContext dbContext) : Controller
+public class PostController(IPostService postService, AppDbContext dbContext) : Controller
 {
     private IPostService _postService { get; init; } = postService;
     [HttpGet]
@@ -24,7 +24,8 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
 
         if (postDto == null) return NotFound();
 
-        if (postDto.Status == "Delete")
+        // Check if post is deleted - only owner or admin can view
+        if (postDto.Status == "Cancelled")
         {
             if (userId != postDto.UserId && !User.IsInRole("Admin"))
             {
@@ -50,7 +51,7 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> PostCreate(PostCreateDto dto )
+    public async Task<IActionResult> PostCreate(PostCreateDto dto)
     {
         if (!ModelState.IsValid)
         {
@@ -105,7 +106,7 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
         }
         else if (result == "Pending")
         {
-            TempData["AlertMessage"] = "This activity is full. You have been added to the waitlist (Pending).";
+            TempData["AlertMessage"] = "Request sent! Waiting for the host to approve your request.";
         }
         else
         {
@@ -137,23 +138,23 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
 
     [HttpPost]
     [Route("api/post/locationsave")]
-    public async Task<IActionResult> PostLocationSave([FromBody] PostLocationSaveDto model )
+    public async Task<IActionResult> PostLocationSave([FromBody] PostLocationSaveDto model)
     {
-        if(!ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
             return BadRequest();
         }
 
         var post = await dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == Guid.Parse(model.PostId));
-        if(post is null)
+        if (post is null)
             return NotFound();
 
         post.LocationLat = float.Parse(model.LocationLat);
         post.LocationLon = float.Parse(model.LocationLon);
 
 
-        return Ok(new { message = "Suceess"});
+        return Ok(new { message = "Suceess" });
     }
 
-    
+
 }

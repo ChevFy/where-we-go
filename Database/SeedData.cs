@@ -117,7 +117,7 @@ public static class SeedData
                 EventDate = dateDeadline.AddDays(1),
                 MinParticipants = minPart,
                 MaxParticipants = maxPart,
-                Status = PostStatus.Active,
+                Status = PostStatus.Open,
                 InviteCode = inviteCode,
                 Categories = postCategories
             });

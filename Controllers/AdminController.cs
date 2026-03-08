@@ -215,7 +215,7 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
         // Apply name filter
         if (!string.IsNullOrWhiteSpace(query.NameFilter))
         {
-            var keyword = query.NameFilter.Trim();
+            var keyword = query.NameFilter.Trim().ToLower();
             postsQuery = postsQuery.Where(p =>
                 EF.Functions.Like(p.Title.ToLower(), $"%{keyword}%"));
         }

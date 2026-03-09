@@ -5,41 +5,35 @@ using where_we_go.DTO;
 using where_we_go.Models.Enums;
 using where_we_go.Models;
 
-using Minio.DataModel;
-
 namespace where_we_go.Service
 {
-    public class PostService : BaseService, IPostService
+    public class PostService(AppDbContext _dbContext, IFileService _fileService, INotificationService _notificationService) : BaseService, IPostService
     {
-        private readonly AppDbContext _dbContext;
-
-        private readonly IFileService _fileService;
-
-        public PostService(AppDbContext dbContext, IFileService fileService)
-        {
-            _dbContext = dbContext;
-            _fileService = fileService;
-        }
-
-
-
         private PostStatus GetPostStatus(Post post)
         {
-            // Check if post is marked as deleted
-            if (post.Status == PostStatus.Delete)
-                return PostStatus.Delete;
+            // 1. Check for manual/explicit states first
+            if (post.Status == PostStatus.Cancelled)
+                return PostStatus.Cancelled;
 
-            // Check if deadline has passed
-            if (DateTime.UtcNow > post.DateDeadline)
-                return PostStatus.Ended;
+            if (post.Status == PostStatus.Closed)
+                return PostStatus.Closed; // Owner closed it early
 
-            // Check if post is full
+            var now = DateTime.UtcNow;
+
+            // 2. Check time-based states
+            if (now > post.EventDate)
+                return PostStatus.Completed;
+
+            if (now > post.DateDeadline)
+                return PostStatus.Closed;
+
+            // 3. Check capacity-based states
             var participantCount = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved);
             if (participantCount >= post.MaxParticipants)
                 return PostStatus.Full;
 
-            // Otherwise active
-            return PostStatus.Active;
+            // 4. Default state
+            return PostStatus.Open;
         }
 
         private async Task<PaginatedResponseDto<PostDto>> ApplyFiltersAndGetPaginatedPostsAsync(IQueryable<Post> posts, PostQueryDto query)
@@ -63,20 +57,24 @@ namespace where_we_go.Service
             {
                 posts = query.StatusFilter.ToLower() switch
                 {
-                    "delete" => posts.Where(p => p.Status == PostStatus.Delete),
-                    "ended" => posts.Where(p => p.Status != PostStatus.Delete && now > p.DateDeadline),
-                    "full" => posts.Where(p => p.Status != PostStatus.Delete &&
+                    "cancelled" => posts.Where(p => p.Status == PostStatus.Cancelled),
+                    "completed" => posts.Where(p => p.Status != PostStatus.Cancelled && now > p.EventDate),
+                    "closed" => posts.Where(p => p.Status != PostStatus.Cancelled && now > p.DateDeadline && now <= p.EventDate),
+                    "full" => posts.Where(p => p.Status != PostStatus.Cancelled &&
                                               now <= p.DateDeadline &&
                                               _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) >= p.MaxParticipants),
-                    "active" => posts.Where(p => p.Status != PostStatus.Delete &&
+                    "open" => posts.Where(p => p.Status != PostStatus.Cancelled &&
                                                 now <= p.DateDeadline &&
                                                 _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) < p.MaxParticipants),
-                    _ => posts.Where(p => p.Status != PostStatus.Delete)
+                    "all" => posts, // No additional filtering
+                    _ => posts.Where(p => p.Status != PostStatus.Cancelled && now <= p.EventDate &&
+                            _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) < p.MaxParticipants), // Default to showing only active posts
                 };
             }
             else
             {
-                posts = posts.Where(p => p.Status != PostStatus.Delete);
+                // Exclude cancelled posts by default
+                posts = posts.Where(p => p.Status != PostStatus.Cancelled);
             }
 
             // Sort by
@@ -118,11 +116,16 @@ namespace where_we_go.Service
             return result;
         }
 
-        public async Task<PaginatedResponseDto<PostDto>> GetAllPostsAsync(PostQueryDto query)
+        public async Task<PaginatedResponseDto<PostDto>> GetAllPostsAsync(PostQueryDto query, string? userId = null)
         {
             var posts = _dbContext.Posts
                 .Include(p => p.Categories)
                 .AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(userId) && query.StatusFilter == "default")
+            {
+                posts = posts.Where(p => p.UserId != userId); // Exclude user's own posts from the general listing
+            }
 
             return await ApplyFiltersAndGetPaginatedPostsAsync(posts, query);
         }
@@ -148,10 +151,13 @@ namespace where_we_go.Service
                 participantDetails.Add(new ParticipantDetailDto
                 {
                     UserId = part.UserId,
-                    userName = part.User.UserName,
+                    userName = part.User.UserName ?? "",
                     ProfileImgURL = await _fileService.GeneratePresignedProfileUrlAsync(part.User.ProfileImageKey)
                 });
             }
+
+            // Load post owner info
+            var owner = await _dbContext.Users.FindAsync(post.UserId);
 
             var result = new PostDetailDto
             {
@@ -175,7 +181,11 @@ namespace where_we_go.Service
                 }).ToList(),
                 PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(post.PostImageKey),
                 UserId = post.UserId,
+                OwnerUsername = owner?.UserName,
+                OwnerName = owner?.Name,
+                OwnerProfileImgURL = owner != null ? await _fileService.GeneratePresignedProfileUrlAsync(owner.ProfileImageKey) : null,
                 IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved),
+                IsPending = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Pending),
                 ChatId = await _dbContext.GroupChats
                     .Where(g => g.PostId == post.PostId)
                     .Select(g => (Guid?)g.GroupChatId)
@@ -227,7 +237,7 @@ namespace where_we_go.Service
 
                 DateCreated = DateTime.UtcNow,
 
-                Status = PostStatus.Active,
+                Status = PostStatus.Open, // Changed from Active to Open
                 InviteCode = Guid.NewGuid().ToString().Substring(0, 8).ToUpper()
             };
 
@@ -249,6 +259,65 @@ namespace where_we_go.Service
                 await _dbContext.SaveChangesAsync();
             }
         }
+
+        public async Task<bool> UpdatePostAsync(Guid postId, PostUpdateDto dto, string currentUserId)
+        {
+            var post = await _dbContext.Posts
+                .Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.PostId == postId);
+
+            if (post == null || post.UserId != currentUserId)
+            {
+                return false; // Post not found or user is not the owner
+            }
+
+            // Check current approved participant count
+            var approvedCount = await _dbContext.Participants
+                .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
+
+            // Validate max participants against current approved count
+
+            if (dto.MaxParticipants < approvedCount)
+            {
+                throw new InvalidOperationException($"Cannot set maximum participants below current approved count ({approvedCount}).");
+            }
+
+            // Merge date and time
+            var dateDeadline = dto.DateDeadline.Date.Add(dto.TimeDeadline.ToTimeSpan()).ToUniversalTime();
+            var eventDate = dto.EventDate.Date.Add(dto.EventTime.ToTimeSpan()).ToUniversalTime();
+
+            // Update post fields
+            post.Title = dto.Title;
+            post.Description = dto.Description;
+            post.LocationName = dto.LocationName;
+            post.LocationLat = !string.IsNullOrEmpty(dto.LocationLat) ? float.Parse(dto.LocationLat) : null;
+            post.LocationLon = !string.IsNullOrEmpty(dto.LocationLon) ? float.Parse(dto.LocationLon) : null;
+            post.PostImageKey = string.IsNullOrWhiteSpace(dto.PostImgkey) ? post.PostImageKey : dto.PostImgkey;
+            post.DateDeadline = dateDeadline;
+            post.EventDate = eventDate;
+            post.MinParticipants = dto.MinParticipants;
+            post.MaxParticipants = dto.MaxParticipants;
+
+            // Update categories
+            post.Categories.Clear();
+            if (dto.CategoryIds?.Count > 0)
+            {
+                var categories = await _dbContext.Categories
+                    .Where(c => dto.CategoryIds.Contains(c.CategoryId))
+                    .ToListAsync();
+
+                foreach (var category in categories)
+                {
+                    post.Categories.Add(category);
+                }
+            }
+
+            _dbContext.Posts.Update(post);
+            await _dbContext.SaveChangesAsync();
+
+            return true;
+        }
+
         public async Task<bool> DeletePostAsync(Guid id, string userId)
         {
             var post = await _dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == id && p.UserId == userId);
@@ -257,70 +326,100 @@ namespace where_we_go.Service
                 return false;
             }
 
-            post.Status = PostStatus.Delete;
+            post.Status = PostStatus.Cancelled; // Changed from Delete to Cancelled
             _dbContext.Posts.Update(post);
+
+            // TODO: Notify every participant (except status == reject, withdrawn)
+            var participantsToNotify = await _dbContext.Participants
+               .Where(p => p.PostId == id &&
+                           p.Status != ParticipantStatus.Rejected &&
+                           p.Status != ParticipantStatus.Withdrawn)
+               .ToListAsync();
+
+            foreach (var participant in participantsToNotify)
+            {
+                await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+                {
+                    UserId = participant.UserId,
+                    PostId = post.PostId,
+                    Content = $"The activity '{post.Title}' you joined has been cancelled.",
+                    Link = $"/Post/PostDetail/{post.PostId}",
+                    Type = NotificationType.ActivityCancelled
+                });
+            }
+
             await _dbContext.SaveChangesAsync();
             return true;
         }
+
         public async Task<string> JoinPostAsync(Guid postId, string userId)
         {
             var post = await _dbContext.Posts.FindAsync(postId);
             if (post == null) return "Activity not found.";
 
-            // Check if post is deleted, ended, or full
-            if (post.Status == PostStatus.Delete)
-                return "This activity has been deleted.";
+            var user = await _dbContext.Users.FindAsync(userId);
+            if (user == null) return "User not found.";
 
-            if (DateTime.UtcNow > post.DateDeadline)
-                return "This activity has ended.";
-
-            var approvedCount = await _dbContext.Participants
-                .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
-
-            if (approvedCount >= post.MaxParticipants)
-                return "This activity is full. You will be added to the waitlist.";
-
-            // Determine if they get in, or go to the waitlist
-            var assignedStatus = approvedCount >= post.MaxParticipants
-                ? ParticipantStatus.Pending
-                : ParticipantStatus.Approved;
+            var currentStatus = GetPostStatus(post);
+            if (currentStatus == PostStatus.Cancelled) return "This activity has been cancelled.";
+            if (currentStatus == PostStatus.Closed) return "This activity is closed for new participants.";
+            if (currentStatus == PostStatus.Completed) return "This activity is already completed.";
+            if (currentStatus == PostStatus.Full) return "This activity is currently full.";
 
             var existingParticipant = await _dbContext.Participants
                 .FirstOrDefaultAsync(p => p.PostId == postId && p.UserId == userId);
 
             if (existingParticipant != null)
             {
-                if (existingParticipant.Status == ParticipantStatus.Approved)
-                    return "You have already joined this activity.";
+                if (existingParticipant.Status == ParticipantStatus.Approved) return "You have already joined this activity.";
+                if (existingParticipant.Status == ParticipantStatus.Pending) return "Your request is already pending.";
+                if (existingParticipant.Status == ParticipantStatus.Rejected) return "Your previous request was rejected.";
 
-                if (existingParticipant.Status == ParticipantStatus.Pending)
-                    return "Pending"; // They are already on the waitlist
-
-                if (existingParticipant.Status == ParticipantStatus.Left)
+                if (existingParticipant.Status == ParticipantStatus.Withdrawn) // Changed from Left to Withdrawn
                 {
-                    // Reactivate their old record
-                    existingParticipant.Status = assignedStatus;
+                    existingParticipant.Status = ParticipantStatus.Pending;
                     existingParticipant.DateJoin = DateTime.UtcNow;
                     await _dbContext.SaveChangesAsync();
-                    return assignedStatus == ParticipantStatus.Pending ? "Pending" : "Success";
+
+                    // TODO: Notify owner here
+                    await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+                    {
+                        UserId = post.UserId,
+                        PostId = post.PostId,
+                        Content = $"{user.UserName ?? user.Name ?? "A user"} has requested to join your activity.",
+                        Link = $"/Post/PostDetail/{post.PostId}",
+                        Type = NotificationType.ParticipantRequested
+                    });
+
+                    return "Pending";
                 }
             }
 
-            // Completely new participant
+            // New participant ALWAYS goes to pending
             var participant = new Participant
             {
                 ParticipantId = Guid.NewGuid(),
                 PostId = postId,
                 UserId = userId,
                 DateJoin = DateTime.UtcNow,
-                Status = assignedStatus
+                Status = ParticipantStatus.Pending
             };
 
             _dbContext.Participants.Add(participant);
             await _dbContext.SaveChangesAsync();
 
+            // TODO: Notify owner here
+            await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+            {
+                UserId = post.UserId,
+                PostId = post.PostId,
+                Content = $"{user.UserName ?? user.Name ?? "A user"} requested to join your activity.",
+                Link = $"/Post/PostDetail/{post.PostId}",
+                Type = NotificationType.ParticipantRequested
+            });
+
             // if approved and there is no group chat yet, create one now
-            if (assignedStatus == ParticipantStatus.Approved)
+            if (participant.Status == ParticipantStatus.Approved)
             {
                 var existingChat = await _dbContext.GroupChats
                     .FirstOrDefaultAsync(g => g.PostId == postId);
@@ -337,8 +436,9 @@ namespace where_we_go.Service
                 }
             }
 
-            return assignedStatus == ParticipantStatus.Pending ? "Pending" : "Success";
+            return "Pending";
         }
+
         public async Task<string> LeavePostAsync(Guid postId, string userId)
         {
             var participant = await _dbContext.Participants
@@ -348,10 +448,149 @@ namespace where_we_go.Service
 
             if (participant == null) return "You are not a member of this activity.";
 
-            participant.Status = ParticipantStatus.Left;
+            participant.Status = ParticipantStatus.Withdrawn; // Changed from Left to Withdrawn
 
             await _dbContext.SaveChangesAsync();
+
+            // TODO: Notify owner here
+            var post = await _dbContext.Posts.FindAsync(postId);
+            if (post != null)
+            {
+                await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+                {
+                    UserId = post.UserId,
+                    PostId = post.PostId,
+                    Content = $"{participant.User.Name} left your activity.",
+                    Link = $"/Post/PostDetail/{post.PostId}",
+                    Type = NotificationType.ParticipantWithdrawn
+                });
+            }
             return "Success";
+        }
+
+        public async Task<string> ApproveJoinAsync(Guid postId, string participantUserId, string currentUserId)
+        {
+            var post = await _dbContext.Posts.FindAsync(postId);
+            if (post == null || post.UserId != currentUserId) return "Unauthorized or Post Not Found.";
+
+            var participant = await _dbContext.Participants
+                .FirstOrDefaultAsync(p => p.PostId == postId && p.UserId == participantUserId && p.Status == ParticipantStatus.Pending);
+
+            if (participant == null) return "Participant request not found.";
+
+            // Double check if post is full before approving
+            var approvedCount = await _dbContext.Participants.CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
+            if (approvedCount >= post.MaxParticipants) return "Cannot approve: Activity is already full.";
+
+            participant.Status = ParticipantStatus.Approved;
+            await _dbContext.SaveChangesAsync();
+
+            // TODO: Notify participant
+            await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+            {
+                UserId = participantUserId,
+                PostId = postId,
+                Content = "Your request to join was approved!",
+                Link = $"/Post/PostDetail/{post.PostId}",
+                Type = NotificationType.ParticipantApproved
+            });
+
+            return "Success";
+        }
+
+        public async Task<string> RejectJoinAsync(Guid postId, string participantUserId, string currentUserId)
+        {
+            var post = await _dbContext.Posts.FindAsync(postId);
+            if (post == null || post.UserId != currentUserId) return "Unauthorized or Post Not Found.";
+
+            var participant = await _dbContext.Participants
+                .FirstOrDefaultAsync(p => p.PostId == postId && p.UserId == participantUserId && p.Status == ParticipantStatus.Pending);
+
+            if (participant == null) return "Participant request not found.";
+
+            participant.Status = ParticipantStatus.Rejected;
+            await _dbContext.SaveChangesAsync();
+
+            // TODO: Notify participant
+            await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+            {
+                UserId = participantUserId,
+                PostId = postId,
+                Content = "Your request to join was declined.",
+                Link = $"/Post/PostDetail/{post.PostId}",
+                Type = NotificationType.ParticipantRejected
+            });
+
+            return "Success";
+        }
+
+        public async Task<string> RemoveParticipantAsync(Guid postId, string participantUserId, string currentUserId)
+        {
+            // Verify post exists and current user is the owner
+            var post = await _dbContext.Posts.FindAsync(postId);
+            if (post == null || post.UserId != currentUserId)
+            {
+                return "Unauthorized or Post Not Found.";
+            }
+
+            // Find the approved participant
+            var participant = await _dbContext.Participants
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.PostId == postId && 
+                                          p.UserId == participantUserId && 
+                                          p.Status == ParticipantStatus.Approved);
+
+            if (participant == null)
+            {
+                return "Participant not found or not approved.";
+            }
+
+            // Set status to Withdrawn
+            participant.Status = ParticipantStatus.Withdrawn;
+            await _dbContext.SaveChangesAsync();
+
+            // Notify the removed participant
+            await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+            {
+                UserId = participantUserId,
+                PostId = postId,
+                Content = $"You have been removed from the activity '{post.Title}'.",
+                Link = $"/Post/PostDetail/{post.PostId}",
+                Type = NotificationType.ParticipantWithdrawn
+            });
+
+            return "Success";
+        }
+
+        public async Task<List<ApplicantDto>> GetPostApplicantsAsync(Guid postId, string currentUserId)
+        {
+            // 1. Verify the post exists and the current user is actually the owner
+            var post = await _dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == postId);
+            if (post == null || post.UserId != currentUserId)
+            {
+                return new List<ApplicantDto>(); // Return empty if unauthorized
+            }
+
+            // 2. Fetch the raw entities from the database FIRST (this prevents the EF translation error)
+            var participants = await _dbContext.Participants
+                .Include(p => p.User)
+                .Where(p => p.PostId == postId &&
+                           (p.Status == ParticipantStatus.Pending || p.Status == ParticipantStatus.Approved))
+                .OrderBy(p => p.DateJoin)
+                .ToListAsync();
+
+            // 3. Map to DTO in memory (just like your old GetPostDetailAsync code)
+            var applicants = participants.Select(p => new ApplicantDto
+            {
+                UserId = p.UserId,
+                // Add ?. and ?? to safely check if User is null
+                Name = p.User?.Name ?? "Unknown User",
+                ProfileImageKey = p.User?.ProfileImageKey,
+                Status = p.Status.ToString(),
+                DateJoin = p.DateJoin
+            }).ToList();
+
+            return applicants;
         }
 
         public async Task<PaginatedResponseDto<PostDto>> GetPostsByUserIdAsync(string userId, PostQueryDto query)
@@ -370,12 +609,10 @@ namespace where_we_go.Service
                 .Include(p => p.Categories)
                 .Where(p => _dbContext.Participants.Any(part => part.PostId == p.PostId &&
                                                                part.UserId == userId &&
-                                                               part.Status == ParticipantStatus.Approved))
+                                                               (part.Status == ParticipantStatus.Approved || part.Status == ParticipantStatus.Pending)))
                 .AsNoTracking();
 
             return await ApplyFiltersAndGetPaginatedPostsAsync(posts, query);
         }
-
-
     }
 }

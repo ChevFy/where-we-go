@@ -62,7 +62,7 @@ namespace where_we_go.Models
 
         public Post()
         {
-            Status = PostStatus.Active;
+            Status = PostStatus.Open;
             DateCreated = DateTime.UtcNow;
             DateDeadline = DateTime.UtcNow;
             InviteCode = null!;

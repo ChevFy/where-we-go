@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using Microsoft.AspNetCore.Identity;
+using where_we_go.Models.Enums;
 
 namespace where_we_go.Models
 {
@@ -27,15 +27,16 @@ namespace where_we_go.Models
 
         public DateTime DateCreated { get; set; }
 
+        public required string Link { get; set; }
+
         public bool IsRead { get; set; }
 
-        public string? Type { get; set; }
+        public NotificationType Type { get; set; }
 
         public Notification()
         {
             DateCreated = DateTime.Now;
             IsRead = false;
-            Type = null;
         }
 
     }

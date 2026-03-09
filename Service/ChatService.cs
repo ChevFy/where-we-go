@@ -68,7 +68,23 @@ namespace where_we_go.Service
                 GroupChatName = title
             };
             _db.GroupChats.Add(chat);
+            var post = await _db.Posts.FirstOrDefaultAsync(p => p.PostId == postId);
+
+            if (post != null)
+            {
+                var ownerParticipant = new Participant
+                {
+                    ParticipantId = Guid.NewGuid(),
+                    PostId = postId,
+                    UserId = post.UserId,
+                    Status = Models.Enums.ParticipantStatus.Approved
+                };
+
+                _db.Participants.Add(ownerParticipant);
+            }
+
             await _db.SaveChangesAsync();
+
             return chat.GroupChatId;
         }
     }

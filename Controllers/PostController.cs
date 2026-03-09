@@ -71,6 +71,83 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
 
         return RedirectToAction("Index", "Home");
     }
+
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> PostEdit(Guid id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var post = await dbContext.Posts
+            .Include(p => p.Categories)
+            .FirstOrDefaultAsync(p => p.PostId == id);
+
+        if (post == null) return NotFound();
+
+        if (post.UserId != userId && !User.IsInRole("Admin"))
+        {
+            return Unauthorized();
+        }
+
+        ViewBag.Categories = dbContext.Categories
+            .Select(c => new CategorySelectDto
+            {
+                CategoryId = c.CategoryId,
+                CategoryName = c.Name
+            }).ToList();
+
+        var dto = new PostUpdateDto
+        {
+            PostId = post.PostId,
+            Title = post.Title,
+            Description = post.Description,
+            LocationName = post.LocationName,
+            LocationLat = post.LocationLat?.ToString(),
+            LocationLon = post.LocationLon?.ToString(),
+            DateDeadline = post.DateDeadline.Date,
+            TimeDeadline = TimeOnly.FromDateTime(post.DateDeadline),
+            EventDate = post.EventDate.Date,
+            EventTime = TimeOnly.FromDateTime(post.EventDate),
+            MinParticipants = post.MinParticipants,
+            MaxParticipants = post.MaxParticipants,
+            PostImgkey = post.PostImageKey,
+            CategoryIds = post.Categories.Select(c => c.CategoryId).ToList(),
+            Categories = post.Categories.Select(c => new CategoryDetailDto { CategoryId = c.CategoryId, Name = c.Name }).ToList()
+        };
+
+        return View(dto);
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> PostEdit(PostUpdateDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Categories = dbContext.Categories
+                .Select(c => new CategorySelectDto
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.Name
+                }).ToList();
+            return View(dto);
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var result = await _postService.UpdatePostAsync(dto.PostId, dto, userId);
+
+        if (!result)
+        {
+            TempData["AlertMessage"] = "Error: You do not have permission or update failed.";
+            return RedirectToAction("PostDetail", "Post", new { id = dto.PostId });
+        }
+
+        TempData["AlertMessage"] = "Success: Post updated successfully!";
+        return RedirectToAction("PostDetail", "Post", new { id = dto.PostId });
+    }
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> PostDelete(Guid id)

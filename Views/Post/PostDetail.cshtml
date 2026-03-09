@@ -108,6 +108,10 @@
                         </div>
                     }
                 }
+                else if (Model.IsPending)
+                {
+                    <button type="button" class="btn btn-secondary" disabled>Pending Approval</button>
+                }
                 else
                 {
                     <form asp-action="JoinPost" asp-controller="Post" asp-route-id="@Model.PostId" method="post">
@@ -116,13 +120,19 @@
                 }
             }
         </div>
-        @* Only show delete if user is logged in AND they are the creator *@
+        @* Only show edit and delete if user is logged in AND they are the creator *@
         @if (User.Identity?.IsAuthenticated == true && currentUserId == Model.UserId)
         {
-            <form asp-action="PostDelete" asp-controller="Post" asp-route-id="@Model.PostId" method="post"
-                  onsubmit="return confirm('Do you really want to delete this post?');">
-                <button type="submit" class="btn btn-danger">Delete This Post</button>
-            </form>
+            <div class="action-buttons">
+                <a asp-controller="Post" asp-action="PostEdit" asp-route-id="@Model.PostId" class="btn btn-warning">
+                    Edit Post
+                </a>
+
+                <form asp-action="PostDelete" asp-controller="Post" asp-route-id="@Model.PostId" method="post"
+                      onsubmit="return confirm('Do you really want to delete this post?');">
+                    <button type="submit" class="btn btn-danger">Delete This Post</button>
+                </form>
+            </div>
         }
     </div>
 </div>

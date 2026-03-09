@@ -71,33 +71,37 @@
 } */
 
 .user-post-status {
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: var(--font-size-small);
-  display: inline-block;
-  white-space: nowrap;
-  text-decoration: none;
-  opacity: 1;
-  visibility: visible;
-  font-weight: normal;
-  line-height: 1.2;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    display: inline-block;
+    white-space: nowrap;
+    text-decoration: none;
+    opacity: 1;
+    visibility: visible;
+    font-weight: normal;
+    line-height: 1.2;
 }
 
-.user-post-status.active {
-  background-color: #007bff;
+.user-post-status.open {
+    background-color: #007bff;
 }
 
 .user-post-status.full {
-  background-color: #000000;
+    background-color: #000000;
 }
 
-.user-post-status.ended {
-  background-color: #dc3545;
+.user-post-status.closed {
+    background-color: #dc3545;
 }
 
-.user-post-status.delete {
-  background-color: #6c757d;
+.user-post-status.completed {
+    background-color: #8b0000;
+}
+
+.user-post-status.cancelled {
+    background-color: #6c757d;
 }
 
 

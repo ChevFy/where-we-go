@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using where_we_go.Database;
 using where_we_go.Models;
 using where_we_go.DTO;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace where_we_go.Service
 {
@@ -19,12 +20,19 @@ namespace where_we_go.Service
 
         public async Task<bool> IsUserMemberAsync(Guid groupChatId, string userId)
         {
-            var chat = await _db.GroupChats.FindAsync(groupChatId);
+            var chat = await _db.GroupChats
+                .Include(g => g.Post)
+                .FirstOrDefaultAsync(g => g.GroupChatId == groupChatId);
+
             if (chat == null)
                 return false;
-            return await _db.Participants.AnyAsync(p => p.PostId == chat.PostId
-                                                       && p.UserId == userId
-                                                       && p.Status == Models.Enums.ParticipantStatus.Approved);
+            if (chat.Post.UserId == userId)
+                return true;
+
+            return await _db.Participants.AnyAsync(p =>
+                p.PostId == chat.PostId &&
+                p.UserId == userId &&
+                p.Status == Models.Enums.ParticipantStatus.Approved);
         }
 
         public async Task<List<ChatMessage>> GetMessagesAsync(Guid groupChatId)
@@ -58,6 +66,7 @@ namespace where_we_go.Service
                 .Where(g => g.PostId == postId)
                 .Select(g => g.GroupChatId)
                 .FirstOrDefaultAsync();
+
             if (existing != Guid.Empty)
                 return existing;
 
@@ -67,20 +76,29 @@ namespace where_we_go.Service
                 PostId = postId,
                 GroupChatName = title
             };
+
             _db.GroupChats.Add(chat);
+
             var post = await _db.Posts.FirstOrDefaultAsync(p => p.PostId == postId);
 
             if (post != null)
             {
-                var ownerParticipant = new Participant
-                {
-                    ParticipantId = Guid.NewGuid(),
-                    PostId = postId,
-                    UserId = post.UserId,
-                    Status = Models.Enums.ParticipantStatus.Approved
-                };
+                var ownerExists = await _db.Participants.AnyAsync(p =>
+                    p.PostId == postId &&
+                    p.UserId == post.UserId);
 
-                _db.Participants.Add(ownerParticipant);
+                if (!ownerExists)
+                {
+                    var ownerParticipant = new Participant
+                    {
+                        ParticipantId = Guid.NewGuid(),
+                        PostId = postId,
+                        UserId = post.UserId,
+                        Status = Models.Enums.ParticipantStatus.Approved
+                    };
+
+                    _db.Participants.Add(ownerParticipant);
+                }
             }
 
             await _db.SaveChangesAsync();

@@ -139,6 +139,11 @@ namespace where_we_go.Service
             if (post == null)
                 return null;
 
+             var chatId = await _dbContext.GroupChats
+                .Where(g => g.PostId == post.PostId)
+                .Select(g => (Guid?)g.GroupChatId)
+                .FirstOrDefaultAsync();
+
             var participants = await _dbContext.Participants
                 .Include(part => part.User)
                 .Where(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved)
@@ -154,7 +159,8 @@ namespace where_we_go.Service
                     ProfileImgURL = await _fileService.GeneratePresignedProfileUrlAsync(part.User.ProfileImageKey)
                 });
             }
-
+            var isOwner = currentUserId == post.UserId;
+            var isJoined = participants.Any(p => p.UserId == currentUserId);
             var result = new PostDetailDto
             {
                 PostId = post.PostId,
@@ -177,15 +183,11 @@ namespace where_we_go.Service
                 }).ToList(),
                 PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(post.PostImageKey),
                 UserId = post.UserId,
-                IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved),
-                ChatId = await _dbContext.GroupChats
-                    .Where(g => g.PostId == post.PostId)
-                    .Select(g => (Guid?)g.GroupChatId)
-                    .FirstOrDefaultAsync()
+                IsJoined = isJoined,
+                ChatId = chatId
             };
 
-            // if the current user is joined but there is no chat yet, create one lazily
-            if (result.IsJoined && result.ChatId == null)
+            if ((isOwner || isJoined) && result.ChatId == null)
             {
                 result.ChatId = await _chatService.EnsureGroupChatExistsForPostAsync(post.PostId, post.Title);
             }
@@ -228,7 +230,10 @@ namespace where_we_go.Service
             _dbContext.Posts.Add(post);
             await _dbContext.SaveChangesAsync();
 
-            // Associate categories if provided
+            // create chat immediately
+            await _chatService.EnsureGroupChatExistsForPostAsync(post.PostId, post.Title);
+            
+
             if (dto.CategoryIds?.Count > 0)
             {
                 var categories = await _dbContext.Categories

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using where_we_go.Database;
 using where_we_go.Models;
 using where_we_go.Service;
+using System.Security.Claims;
 
 namespace where_we_go.Controllers;
 
@@ -21,6 +22,7 @@ public class HomeController(UserManager<User> userManager, IPostService postServ
     public async Task<IActionResult> Index([FromQuery] DTO.PostQueryDto query)
     {
         bool IsAuth = User.Identity?.IsAuthenticated ?? false;
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         ViewBag.IsAuth = IsAuth;
 
         if (IsAuth && User.IsInRole("Admin"))
@@ -28,7 +30,7 @@ public class HomeController(UserManager<User> userManager, IPostService postServ
             return RedirectToAction("Index", "Admin");
         }
 
-        var posts = await _postService.GetAllPostsAsync(query);
+        var posts = await _postService.GetAllPostsAsync(query, userId);
 
         // Get all categories
         var categories = await _dbContext.Categories.AsNoTracking().ToListAsync();

@@ -625,7 +625,6 @@ function openEditPostModal(post) {
     document.getElementById('editPostId').value = post.postId;
     document.getElementById('editPostMinParticipants').value = post.minParticipants || 1;
     document.getElementById('editPostMaxParticipants').value = post.maxParticipants || 10;
-    document.getElementById('editPostStatus').value = post.status || 'Active';
 
     loadCategoriesForEdit(post);
 
@@ -710,7 +709,6 @@ function savePostEdit() {
     const postId = state.editingPostData.postId;
     const minParticipants = parseInt(document.getElementById('editPostMinParticipants').value) || 1;
     const maxParticipants = parseInt(document.getElementById('editPostMaxParticipants').value) || 10;
-    const status = document.getElementById('editPostStatus').value;
 
     const categoryCheckboxes = document.querySelectorAll('input[name="editCategories"]:checked');
     const categoryIds = Array.from(categoryCheckboxes).map(cb => cb.value);
@@ -731,7 +729,7 @@ function savePostEdit() {
     fetch(`/admin/posts/${postId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, minParticipants, maxParticipants, categoryIds })
+        body: JSON.stringify({ minParticipants, maxParticipants, categoryIds })
     })
     .then(response => {
         if (response.ok) {

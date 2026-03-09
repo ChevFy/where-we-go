@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 using where_we_go.Database;
 using where_we_go.Models.Enums;
+using where_we_go.DTO;
 
 namespace where_we_go.Service
 {
@@ -43,6 +44,7 @@ namespace where_we_go.Service
         {
             using var scope = _scopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
             var now = DateTime.UtcNow;
 
@@ -56,7 +58,33 @@ namespace where_we_go.Service
 
             foreach (var post in expiredPosts)
             {
-                post.Status = PostStatus.Closed;
+                // if participants count meets minimum required, mark as Closed, else mark as Cancelled
+                var participantCount = await dbContext.Participants.CountAsync(p => p.PostId == post.PostId && p.Status == ParticipantStatus.Approved);
+                if (participantCount >= post.MinParticipants)
+                {
+                    post.Status = PostStatus.Closed;
+                    await notificationService.CreateNotificationAsync(new NotificationCreateDto
+                    {
+                        UserId = post.UserId,
+                        PostId = post.PostId,
+                        Content = $"Your activity '{post.Title}' has expired and is now closed.",
+                        Link = $"/Post/PostDetail/{post.PostId}",
+                        Type = NotificationType.PostExpiredFull,
+                    });
+
+                }
+                else
+                {
+                    post.Status = PostStatus.Cancelled;
+                    await notificationService.CreateNotificationAsync(new NotificationCreateDto
+                    {
+                        UserId = post.UserId,
+                        PostId = post.PostId,
+                        Content = $"Your activity '{post.Title}' has expired and is now cancelled.",
+                        Link = $"/Post/PostDetail/{post.PostId}",
+                        Type = NotificationType.PostExpiredNotFull,
+                    });
+                }
             }
 
             await dbContext.SaveChangesAsync();

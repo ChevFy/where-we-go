@@ -261,6 +261,7 @@ namespace where_we_go.Service
                     UserId = participant.UserId,
                     PostId = post.PostId,
                     Content = $"The activity '{post.Title}' you joined has been cancelled.",
+                    Link = $"/Post/PostDetail/{post.PostId}",
                     Type = NotificationType.ActivityCancelled
                 });
             }
@@ -273,6 +274,9 @@ namespace where_we_go.Service
         {
             var post = await _dbContext.Posts.FindAsync(postId);
             if (post == null) return "Activity not found.";
+
+            var user = await _dbContext.Users.FindAsync(userId);
+            if (user == null) return "User not found.";
 
             var currentStatus = GetPostStatus(post);
             if (currentStatus == PostStatus.Cancelled) return "This activity has been cancelled.";
@@ -300,7 +304,8 @@ namespace where_we_go.Service
                     {
                         UserId = post.UserId,
                         PostId = post.PostId,
-                        Content = "Someone requested to join your activity.",
+                        Content = $"{user.UserName ?? user.Name ?? "A user"} has requested to join your activity.",
+                        Link = $"/Post/PostDetail/{post.PostId}",
                         Type = NotificationType.ParticipantRequested
                     });
 
@@ -326,7 +331,8 @@ namespace where_we_go.Service
             {
                 UserId = post.UserId,
                 PostId = post.PostId,
-                Content = "Someone requested to join your activity.",
+                Content = $"{user.UserName ?? user.Name ?? "A user"} requested to join your activity.",
+                Link = $"/Post/PostDetail/{post.PostId}",
                 Type = NotificationType.ParticipantRequested
             });
 
@@ -373,6 +379,7 @@ namespace where_we_go.Service
                     UserId = post.UserId,
                     PostId = post.PostId,
                     Content = $"{participant.User.Name} left your activity.",
+                    Link = $"/Post/PostDetail/{post.PostId}",
                     Type = NotificationType.ParticipantWithdrawn
                 });
             }
@@ -402,6 +409,7 @@ namespace where_we_go.Service
                 UserId = participantUserId,
                 PostId = postId,
                 Content = "Your request to join was approved!",
+                Link = $"/Post/PostDetail/{post.PostId}",
                 Type = NotificationType.ParticipantApproved
             });
 
@@ -427,6 +435,7 @@ namespace where_we_go.Service
                 UserId = participantUserId,
                 PostId = postId,
                 Content = "Your request to join was declined.",
+                Link = $"/Post/PostDetail/{post.PostId}",
                 Type = NotificationType.ParticipantRejected
             });
 

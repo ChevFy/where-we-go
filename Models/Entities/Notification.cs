@@ -27,6 +27,8 @@ namespace where_we_go.Models
 
         public DateTime DateCreated { get; set; }
 
+        public required string Link { get; set; }
+
         public bool IsRead { get; set; }
 
         public NotificationType Type { get; set; }

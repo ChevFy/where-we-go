@@ -93,18 +93,18 @@ public static class SeedData
         if (!users.Any()) return;
 
         var categories = context.Categories.ToList();
-        var random = new Random();
-        var postIndex = 0;
 
-        foreach (var (title, description, location, daysDeadline, minPart, maxPart, inviteCode, categoryNames) in SeedDataModels.Posts.Data)
+        foreach (var (title, description, location, daysDeadline, minPart, maxPart, inviteCode, categoryNames, ownerEmail, daysAgo) in SeedDataModels.Posts.Data)
         {
-            // Select a random user or cycle through users
-            var author = users[postIndex % users.Count];
+            // Find the specific owner by email
+            var author = users.FirstOrDefault(u => u.Email == ownerEmail);
+            if (author == null) continue;
 
             var postCategories = categories.Where(c => categoryNames.Contains(c.Name)).ToList();
 
-            var dateCreated = DateTime.UtcNow;
+            var dateCreated = DateTime.UtcNow.AddDays(-daysAgo);
             var dateDeadline = dateCreated.AddDays(daysDeadline);
+            var eventDate = dateDeadline.AddDays(1);
 
             context.Posts.Add(new Post
             {
@@ -115,15 +115,13 @@ public static class SeedData
                 LocationName = location,
                 DateCreated = dateCreated,
                 DateDeadline = dateDeadline,
-                EventDate = dateDeadline.AddDays(1),
+                EventDate = eventDate,
                 MinParticipants = minPart,
                 MaxParticipants = maxPart,
                 Status = PostStatus.Open,
                 InviteCode = inviteCode,
                 Categories = postCategories
             });
-
-            postIndex++;
         }
 
         context.SaveChanges();
@@ -136,26 +134,22 @@ public static class SeedData
         var posts = context.Posts.OrderBy(p => p.DateCreated).ToList();
         var users = context.Users.ToList();
 
-        foreach (var (postIndex, userEmails) in SeedDataModels.Participants.Data)
+        foreach (var (postIndex, userEmail, status, daysAgo) in SeedDataModels.Participants.Data)
         {
             if (postIndex >= posts.Count) continue;
 
             var post = posts[postIndex];
+            var user = users.FirstOrDefault(u => u.Email == userEmail);
+            if (user == null) continue;
 
-            foreach (var email in userEmails)
+            context.Participants.Add(new Participant
             {
-                var user = users.FirstOrDefault(u => u.Email == email);
-                if (user == null) continue;
-
-                context.Participants.Add(new Participant
-                {
-                    ParticipantId = Guid.NewGuid(),
-                    PostId = post.PostId,
-                    UserId = user.Id,
-                    Status = ParticipantStatus.Approved,
-                    DateJoin = DateTime.UtcNow.AddDays(-1)
-                });
-            }
+                ParticipantId = Guid.NewGuid(),
+                PostId = post.PostId,
+                UserId = user.Id,
+                Status = status,
+                DateJoin = DateTime.UtcNow.AddDays(-daysAgo)
+            });
         }
 
         context.SaveChanges();
@@ -168,7 +162,7 @@ public static class SeedData
         var posts = context.Posts.OrderBy(p => p.DateCreated).ToList();
         var users = context.Users.ToList();
 
-        foreach (var (postIndex, userEmail, content, isRead, type) in SeedDataModels.Notifications.Data)
+        foreach (var (postIndex, userEmail, content, isRead, type, link, daysAgo) in SeedDataModels.Notifications.Data)
         {
             if (postIndex >= posts.Count) continue;
 
@@ -184,7 +178,8 @@ public static class SeedData
                 Content = content,
                 IsRead = isRead,
                 Type = type,
-                DateCreated = DateTime.UtcNow
+                Link = $"{link}/{post.PostId}",
+                DateCreated = DateTime.UtcNow.AddDays(-daysAgo)
             });
         }
 

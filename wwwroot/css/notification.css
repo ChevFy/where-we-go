@@ -55,18 +55,121 @@
     border-left-color: #ccc;
 }
 
+/* Color-coded notification types */
+.notification-item[data-type="ActivityCancelled"] {
+    border-left-color: #dc3545;
+    /* Red for cancelled */
+}
+
+.notification-item[data-type="ParticipantRequested"] {
+    border-left-color: #ffc107;
+    /* Amber for requests */
+}
+
+.notification-item[data-type="ParticipantApproved"] {
+    border-left-color: #28a745;
+    /* Green for approved */
+}
+
+.notification-item[data-type="ParticipantRejected"] {
+    border-left-color: #dc3545;
+    /* Red for rejected */
+}
+
+.notification-item[data-type="ParticipantWithdrawn"] {
+    border-left-color: #6c757d;
+    /* Gray for withdrawn */
+}
+
+.notification-item[data-type="PostExpiredFull"] {
+    border-left-color: #28a745;
+    /* Green for successful event */
+}
+
+.notification-item[data-type="PostExpiredNotFull"] {
+    border-left-color: #fd7e14;
+    /* Orange for unsuccessful event */
+}
+
 .notification-content {
     flex: 1;
 }
 
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
 .notification-text {
-    margin: 0 0 5px 0;
+    margin: 0 0 10px 0;
     color: var(--option-color);
+    line-height: 1.5;
 }
 
 .notification-type {
     font-size: var(--font-size-small);
-    color: var(--secondary-color);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Type-specific colors */
+.notification-type-ActivityCancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.notification-type-ParticipantRequested {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.notification-type-ParticipantApproved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.notification-type-ParticipantRejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.notification-type-ParticipantWithdrawn {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.notification-type-PostExpiredFull {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.notification-type-PostExpiredNotFull {
+    background-color: #ffe5d0;
+    color: #8a4100;
+}
+
+.notification-date {
+    font-size: var(--font-size-small);
+    color: #888;
+}
+
+.notification-link {
+    font-size: var(--font-size-small);
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+.notification-link:hover {
+    text-decoration: underline;
 }
 
 .mark-read-btn {

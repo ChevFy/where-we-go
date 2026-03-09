@@ -17,6 +17,7 @@ namespace where_we_go.Service
                 PostId = dto.PostId,
                 Content = dto.Content,
                 Type = dto.Type,
+                Link = dto.Link,
                 DateCreated = DateTime.UtcNow,
                 IsRead = false
             };
@@ -62,7 +63,8 @@ namespace where_we_go.Service
                 Content = n.Content,
                 DateCreated = n.DateCreated,
                 IsRead = n.IsRead,
-                Type = n.Type
+                Type = n.Type,
+                Link = n.Link
             });
 
             var unReadCount = await _dbContext.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);

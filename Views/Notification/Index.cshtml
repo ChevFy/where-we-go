@@ -48,10 +48,14 @@
         <div class="notifications-list">
             @foreach (var noti in Model.Data)
             {
-                <div class="notification-item @(noti.IsRead ? "read" : "unread")">
+                <div class="notification-item @(noti.IsRead ? "read" : "unread")" data-type="@noti.Type">
                     <div class="notification-content">
+                        <div class="notification-header">
+                            <span class="notification-type notification-type-@noti.Type">@noti.Type</span>
+                            <span class="notification-date">@noti.DateCreatedFormatted</span>
+                        </div>
                         <p class="notification-text">@noti.Content</p>
-                        <span class="notification-type">@noti.Type</span>
+                        <a href="@noti.Link" class="notification-link">View Details →</a>
                     </div>
 
                     @if (!noti.IsRead)
@@ -77,7 +81,7 @@
         <div class="noti-pagination">
             <span class="pagination-info">
                 Showing @((Model.Meta.CurrentPage - 1) * Model.Meta.PageSize + 1)-@Math.Min(Model.Meta.CurrentPage *
-                                            Model.Meta.PageSize, Model.Meta.Total) of @Model.Meta.Total
+                                                            Model.Meta.PageSize, Model.Meta.Total) of @Model.Meta.Total
             </span>
             <div class="pagination-controls">
                 <a href="@Url.Action("Index", new { Page = Model.Meta.PrevPage, IsReadFilter = currentFilter })"

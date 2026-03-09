@@ -23,6 +23,8 @@ namespace where_we_go.DTO
 
         public NotificationType Type { get; set; }
 
+        public required string Link { get; set; }
+
         public string? DateCreatedFormatted
         {
             get

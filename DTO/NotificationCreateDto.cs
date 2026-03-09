@@ -17,5 +17,9 @@ namespace where_we_go.DTO
 
         [Required]
         public NotificationType Type { get; set; }
+
+        [StringLength(200)]
+        [Required]
+        public required string Link { get; set; }
     }
 }

@@ -20,7 +20,7 @@ namespace where_we_go.DTO
 
     public class AdminPostUpdateDto
     {
-        public string Status { get; set; } = string.Empty;
+        public string? Status { get; set; }
         public int MinParticipants { get; set; }
         public int MaxParticipants { get; set; }
         public List<Guid> CategoryIds { get; set; } = [];

@@ -170,8 +170,8 @@ namespace where_we_go.Service
             post.MinParticipants = dto.MinParticipants;
             post.MaxParticipants = dto.MaxParticipants;
 
-            // Parse and update status
-            if (Enum.TryParse<PostStatus>(dto.Status, true, out var status))
+            // Parse and update status (only if provided)
+            if (!string.IsNullOrEmpty(dto.Status) && Enum.TryParse<PostStatus>(dto.Status, true, out var status))
             {
                 post.Status = status;
             }

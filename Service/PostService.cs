@@ -66,7 +66,9 @@ namespace where_we_go.Service
                     "open" => posts.Where(p => p.Status != PostStatus.Cancelled &&
                                                 now <= p.DateDeadline &&
                                                 _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) < p.MaxParticipants),
-                    _ => posts.Where(p => p.Status != PostStatus.Cancelled)
+                    "all" => posts, // No additional filtering
+                    _ => posts.Where(p => p.Status != PostStatus.Cancelled && now <= p.EventDate &&
+                            _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) < p.MaxParticipants), // Default to showing only active posts
                 };
             }
             else
@@ -114,11 +116,16 @@ namespace where_we_go.Service
             return result;
         }
 
-        public async Task<PaginatedResponseDto<PostDto>> GetAllPostsAsync(PostQueryDto query)
+        public async Task<PaginatedResponseDto<PostDto>> GetAllPostsAsync(PostQueryDto query, string? userId = null)
         {
             var posts = _dbContext.Posts
                 .Include(p => p.Categories)
                 .AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(userId) && query.StatusFilter == "default")
+            {
+                posts = posts.Where(p => p.UserId != userId); // Exclude user's own posts from the general listing
+            }
 
             return await ApplyFiltersAndGetPaginatedPostsAsync(posts, query);
         }
@@ -499,7 +506,7 @@ namespace where_we_go.Service
                 .Include(p => p.Categories)
                 .Where(p => _dbContext.Participants.Any(part => part.PostId == p.PostId &&
                                                                part.UserId == userId &&
-                                                               part.Status == ParticipantStatus.Approved))
+                                                               (part.Status == ParticipantStatus.Approved || part.Status == ParticipantStatus.Pending)))
                 .AsNoTracking();
 
             return await ApplyFiltersAndGetPaginatedPostsAsync(posts, query);

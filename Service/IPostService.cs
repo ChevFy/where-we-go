@@ -5,7 +5,7 @@ namespace where_we_go.Service
 {
     public interface IPostService
     {
-        Task<PaginatedResponseDto<PostDto>> GetAllPostsAsync(PostQueryDto query);
+        Task<PaginatedResponseDto<PostDto>> GetAllPostsAsync(PostQueryDto query, string? userId = null);
         Task<PostDetailDto?> GetPostDetailAsync(Guid id, string? currentUserId = null);
         Task CreatePostAsync(PostCreateDto dto, string userId);
         Task<bool> DeletePostAsync(Guid id, string userId);

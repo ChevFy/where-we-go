@@ -1,13 +1,9 @@
-using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
-using System.Text.Json;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 
 using where_we_go.DTO;
 using where_we_go.Models;
@@ -38,18 +34,6 @@ public class UserController(UserManager<User> userManager, IUserService userServ
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         bool isOwner = isAuth && currentUserId == targetUser.Id;
         ViewBag.isOwner = isOwner;
-
-        if (isOwner)
-        {
-
-            var createdPostsQuery = new PostQueryDto { Page = 1, PageSize = 10 };
-            var createdPosts = await postService.GetPostsByUserIdAsync(targetUser.Id, createdPostsQuery);
-            ViewBag.CreatedPosts = createdPosts;
-
-            var joinedPostsQuery = new PostQueryDto { Page = 1, PageSize = 10 };
-            var joinedPosts = await postService.GetPostsJoinedByUserIdAsync(targetUser.Id, joinedPostsQuery);
-            ViewBag.JoinedPosts = joinedPosts;
-        }
 
         return View(userResponse);
     }

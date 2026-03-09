@@ -156,6 +156,9 @@ namespace where_we_go.Service
                 });
             }
 
+            // Load post owner info
+            var owner = await _dbContext.Users.FindAsync(post.UserId);
+
             var result = new PostDetailDto
             {
                 PostId = post.PostId,
@@ -178,6 +181,9 @@ namespace where_we_go.Service
                 }).ToList(),
                 PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(post.PostImageKey),
                 UserId = post.UserId,
+                OwnerUsername = owner?.UserName,
+                OwnerName = owner?.Name,
+                OwnerProfileImgURL = owner != null ? await _fileService.GeneratePresignedProfileUrlAsync(owner.ProfileImageKey) : null,
                 IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved),
                 IsPending = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Pending),
                 ChatId = await _dbContext.GroupChats
@@ -252,6 +258,64 @@ namespace where_we_go.Service
 
                 await _dbContext.SaveChangesAsync();
             }
+        }
+
+        public async Task<bool> UpdatePostAsync(Guid postId, PostUpdateDto dto, string currentUserId)
+        {
+            var post = await _dbContext.Posts
+                .Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.PostId == postId);
+
+            if (post == null || post.UserId != currentUserId)
+            {
+                return false; // Post not found or user is not the owner
+            }
+
+            // Check current approved participant count
+            var approvedCount = await _dbContext.Participants
+                .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
+
+            // Validate max participants against current approved count
+
+            if (dto.MaxParticipants < approvedCount)
+            {
+                throw new InvalidOperationException($"Cannot set maximum participants below current approved count ({approvedCount}).");
+            }
+
+            // Merge date and time
+            var dateDeadline = dto.DateDeadline.Date.Add(dto.TimeDeadline.ToTimeSpan()).ToUniversalTime();
+            var eventDate = dto.EventDate.Date.Add(dto.EventTime.ToTimeSpan()).ToUniversalTime();
+
+            // Update post fields
+            post.Title = dto.Title;
+            post.Description = dto.Description;
+            post.LocationName = dto.LocationName;
+            post.LocationLat = !string.IsNullOrEmpty(dto.LocationLat) ? float.Parse(dto.LocationLat) : null;
+            post.LocationLon = !string.IsNullOrEmpty(dto.LocationLon) ? float.Parse(dto.LocationLon) : null;
+            post.PostImageKey = string.IsNullOrWhiteSpace(dto.PostImgkey) ? post.PostImageKey : dto.PostImgkey;
+            post.DateDeadline = dateDeadline;
+            post.EventDate = eventDate;
+            post.MinParticipants = dto.MinParticipants;
+            post.MaxParticipants = dto.MaxParticipants;
+
+            // Update categories
+            post.Categories.Clear();
+            if (dto.CategoryIds?.Count > 0)
+            {
+                var categories = await _dbContext.Categories
+                    .Where(c => dto.CategoryIds.Contains(c.CategoryId))
+                    .ToListAsync();
+
+                foreach (var category in categories)
+                {
+                    post.Categories.Add(category);
+                }
+            }
+
+            _dbContext.Posts.Update(post);
+            await _dbContext.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<bool> DeletePostAsync(Guid id, string userId)
@@ -459,6 +523,45 @@ namespace where_we_go.Service
 
             return "Success";
         }
+
+        public async Task<string> RemoveParticipantAsync(Guid postId, string participantUserId, string currentUserId)
+        {
+            // Verify post exists and current user is the owner
+            var post = await _dbContext.Posts.FindAsync(postId);
+            if (post == null || post.UserId != currentUserId)
+            {
+                return "Unauthorized or Post Not Found.";
+            }
+
+            // Find the approved participant
+            var participant = await _dbContext.Participants
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.PostId == postId && 
+                                          p.UserId == participantUserId && 
+                                          p.Status == ParticipantStatus.Approved);
+
+            if (participant == null)
+            {
+                return "Participant not found or not approved.";
+            }
+
+            // Set status to Withdrawn
+            participant.Status = ParticipantStatus.Withdrawn;
+            await _dbContext.SaveChangesAsync();
+
+            // Notify the removed participant
+            await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+            {
+                UserId = participantUserId,
+                PostId = postId,
+                Content = $"You have been removed from the activity '{post.Title}'.",
+                Link = $"/Post/PostDetail/{post.PostId}",
+                Type = NotificationType.ParticipantWithdrawn
+            });
+
+            return "Success";
+        }
+
         public async Task<List<ApplicantDto>> GetPostApplicantsAsync(Guid postId, string currentUserId)
         {
             // 1. Verify the post exists and the current user is actually the owner

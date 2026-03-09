@@ -1,0 +1,164 @@
+@using System.Xml.Serialization
+@using Minio.DataModel
+@using where_we_go.DTO
+
+@model PostUpdateDto
+@{
+    ViewData["Title"] = "Edit Post";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/postedit.css" asp-append-version="true" />
+
+    @* Import component css *@
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/forminput.css" asp-append-version="true" />
+
+}
+
+@section Scripts
+{
+    <script asp-append-version="true" src="~/js/postedit.js"></script>
+}
+
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
+
+<div class="post-bg-container">
+    <div class="post-container">
+        <h2 class="post-title">Edit Post</h2>
+
+        <div onclick="document.getElementById('post-imageInput').click()" class="post-img">
+            <img id="post-img-url"
+                 src="@(string.IsNullOrEmpty(Model?.PostImgkey) ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSTgFro4TxtuXEvoGJDkuv8o972kVsSsbi2w&s" : Model.PostImgkey)"
+                 alt="">
+        </div>
+        <input type="file" id="post-imageInput" style="display: none;" accept="image/*">
+
+
+        <form asp-action="PostEdit" asp-controller="Post" method="post">
+            <input type="hidden" name="PostId" value="@Model?.PostId" />
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "Title",
+                name = "Title",
+                label = "Title",
+                type = "text",
+                required = true,
+                value = Model?.Title ?? ""
+            })
+
+            @await Component.InvokeAsync("FormTextarea", new
+            {
+                id = "Description",
+                name = "Description",
+                label = "Description",
+                required = true,
+                value = Model?.Description ?? ""
+            })
+
+            <div class="form-group check-category">
+                <label>Select Category</label>
+                <div class="category-grid">
+                    @foreach (CategorySelectDto category in ViewBag.Categories){
+                        <label class="category-item">
+                            <input type="checkbox" name="CategoryIds" value="@category.CategoryId" @(Model?.CategoryIds?.Contains(category.CategoryId) == true ? "checked" : "") />
+                            <span>@category.CategoryName</span>
+                        </label>
+                    }
+                </div>
+            </div>
+
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "LocationName",
+                name = "LocationName",
+                label = "Location Name",
+                type = "text",
+                required = true,
+                value = Model?.LocationName ?? ""
+            })
+            <div id="map" style="height: 500px; width: 100%;"></div>
+            <input id="location-lat" type="hidden" name="LocationLat" value="@Model?.LocationLat" />
+            <input id="location-lon" type="hidden" name="LocationLon" value="@Model?.LocationLon" />
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "DateDeadline",
+                name = "DateDeadline",
+                label = "Registration Deadline",
+                type = "date",
+                required = true,
+                value = Model?.DateDeadline.ToString("yyyy-MM-dd") ?? ""
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "TimeDeadline",
+                name = "TimeDeadline",
+                label = "Registration Deadline Time",
+                type = "time",
+                required = true,
+                value = Model?.TimeDeadline.ToString("HH:mm") ?? ""
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "EventDate",
+                name = "EventDate",
+                label = "Event Date",
+                type = "date",
+                required = true,
+                value = Model?.EventDate.ToString("yyyy-MM-dd") ?? ""
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "EventTime",
+                name = "EventTime",
+                label = "Event Time",
+                type = "time",
+                required = true,
+                value = Model?.EventTime.ToString("HH:mm") ?? ""
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "MinParticipants",
+                name = "MinParticipants",
+                label = "Min Participants",
+                type = "number",
+                required = true,
+                value = Model?.MinParticipants.ToString() ?? ""
+            })
+
+            @await Component.InvokeAsync("FormInput", new
+            {
+                id = "MaxParticipants",
+                name = "MaxParticipants",
+                label = "Max Participants",
+                type = "number",
+                required = true,
+                value = Model?.MaxParticipants.ToString() ?? ""
+            })
+
+
+            @await Component.InvokeAsync("MainButton", new
+            {
+                targetId = "submit-btn",
+                buttonType = "submit",
+                text = "Update Post"
+            })
+
+            <input type="hidden" id="PostImgkey" name="PostImgkey" value="@Model?.PostImgkey" />
+        </form>
+
+
+    </div>
+</div>

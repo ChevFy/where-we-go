@@ -74,6 +74,11 @@ namespace where_we_go.DTO
 
         [Required]
         public required string UserId { get; set; }
+
+        public string? OwnerUsername { get; set; }
+        public string? OwnerName { get; set; }
+        public string? OwnerProfileImgURL { get; set; }
+
         public bool IsJoined { get; set; }
         public bool IsPending { get; set; }
 

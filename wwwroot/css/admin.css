@@ -269,3 +269,365 @@
     background: #f9f9f9;
 }
 
+/* Post Management Styles */
+.post-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.post-table th {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+}
+
+.post-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.post-table tr:hover {
+    background: #f9f9f9;
+}
+
+.post-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.post-status.active {
+    background: #28a745;
+    color: white;
+}
+
+.post-status.full {
+    background: #ffc107;
+    color: #333;
+}
+
+.post-status.ended {
+    background: #6c757d;
+    color: white;
+}
+
+.post-status.delete {
+    background: #dc3545;
+    color: white;
+}
+
+.status-filter select {
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+}
+
+.btn-delete {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-restore {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background: #ffc107;
+    color: #333;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Modal Large */
+.modal-large {
+    max-width: 650px;
+    max-height: 80vh;
+    width: 95%;
+    margin: 5vh auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-large .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(80vh - 100px);
+    padding: 1rem;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    float: right;
+}
+
+.btn-close:hover {
+    color: #333;
+}
+
+/* Post Detail Styles */
+.post-detail-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.post-detail-section:last-child {
+    border-bottom: none;
+}
+
+.post-detail-section h4 {
+    margin-bottom: 0.75rem;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.post-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.post-detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.post-detail-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.post-detail-value {
+    color: #333;
+}
+
+.post-detail-description {
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+
+.category-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.category-tag {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.participant-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.participant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.participant-item:last-child {
+    border-bottom: none;
+}
+
+.participant-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.participant-name {
+    font-weight: 500;
+}
+
+.participant-email {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.participant-status {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.participant-status.Approved {
+    background: #28a745;
+    color: white;
+}
+
+.participant-status.Pending {
+    background: #ffc107;
+    color: #333;
+}
+
+.participant-status.Left {
+    background: #6c757d;
+    color: white;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.post-detail-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.btn-details {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Participant Edit Section in Modal */
+.participants-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.participants-section h4 {
+    margin: 0 0 0.75rem 0;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.participants-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.participant-edit-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.participant-edit-item .participant-name {
+    flex: 1;
+    font-weight: 500;
+    color: #333;
+}
+
+.participant-edit-item .participant-status {
+    margin-right: 1rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.btn-remove-participant {
+    padding: 0.375rem 0.75rem;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-remove-participant:hover {
+    background: #c82333;
+}
+
+.no-participants {
+    text-align: center;
+    padding: 1rem;
+    color: #666;
+    font-style: italic;
+}
+
+/* Category Checkboxes in Edit Modal */
+.category-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.category-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    cursor: pointer;
+    padding: 0.375rem 0.75rem;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+}
+
+.category-checkbox:hover {
+    border-color: var(--primary-color);
+}
+
+.category-checkbox input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.category-checkbox span {
+    font-size: 0.875rem;
+    color: #333;
+}
+
+.no-categories {
+    text-align: center;
+    padding: 1rem;
+    color: #666;
+    font-style: italic;
+}
+

@@ -41,6 +41,10 @@ namespace where_we_go
 
             builder.Services.AddScoped<IFileService, FileService>();
 
+            builder.Services.AddScoped<IAdminUserService, AdminUserService>();
+
+            builder.Services.AddScoped<IAdminPostService, AdminPostService>();
+
             builder.Services.AddScoped<INotificationService, NotificationService>();
 
             // add SignalR for real-time chat

@@ -1,21 +1,19 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 
-using where_we_go.Database;
 using where_we_go.DTO;
-using where_we_go.Models;
 using where_we_go.Service;
 
 
 [Authorize(Roles = "Admin")]
 [Route("admin")]
-public class AdminController(UserManager<User> userManager, IMemoryCache cache, AppDbContext dbContext, ICategoryService categoryService) : Controller
+public class AdminController(
+    IAdminUserService adminUserService,
+    IAdminPostService adminPostService,
+    ICategoryService categoryService) : Controller
 {
-    private IMemoryCache _cache { get; init; } = cache;
-    private AppDbContext _dbContext { get; init; } = dbContext;
+    private IAdminUserService _adminUserService { get; init; } = adminUserService;
+    private IAdminPostService _adminPostService { get; init; } = adminPostService;
     private ICategoryService _categoryService { get; init; } = categoryService;
 
     [HttpGet("index")]
@@ -24,53 +22,8 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
     [HttpGet("users")]
     public async Task<IActionResult> GetUsers([FromQuery] UserQueryDto query)
     {
-        var usersQuery = userManager.Users.AsNoTracking();
-
-        // Apply name filter if provided
-        if (!string.IsNullOrWhiteSpace(query.NameFilter))
-        {
-            var keyword = query.NameFilter.Trim();
-            usersQuery = usersQuery.Where(u =>
-                (u.Email != null && u.Email.Contains(keyword)) ||
-                (u.Name != null && u.Name.Contains(keyword)));
-        }
-
-        // Get total count
-        var totalCount = await usersQuery.CountAsync();
-
-        // Apply sorting
-        usersQuery = (query.SortBy ?? "").ToLower() switch
-        {
-            "name" => usersQuery.OrderBy(u => u.Name),
-            "name_desc" => usersQuery.OrderByDescending(u => u.Name),
-            "email" => usersQuery.OrderBy(u => u.Email),
-            "email_desc" => usersQuery.OrderByDescending(u => u.Email),
-            _ => usersQuery.OrderBy(u => u.Id)
-        };
-
-        // Apply pagination
-        var users = await usersQuery
-            .Skip((query.PageSave - 1) * query.PageSizeSave)
-            .Take(query.PageSizeSave)
-            .Select(u => new AdminUserDto
-            {
-                Id = u.Id,
-                Email = u.Email ?? string.Empty,
-                Name = u.Name,
-                IsBanned = u.IsBanned,
-                BanReason = u.BanReason,
-                BanExpiresAt = u.BanExpiresAt,
-                IsAdmin = _dbContext.UserRoles
-                    .Where(ur => ur.UserId == u.Id)
-                    .Join(_dbContext.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
-                    .Contains("Admin")
-            })
-            .ToListAsync();
-
-        var meta = new PaginatedMetaDto(query.PageSizeSave, query.PageSave, totalCount);
-        var response = new PaginatedResponseDto<AdminUserDto>(users, query.PageSizeSave, query.PageSave, totalCount);
-
-        return Json(response);
+        var result = await _adminUserService.GetUsersAsync(query);
+        return Json(result);
     }
 
     [HttpPost("users/ban")]
@@ -81,21 +34,15 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
             return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
         }
 
-        var user = await userManager.FindByIdAsync(dto.UserId);
-        if (user == null) return NotFound(new { details = "User not found" });
-        var userRoles = await userManager.GetRolesAsync(user);
-        if (userRoles.Contains("Admin"))
+        var bannedBy = User.Identity?.Name ?? "System";
+        var (success, error) = await _adminUserService.BanUserAsync(dto.UserId, dto.Reason, dto.DurationDays, bannedBy);
+
+        if (!success)
         {
-            return BadRequest(new { details = "Cannot ban an admin user" });
+            if (error == "User not found")
+                return NotFound(new { details = error });
+            return BadRequest(new { details = error });
         }
-        user.IsBanned = true;
-        user.BanReason = dto.Reason;
-        user.BanExpiresAt = DateTime.UtcNow.AddDays(dto.DurationDays);
-        user.BannedBy = User.Identity?.Name ?? "System";
-
-        await userManager.UpdateAsync(user);
-
-        _cache.Remove($"user_ban_status_{dto.UserId}");
 
         return Ok();
     }
@@ -108,20 +55,14 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
             return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
         }
 
-        var user = await userManager.FindByIdAsync(dto.UserId);
-        if (user == null) return NotFound(new { details = "User not found" });
-        var userRoles = await userManager.GetRolesAsync(user);
-        if (userRoles.Contains("Admin"))
+        var (success, error) = await _adminUserService.UnbanUserAsync(dto.UserId);
+
+        if (!success)
         {
-            return BadRequest(new { details = "Cannot modify ban status for admin users" });
+            if (error == "User not found")
+                return NotFound(new { details = error });
+            return BadRequest(new { details = error });
         }
-        user.IsBanned = false;
-        user.BanReason = null;
-        user.BanExpiresAt = null;
-
-        await userManager.UpdateAsync(user);
-
-        _cache.Remove($"user_ban_status_{dto.UserId}");
 
         return Ok();
     }
@@ -202,6 +143,76 @@ public class AdminController(UserManager<User> userManager, IMemoryCache cache, 
         {
             return StatusCode(500, new { details = "Cannot delete category: " + ex.Message });
         }
+    }
+
+    [HttpGet("posts")]
+    public async Task<IActionResult> GetPosts([FromQuery] PostQueryDto query)
+    {
+        var result = await _adminPostService.GetPostsAsync(query);
+        return Json(result);
+    }
+
+    [HttpGet("posts/{id:guid}")]
+    public async Task<IActionResult> GetPostDetail([FromRoute] Guid id)
+    {
+        var post = await _adminPostService.GetPostDetailAsync(id);
+        if (post == null)
+        {
+            return NotFound(new { details = "Post not found" });
+        }
+        return Json(post);
+    }
+
+    [HttpPost("posts/{id:guid}/delete")]
+    public async Task<IActionResult> DeletePost([FromRoute] Guid id)
+    {
+        var (success, error) = await _adminPostService.DeletePostAsync(id);
+        if (!success)
+        {
+            return NotFound(new { details = error });
+        }
+        return Ok();
+    }
+
+    [HttpPut("posts/{id:guid}")]
+    public async Task<IActionResult> UpdatePost([FromRoute] Guid id, [FromBody] AdminPostUpdateDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new { details = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+        }
+
+        var (success, error) = await _adminPostService.UpdatePostAsync(id, dto);
+        if (!success)
+        {
+            if (error == "Post not found")
+                return NotFound(new { details = error });
+            return BadRequest(new { details = error });
+        }
+
+        return Ok(new { message = "Post updated successfully" });
+    }
+
+    [HttpPost("posts/{id:guid}/restore")]
+    public async Task<IActionResult> RestorePost([FromRoute] Guid id)
+    {
+        var (success, error) = await _adminPostService.RestorePostAsync(id);
+        if (!success)
+        {
+            return NotFound(new { details = error });
+        }
+        return Ok();
+    }
+
+    [HttpDelete("posts/{postId:guid}/participants/{participantId:guid}")]
+    public async Task<IActionResult> RemoveParticipant([FromRoute] Guid postId, [FromRoute] Guid participantId)
+    {
+        var (success, error) = await _adminPostService.RemoveParticipantAsync(postId, participantId);
+        if (!success)
+        {
+            return NotFound(new { details = error });
+        }
+        return Ok(new { message = "Participant removed successfully" });
     }
 
 }

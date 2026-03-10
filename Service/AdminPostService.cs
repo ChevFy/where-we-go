@@ -35,11 +35,11 @@ namespace where_we_go.Service
             {
                 var status = query.StatusFilter.ToLower() switch
                 {
-                    "active" => PostStatus.Active,
+                    "open" => PostStatus.Open,
                     "full" => PostStatus.Full,
-                    "ended" => PostStatus.Ended,
-                    "deleted" => PostStatus.Delete,
-                    _ => PostStatus.Active
+                    "completed" => PostStatus.Completed,
+                    "cancelled" => PostStatus.Cancelled,
+                    _ => PostStatus.Open
                 };
                 postsQuery = postsQuery.Where(p => p.Status == status);
             }
@@ -137,7 +137,7 @@ namespace where_we_go.Service
                 return (false, "Post not found");
             }
 
-            post.Status = PostStatus.Delete;
+            post.Status = PostStatus.Cancelled;
             await _dbContext.SaveChangesAsync();
             return (true, null);
         }
@@ -150,7 +150,7 @@ namespace where_we_go.Service
                 return (false, "Post not found");
             }
 
-            post.Status = PostStatus.Active;
+            post.Status = PostStatus.Open;
             await _dbContext.SaveChangesAsync();
             return (true, null);
         }

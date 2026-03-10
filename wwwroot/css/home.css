@@ -61,19 +61,23 @@
   line-height: 1.2;
 }
 
-.post-status.active {
+.post-status.open {
   background-color: #007bff;
 }
 
 .post-status.full {
-  background-color: #28a745;
+  background-color: #000000;
 }
 
-.post-status.ended {
+.post-status.closed {
   background-color: #dc3545;
 }
 
-.post-status.delete {
+.post-status.completed {
+  background-color: #8b0000;
+}
+
+.post-status.cancelled {
   background-color: #6c757d;
 }
 
@@ -128,6 +132,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+
 }
 
 .post-category {
@@ -160,6 +165,9 @@
   white-space: nowrap;
   text-align: right;
   flex-shrink: 0;
+  display: flex;
+  margin-left: 0;
+  flex-direction: column;
 }
 
 @media (max-width: 768px) {
@@ -222,4 +230,18 @@
   padding: 4rem 2rem;
   font-size: 1.2rem;
   color: #666;
+}
+
+.post-participant {
+  padding: 2px 5px;
+  font-weight: 600;
+  display: flex;
+  margin-top: 10px;
+  width: 50px;
+  color: var(--primary);
+  justify-content: center;
+  color: var(--option-color);
+  background-color: rgba(3, 4, 94, 0.1);
+  border-radius: 15px;
+  margin-left : 50%
 }

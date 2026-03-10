@@ -39,6 +39,35 @@
     font-size: var(--font-size-base);
 }
 
+.participants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.participant-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+}
+
+.participant-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-small);
+    font-weight: bold;
+    border: 2px solid var(--primary-color);
+}
+
 .post-location a {
     color: var(--primary-color);
     text-decoration: none;
@@ -85,11 +114,14 @@
     width: 100%;
     color: white;
     border: none;
-    padding: 12px 20px;
+    padding: 0.5rem;
+    display: grid;
+    place-items: center;
     border-radius: 5px;
     cursor: pointer;
     font-size: var(--font-size-base);
-    transition: opacity 0.2s ease;
+    box-sizing: border-box;
+    text-decoration: none;
 }
 
 .btn:hover {
@@ -98,7 +130,41 @@
 
 .btn-danger {
     background-color: rgb(220, 53, 69);
-    margin-top: 0.5rem;
+}
+
+.btn-warning {
+    background-color: rgb(255, 193, 7);
+    color: black;
+}
+
+.btn-secondary {
+    background-color: gray;
+    cursor: not-allowed;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.action-buttons>a {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+}
+
+.action-buttons>form {
+    flex: 1;
+    margin: 0;
+    display: flex;
+}
+
+.action-buttons>form>button {
+    height: 100%;
+    margin: 0;
 }
 
 .post-status {
@@ -127,7 +193,14 @@
     background-color: #6c757d;
 }
 
+.participant-avatar a {
+    display: inline-block;
+    transition: 0.2s ease;
+}
 
+.participant-avatar a:hover {
+    transform: translateY(-2px);
+}
 
 @media (max-width: 768px) {
     .post-bg-container {
@@ -137,15 +210,16 @@
     }
 
     .post-container {
-        margin-top: 25px;
+        margin-top: 100px;
         padding: 1rem;
         max-width: 100%;
-        height: 100vh;
+        min-height: 100vh;
+        height: auto;
     }
 
     .post-thumbnail {
         margin-top: 50px;
-        height: px;
+        height: 200px;
         margin-bottom: 0.75rem;
     }
 
@@ -168,5 +242,10 @@
     .btn {
         padding: 10px 16px;
         font-size: 0.95rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
     }
 }

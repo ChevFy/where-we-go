@@ -13,7 +13,7 @@ using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.Service;
 
-public class PostController(IPostService postService , AppDbContext dbContext) : Controller
+public class PostController(IPostService postService, AppDbContext dbContext) : Controller
 {
     private IPostService _postService { get; init; } = postService;
     [HttpGet]
@@ -25,7 +25,7 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
         if (postDto == null) return NotFound();
 
         // Check if post is deleted - only owner or admin can view
-        if (postDto.Status == "Delete")
+        if (postDto.Status == "Cancelled")
         {
             if (userId != postDto.UserId && !User.IsInRole("Admin"))
             {
@@ -51,7 +51,7 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> PostCreate(PostCreateDto dto )
+    public async Task<IActionResult> PostCreate(PostCreateDto dto)
     {
         if (!ModelState.IsValid)
         {
@@ -70,6 +70,83 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
         await _postService.CreatePostAsync(dto, userId);
 
         return RedirectToAction("Index", "Home");
+    }
+
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> PostEdit(Guid id)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var post = await dbContext.Posts
+            .Include(p => p.Categories)
+            .FirstOrDefaultAsync(p => p.PostId == id);
+
+        if (post == null) return NotFound();
+
+        if (post.UserId != userId && !User.IsInRole("Admin"))
+        {
+            return Unauthorized();
+        }
+
+        ViewBag.Categories = dbContext.Categories
+            .Select(c => new CategorySelectDto
+            {
+                CategoryId = c.CategoryId,
+                CategoryName = c.Name
+            }).ToList();
+
+        var dto = new PostUpdateDto
+        {
+            PostId = post.PostId,
+            Title = post.Title,
+            Description = post.Description,
+            LocationName = post.LocationName,
+            LocationLat = post.LocationLat?.ToString(),
+            LocationLon = post.LocationLon?.ToString(),
+            DateDeadline = post.DateDeadline.Date,
+            TimeDeadline = TimeOnly.FromDateTime(post.DateDeadline),
+            EventDate = post.EventDate.Date,
+            EventTime = TimeOnly.FromDateTime(post.EventDate),
+            MinParticipants = post.MinParticipants,
+            MaxParticipants = post.MaxParticipants,
+            PostImgkey = post.PostImageKey,
+            CategoryIds = post.Categories.Select(c => c.CategoryId).ToList(),
+            Categories = post.Categories.Select(c => new CategoryDetailDto { CategoryId = c.CategoryId, Name = c.Name }).ToList()
+        };
+
+        return View(dto);
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> PostEdit(PostUpdateDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Categories = dbContext.Categories
+                .Select(c => new CategorySelectDto
+                {
+                    CategoryId = c.CategoryId,
+                    CategoryName = c.Name
+                }).ToList();
+            return View(dto);
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userId == null) return Unauthorized();
+
+        var result = await _postService.UpdatePostAsync(dto.PostId, dto, userId);
+
+        if (!result)
+        {
+            TempData["AlertMessage"] = "Error: You do not have permission or update failed.";
+            return RedirectToAction("PostDetail", "Post", new { id = dto.PostId });
+        }
+
+        TempData["AlertMessage"] = "Success: Post updated successfully!";
+        return RedirectToAction("PostDetail", "Post", new { id = dto.PostId });
     }
     [HttpPost]
     [Authorize]
@@ -106,7 +183,7 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
         }
         else if (result == "Pending")
         {
-            TempData["AlertMessage"] = "This activity is full. You have been added to the waitlist (Pending).";
+            TempData["AlertMessage"] = "Request sent! Waiting for the host to approve your request.";
         }
         else
         {
@@ -138,23 +215,70 @@ public class PostController(IPostService postService , AppDbContext dbContext) :
 
     [HttpPost]
     [Route("api/post/locationsave")]
-    public async Task<IActionResult> PostLocationSave([FromBody] PostLocationSaveDto model )
+    public async Task<IActionResult> PostLocationSave([FromBody] PostLocationSaveDto model)
     {
-        if(!ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
             return BadRequest();
         }
 
         var post = await dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == Guid.Parse(model.PostId));
-        if(post is null)
+        if (post is null)
             return NotFound();
 
         post.LocationLat = float.Parse(model.LocationLat);
         post.LocationLon = float.Parse(model.LocationLon);
 
 
-        return Ok(new { message = "Suceess"});
+        return Ok(new { message = "Success" });
     }
 
-    
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetPostApplicants(Guid id)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId == null) return Unauthorized();
+
+        var applicants = await _postService.GetPostApplicantsAsync(id, currentUserId);
+
+        // Returns a JSON list of applicants (Name, Status, etc.)
+        return Ok(applicants);
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> ApproveApplicant(Guid postId, string applicantId)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId == null) return Unauthorized();
+
+        var result = await _postService.ApproveJoinAsync(postId, applicantId, currentUserId);
+
+        if (result == "Success")
+        {
+            return Ok(new { success = true, message = "Participant approved successfully." });
+        }
+
+        return BadRequest(new { success = false, message = result });
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> RejectApplicant(Guid postId, string applicantId)
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId == null) return Unauthorized();
+
+        var result = await _postService.RejectJoinAsync(postId, applicantId, currentUserId);
+
+        if (result == "Success")
+        {
+            return Ok(new { success = true, message = "Participant request declined." });
+        }
+
+        return BadRequest(new { success = false, message = result });
+    }
+
+
 }

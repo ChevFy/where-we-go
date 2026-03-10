@@ -76,12 +76,16 @@ const clearFieldErrors = () => {
     document.querySelectorAll(".validation-error-msg").forEach(el => el.remove());
 };
 
-const updateSubmitButton = () => {
+const touchedFields = new Set();
+
+const updateSubmitButton = (showAllErrors = false) => {
     const result = validateForm();
     const btn = document.getElementById("submit-btn");
     if (btn) btn.disabled = !result.valid;
     clearFieldErrors();
-    result.errors.forEach(e => showFieldError(e.field, e.message));
+    result.errors.forEach(e => {
+        if (showAllErrors || touchedFields.has(e.field)) showFieldError(e.field, e.message);
+    });
 };
 
 const LocationValidate = async (lat, lon) => {
@@ -101,9 +105,23 @@ const LocationValidate = async (lat, lon) => {
 }
 
 const form = document.querySelector('form[action*="PostCreate"]');
+const fieldIds = ["Title", "Description", "LocationName", "DateDeadline", "TimeDeadline", "EventDate", "EventTime", "MinParticipants", "MaxParticipants"];
+
+const markTouched = (fieldId) => {
+    touchedFields.add(fieldId);
+    updateSubmitButton();
+};
+
 if (form) {
-    form.addEventListener("input", updateSubmitButton);
-    form.addEventListener("change", updateSubmitButton);
+    form.addEventListener("input", () => updateSubmitButton());
+    form.addEventListener("change", (e) => {
+        if (e.target.name === "CategoryIds") touchedFields.add("check-category");
+        updateSubmitButton();
+    });
+    fieldIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener("blur", () => markTouched(id));
+    });
     updateSubmitButton();
 }
 
@@ -156,6 +174,7 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 let marker;
 
 map.on('click', async function (e) {
+    touchedFields.add("LocationName");
     const lat = e.latlng.lat;
     const lng = e.latlng.lng;
     const locationInput = document.getElementById('LocationName');

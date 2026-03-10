@@ -335,4 +335,23 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
         return RedirectToAction("PostDetail", new { id = postId, status });
     }
 
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> RemoveParticipantForm(Guid postId, string applicantId, string status = "approved")
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId == null) return Unauthorized();
+
+        if (string.IsNullOrWhiteSpace(applicantId))
+        {
+            TempData["AlertMessage"] = "Invalid participant.";
+            return RedirectToAction("PostDetail", new { id = postId, status });
+        }
+
+        var result = await _postService.RemoveParticipantAsync(postId, applicantId, currentUserId);
+        TempData["AlertMessage"] = result == "Success" ? "Participant removed successfully." : result;
+
+        return RedirectToAction("PostDetail", new { id = postId, status });
+    }
+
 }

@@ -552,22 +552,15 @@ namespace where_we_go.Service
 
             var participantsToReject = await _dbContext.Participants
                 .Where(p => p.PostId == postId &&
-                            (p.Status == ParticipantStatus.Pending || p.Status == ParticipantStatus.Approved) &&
+                            p.Status == ParticipantStatus.Pending &&
                             targetUserIds.Contains(p.UserId))
                 .ToListAsync();
 
-            if (participantsToReject.Count == 0) return "Only pending or approved participants can be updated.";
+            if (participantsToReject.Count == 0) return "Participant request not found.";
 
             foreach (var participant in participantsToReject)
             {
-                if (participant.Status == ParticipantStatus.Pending)
-                {
-                    participant.Status = ParticipantStatus.Rejected;
-                }
-                else if (participant.Status == ParticipantStatus.Approved)
-                {
-                    participant.Status = ParticipantStatus.Withdrawn;
-                }
+                participant.Status = ParticipantStatus.Rejected;
             }
 
             await _dbContext.SaveChangesAsync();
@@ -578,13 +571,9 @@ namespace where_we_go.Service
                 {
                     UserId = participant.UserId,
                     PostId = postId,
-                    Content = participant.Status == ParticipantStatus.Rejected
-                        ? "Your request to join was declined."
-                        : $"You have been removed from the activity '{post.Title}'.",
+                    Content = "Your request to join was declined.",
                     Link = $"/Post/PostDetail/{post.PostId}",
-                    Type = participant.Status == ParticipantStatus.Rejected
-                        ? NotificationType.ParticipantRejected
-                        : NotificationType.ParticipantWithdrawn
+                    Type = NotificationType.ParticipantRejected
                 });
             }
 

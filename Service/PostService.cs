@@ -140,10 +140,29 @@ namespace where_we_go.Service
             if (post == null)
                 return null;
 
-            var participants = await _dbContext.Participants
-                .Include(part => part.User)
-                .Where(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved)
-                .ToListAsync();
+            List<Participant> participants;
+
+            if (!string.IsNullOrEmpty(currentUserId))
+            {
+
+                participants = await _dbContext.Participants
+                   .Include(part => part.User)
+                   .Where(part => part.PostId == post.PostId && (
+                    part.Status == ParticipantStatus.Approved ||
+                    part.Status == ParticipantStatus.Pending ||
+                    part.Status == ParticipantStatus.Withdrawn ||
+                    part.Status == ParticipantStatus.Rejected))
+                   .ToListAsync();
+            }
+            else
+            {
+                participants = await _dbContext.Participants
+                   .Include(part => part.User)
+                   .Where(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved)
+                   .ToListAsync();
+
+            }
+
 
             var participantDetails = new List<ParticipantDetailDto>();
             foreach (var part in participants)
@@ -151,7 +170,7 @@ namespace where_we_go.Service
                 participantDetails.Add(new ParticipantDetailDto
                 {
                     UserId = part.UserId,
-                    userName = part.User.UserName ?? "",
+                    UserName = part.User.UserName ?? "",
                     ProfileImgURL = await _fileService.GeneratePresignedProfileUrlAsync(part.User.ProfileImageKey)
                 });
             }
@@ -181,9 +200,12 @@ namespace where_we_go.Service
                 }).ToList(),
                 PostImgURL = await _fileService.GeneratePresignedPostUrlAsync(post.PostImageKey),
                 UserId = post.UserId,
-                OwnerUsername = owner?.UserName,
-                OwnerName = owner?.Name,
-                OwnerProfileImgURL = owner != null ? await _fileService.GeneratePresignedProfileUrlAsync(owner.ProfileImageKey) : null,
+                Owner = new ParticipantDetailDto
+                {
+                    UserId = owner?.Id ?? "",
+                    UserName = owner?.UserName ?? "",
+                    ProfileImgURL = owner != null ? await _fileService.GeneratePresignedProfileUrlAsync(owner.ProfileImageKey) : null
+                },
                 IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved),
                 IsPending = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Pending),
                 ChatId = await _dbContext.GroupChats
@@ -468,58 +490,120 @@ namespace where_we_go.Service
             return "Success";
         }
 
-        public async Task<string> ApproveJoinAsync(Guid postId, string participantUserId, string currentUserId)
+        public async Task<string> ApproveJoinAsync(Guid postId, string[] participantUserIds, string currentUserId)
         {
             var post = await _dbContext.Posts.FindAsync(postId);
             if (post == null || post.UserId != currentUserId) return "Unauthorized or Post Not Found.";
 
-            var participant = await _dbContext.Participants
-                .FirstOrDefaultAsync(p => p.PostId == postId && p.UserId == participantUserId && p.Status == ParticipantStatus.Pending);
+            if (participantUserIds == null || participantUserIds.Length == 0)
+                return "No participants selected.";
 
-            if (participant == null) return "Participant request not found.";
+            var targetUserIds = participantUserIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .ToList();
 
-            // Double check if post is full before approving
-            var approvedCount = await _dbContext.Participants.CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
-            if (approvedCount >= post.MaxParticipants) return "Cannot approve: Activity is already full.";
+            if (targetUserIds.Count == 0)
+                return "No participants selected.";
 
-            participant.Status = ParticipantStatus.Approved;
+            var pendingParticipants = await _dbContext.Participants
+                .Where(p => p.PostId == postId &&
+                            p.Status == ParticipantStatus.Pending &&
+                            targetUserIds.Contains(p.UserId))
+                .OrderBy(p => p.DateJoin)
+                .ToListAsync();
+
+            if (pendingParticipants.Count == 0) return "Participant request not found.";
+
+            // Approve as many pending users as remaining capacity allows.
+            var approvedCount = await _dbContext.Participants
+                .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
+
+            var availableSlots = post.MaxParticipants - approvedCount;
+            if (availableSlots <= 0) return "Cannot approve: Activity is already full.";
+
+            if (pendingParticipants.Count > availableSlots)
+            {
+                return $"Cannot approve selected participants: only {availableSlots} slot(s) remaining.";
+            }
+
+            var participantsToApprove = pendingParticipants;
+
+            foreach (var participant in participantsToApprove)
+            {
+                participant.Status = ParticipantStatus.Approved;
+            }
+
             await _dbContext.SaveChangesAsync();
 
-            // TODO: Notify participant
-            await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+            foreach (var participant in participantsToApprove)
             {
-                UserId = participantUserId,
-                PostId = postId,
-                Content = "Your request to join was approved!",
-                Link = $"/Post/PostDetail/{post.PostId}",
-                Type = NotificationType.ParticipantApproved
-            });
+                await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+                {
+                    UserId = participant.UserId,
+                    PostId = postId,
+                    Content = "Your request to join was approved!",
+                    Link = $"/Post/PostDetail/{post.PostId}",
+                    Type = NotificationType.ParticipantApproved
+                });
+            }
 
             return "Success";
         }
 
-        public async Task<string> RejectJoinAsync(Guid postId, string participantUserId, string currentUserId)
+        public async Task<string> RejectJoinAsync(Guid postId, string[] participantUserIds, string currentUserId)
         {
             var post = await _dbContext.Posts.FindAsync(postId);
             if (post == null || post.UserId != currentUserId) return "Unauthorized or Post Not Found.";
 
-            var participant = await _dbContext.Participants
-                .FirstOrDefaultAsync(p => p.PostId == postId && p.UserId == participantUserId && p.Status == ParticipantStatus.Pending);
+            if (participantUserIds == null || participantUserIds.Length == 0)
+                return "No participants selected.";
 
-            if (participant == null) return "Participant request not found.";
+            var targetUserIds = participantUserIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct()
+                .ToList();
 
-            participant.Status = ParticipantStatus.Rejected;
+            if (targetUserIds.Count == 0)
+                return "No participants selected.";
+
+            var participantsToReject = await _dbContext.Participants
+                .Where(p => p.PostId == postId &&
+                            (p.Status == ParticipantStatus.Pending || p.Status == ParticipantStatus.Approved) &&
+                            targetUserIds.Contains(p.UserId))
+                .ToListAsync();
+
+            if (participantsToReject.Count == 0) return "Only pending or approved participants can be updated.";
+
+            foreach (var participant in participantsToReject)
+            {
+                if (participant.Status == ParticipantStatus.Pending)
+                {
+                    participant.Status = ParticipantStatus.Rejected;
+                }
+                else if (participant.Status == ParticipantStatus.Approved)
+                {
+                    participant.Status = ParticipantStatus.Withdrawn;
+                }
+            }
+
             await _dbContext.SaveChangesAsync();
 
-            // TODO: Notify participant
-            await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+            foreach (var participant in participantsToReject)
             {
-                UserId = participantUserId,
-                PostId = postId,
-                Content = "Your request to join was declined.",
-                Link = $"/Post/PostDetail/{post.PostId}",
-                Type = NotificationType.ParticipantRejected
-            });
+                await _notificationService.CreateNotificationAsync(new NotificationCreateDto
+                {
+                    UserId = participant.UserId,
+                    PostId = postId,
+                    Content = participant.Status == ParticipantStatus.Rejected
+                        ? "Your request to join was declined."
+                        : $"You have been removed from the activity '{post.Title}'.",
+                    Link = $"/Post/PostDetail/{post.PostId}",
+                    Type = participant.Status == ParticipantStatus.Rejected
+                        ? NotificationType.ParticipantRejected
+                        : NotificationType.ParticipantWithdrawn
+                });
+            }
 
             return "Success";
         }
@@ -536,8 +620,8 @@ namespace where_we_go.Service
             // Find the approved participant
             var participant = await _dbContext.Participants
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.PostId == postId && 
-                                          p.UserId == participantUserId && 
+                .FirstOrDefaultAsync(p => p.PostId == postId &&
+                                          p.UserId == participantUserId &&
                                           p.Status == ParticipantStatus.Approved);
 
             if (participant == null)
@@ -562,7 +646,7 @@ namespace where_we_go.Service
             return "Success";
         }
 
-        public async Task<List<ApplicantDto>> GetPostApplicantsAsync(Guid postId, string currentUserId)
+        public async Task<List<ApplicantDto>> GetPostApplicantsAsync(Guid postId, string currentUserId, string? statusFilter = null)
         {
             // 1. Verify the post exists and the current user is actually the owner
             var post = await _dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == postId);
@@ -571,24 +655,39 @@ namespace where_we_go.Service
                 return new List<ApplicantDto>(); // Return empty if unauthorized
             }
 
-            // 2. Fetch the raw entities from the database FIRST (this prevents the EF translation error)
-            var participants = await _dbContext.Participants
+            var participantsQuery = _dbContext.Participants
                 .Include(p => p.User)
-                .Where(p => p.PostId == postId &&
-                           (p.Status == ParticipantStatus.Pending || p.Status == ParticipantStatus.Approved))
+                .Where(p => p.PostId == postId);
+
+            if (!string.IsNullOrWhiteSpace(statusFilter) &&
+                !statusFilter.Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                if (!Enum.TryParse<ParticipantStatus>(statusFilter, true, out var parsedStatus))
+                {
+                    return new List<ApplicantDto>();
+                }
+
+                participantsQuery = participantsQuery.Where(p => p.Status == parsedStatus);
+            }
+
+            // 2. Fetch the raw entities from the database FIRST (this prevents the EF translation error)
+            var participants = await participantsQuery
                 .OrderBy(p => p.DateJoin)
                 .ToListAsync();
 
             // 3. Map to DTO in memory (just like your old GetPostDetailAsync code)
-            var applicants = participants.Select(p => new ApplicantDto
+            var applicants = new List<ApplicantDto>();
+            foreach (var p in participants)
             {
-                UserId = p.UserId,
-                // Add ?. and ?? to safely check if User is null
-                Name = p.User?.Name ?? "Unknown User",
-                ProfileImageKey = p.User?.ProfileImageKey,
-                Status = p.Status.ToString(),
-                DateJoin = p.DateJoin
-            }).ToList();
+                applicants.Add(new ApplicantDto
+                {
+                    UserId = p.UserId,
+                    Name = p.User?.UserName ?? p.User?.Name ?? "Unknown User",
+                    ProfileImageKey = await _fileService.GeneratePresignedProfileUrlAsync(p.User?.ProfileImageKey),
+                    Status = p.Status.ToString(),
+                    DateJoin = p.DateJoin
+                });
+            }
 
             return applicants;
         }

@@ -75,10 +75,7 @@ namespace where_we_go.DTO
         [Required]
         public required string UserId { get; set; }
 
-        public string? OwnerUsername { get; set; }
-        public string? OwnerName { get; set; }
-        public string? OwnerProfileImgURL { get; set; }
-
+        public required ParticipantDetailDto Owner { get; set; }
         public bool IsJoined { get; set; }
         public bool IsPending { get; set; }
 
@@ -89,7 +86,7 @@ namespace where_we_go.DTO
     public class ParticipantDetailDto
     {
         public string UserId { get; set; } = string.Empty;
-        public string userName { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
         public string? ProfileImgURL { get; set; }
     }
 

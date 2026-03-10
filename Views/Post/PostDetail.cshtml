@@ -1,6 +1,5 @@
 @model where_we_go.DTO.PostDetailDto
 @using System.Security.Claims
-@using Minio.DataModel
 
 @{
     // Get the ID of the person currently looking at the page
@@ -9,6 +8,11 @@
 
 @{
     ViewData["Title"] = "Post Page";
+
+    var isOwner = User.Identity?.IsAuthenticated == true && currentUserId == Model.UserId;
+    var ownerFilterStatus = ((string?)ViewBag.OwnerFilterStatus ?? "pending").ToLower();
+    var ownerApplicants = ViewBag.OwnerApplicants as List<where_we_go.DTO.ApplicantDto> ?? new
+List<where_we_go.DTO.ApplicantDto>();
 }
 
 @section Styles {
@@ -33,7 +37,8 @@
         <p class="post-status @Model.Status?.ToLower()">@Model.Status</p>
 
         <div class="post-location">
-            <a target="_blank" href="https://www.google.com/maps/search/?api=1&query=@Model.Locationlat,@Model.Locationlon">
+            <a target="_blank"
+                   href="https://www.google.com/maps/search/?api=1&query=@Model.Locationlat,@Model.Locationlon">
                 @Model.LocationName
             </a>
         </div>
@@ -49,26 +54,6 @@
         <div class="post-population">
             <p>👥 @Model.CurrentParticipants / @Model.MaxParticipants People</p>
         </div>
-        <div class="participants">
-            @foreach (var participant in Model.CurrentParticipantsDetail)
-            {
-                <div class="participant-avatar" title="@participant.userName">
-                    @if (!string.IsNullOrEmpty(participant.ProfileImgURL))
-                    {
-                        <a asp-controller="User" asp-action="UserProfile" asp-route-username=@participant.userName>
-                        <img src="@participant.ProfileImgURL"  />
-                        </a>
-                    }
-                    else
-                    {
-                        <div class="participant-avatar-placeholder">
-                            @participant.userName.Substring(0, 1).ToUpper()
-                        </div>
-                    }
-                </div>
-            }
-        </div>
-
         <div class="post-category">
             <ul>
                 @if (Model.Categories.Count > 0)
@@ -88,6 +73,125 @@
         <div class="post-description">
             <p>@Model.Description</p>
         </div>
+
+        @if (isOwner)
+        {
+            <div class="owner-manage-panel">
+                <h3 class="owner-manage-title">Manage Participants</h3>
+
+                <div class="status-filter-row">
+                    <a class="status-filter-btn @(ownerFilterStatus == "pending" ? "active" : "")" asp-controller="Post"
+                       asp-action="PostDetail" asp-route-id="@Model.PostId" asp-route-status="pending">Pending</a>
+                    <a class="status-filter-btn @(ownerFilterStatus == "approved" ? "active" : "")" asp-controller="Post"
+                       asp-action="PostDetail" asp-route-id="@Model.PostId" asp-route-status="approved">Approved</a>
+                    <a class="status-filter-btn @(ownerFilterStatus == "rejected" ? "active" : "")" asp-controller="Post"
+                       asp-action="PostDetail" asp-route-id="@Model.PostId" asp-route-status="rejected">Rejected</a>
+                    <a class="status-filter-btn @(ownerFilterStatus == "withdrawn" ? "active" : "")" asp-controller="Post"
+                       asp-action="PostDetail" asp-route-id="@Model.PostId" asp-route-status="withdrawn">Withdrawn</a>
+                </div>
+
+                <div class="owner-applicant-list">
+                    @if (ownerApplicants.Count == 0)
+                    {
+                        <p class="applicant-empty">No participants in this status.</p>
+                    }
+                    else
+                    {
+                        @foreach (var applicant in ownerApplicants)
+                        {
+                            <div class="applicant-row">
+                                <div class="applicant-row-left">
+                                    <div class="row-avatar-wrap">
+                                        @if (!string.IsNullOrEmpty(applicant.ProfileImageKey))
+                                        {
+                                            <img src="@applicant.ProfileImageKey" alt="@applicant.Name" class="row-avatar-image" />
+                                        }
+                                        else
+                                        {
+                                            <div class="row-avatar-placeholder">@applicant.Name.Substring(0, 1).ToUpper()</div>
+                                        }
+                                    </div>
+                                    <div class="row-text">
+                                        <p class="row-name">@applicant.Name</p>
+                                        <p class="row-meta">@applicant.Status</p>
+                                    </div>
+                                </div>
+
+                                <div class="row-actions">
+                                    @if (applicant.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <form asp-controller="Post" asp-action="ApproveApplicantForm" method="post">
+                                            <input type="hidden" name="postId" value="@Model.PostId" />
+                                            <input type="hidden" name="applicantId" value="@applicant.UserId" />
+                                            <input type="hidden" name="status" value="@ownerFilterStatus" />
+                                            <button type="submit" class="row-action-btn add">Approve</button>
+                                        </form>
+
+                                        <form asp-controller="Post" asp-action="RejectApplicantForm" method="post">
+                                            <input type="hidden" name="postId" value="@Model.PostId" />
+                                            <input type="hidden" name="applicantId" value="@applicant.UserId" />
+                                            <input type="hidden" name="status" value="@ownerFilterStatus" />
+                                            <button type="submit" class="row-action-btn remove">Reject</button>
+                                        </form>
+                                    }
+                                    else if (applicant.Status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <form asp-controller="Post" asp-action="RejectApplicantForm" method="post">
+                                            <input type="hidden" name="postId" value="@Model.PostId" />
+                                            <input type="hidden" name="applicantId" value="@applicant.UserId" />
+                                            <input type="hidden" name="status" value="@ownerFilterStatus" />
+                                            <button type="submit" class="row-action-btn remove">Reject</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="row-action-disabled">Locked</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="participants">
+                <div class="participant-avatar owner-highlight" title="@Model.Owner.UserName">
+                    @if (!string.IsNullOrEmpty(@Model.Owner.ProfileImgURL))
+                    {
+                        <a asp-controller="User" asp-action="UserProfile" asp-route-username=@Model.Owner.UserName>
+                            <img src="@Model.Owner.ProfileImgURL" />
+                        </a>
+                    }
+                    else
+                    {
+                        <div class="participant-avatar-placeholder">
+                            @Model.Owner?.UserName.Substring(0, 1).ToUpper()
+                        </div>
+                    }
+                    <span class="owner-avatar-tag">Owner</span>
+                </div>
+                @foreach (var participant in Model.CurrentParticipantsDetail)
+                {
+                    <div class="participant-avatar" title="@participant.UserName">
+                        @if (!string.IsNullOrEmpty(participant.ProfileImgURL))
+                        {
+                            <a asp-controller="User" asp-action="UserProfile" asp-route-username=@participant.UserName>
+                                <img src="@participant.ProfileImgURL" />
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="participant-avatar-placeholder">
+                                @participant.UserName.Substring(0, 1).ToUpper()
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        }
+
         <div class="join-section">
             @* Check if user is logged in AND not the owner of the post *@
             @if (User.Identity?.IsAuthenticated == true && currentUserId != Model.UserId)
@@ -102,7 +206,8 @@
                     @if (Model.ChatId != null)
                     {
                         <div style="margin-top:1rem;">
-                            <a asp-controller="GroupChat" asp-action="Chat" asp-route-group_chat_id="@Model.ChatId" class="btn btn-primary">
+                            <a asp-controller="GroupChat" asp-action="Chat" asp-route-group_chat_id="@Model.ChatId"
+                                   class="btn btn-primary">
                                 Go to Activity Chat
                             </a>
                         </div>
@@ -121,7 +226,7 @@
             }
         </div>
         @* Only show edit and delete if user is logged in AND they are the creator *@
-        @if (User.Identity?.IsAuthenticated == true && currentUserId == Model.UserId)
+        @if (isOwner)
         {
             <div class="action-buttons">
                 <a asp-controller="Post" asp-action="PostEdit" asp-route-id="@Model.PostId" class="btn btn-warning">

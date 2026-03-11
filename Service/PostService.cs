@@ -91,8 +91,10 @@ namespace where_we_go.Service
             }
             else
             {
-                // Exclude cancelled posts by default
-                posts = posts.Where(p => p.Status == PostStatus.Open);
+                if (!string.IsNullOrWhiteSpace(currentUserId))
+                {
+                    posts = posts.Where(p => p.Status != PostStatus.Cancelled || p.UserId == currentUserId);
+                }
             }
 
             // Sort by
@@ -117,6 +119,7 @@ namespace where_we_go.Service
                 EventDate = p.EventDate,
                 PostImgURL = p.PostImageKey,
                 Status = GetPostStatus(p).ToString(),
+                MinParticipants = p.MinParticipants,
                 MaxParticipants = p.MaxParticipants,
                 CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved),
                 Categories = [.. p.Categories.Select(c => new CategorySimpleDto
@@ -144,6 +147,10 @@ namespace where_we_go.Service
             if (!string.IsNullOrWhiteSpace(userId) && query.StatusFilter == "open")
             {
                 posts = posts.Where(p => p.UserId != userId); // Exclude user's own posts from the general listing
+            }
+            else if (string.IsNullOrWhiteSpace(query.StatusFilter))
+            {
+                query.StatusFilter = "open"; // Default to showing only open posts if no specific filter is provided
             }
 
             return await ApplyFiltersAndGetPaginatedPostsAsync(posts, query, userId);
@@ -192,6 +199,7 @@ namespace where_we_go.Service
                 Locationlat = post.LocationLat ?? 0f,
                 Locationlon = post.LocationLon ?? 0f,
                 CurrentParticipants = approvedParticipants.Count,
+                MinParticipants = post.MinParticipants,
                 MaxParticipants = post.MaxParticipants,
                 CurrentParticipantsDetail = participantDetails,
                 Categories = post.Categories.Select(c => new CategoryDetailDto
@@ -297,6 +305,12 @@ namespace where_we_go.Service
                 return false; // Post not found or user is not the owner
             }
 
+            // Block update if deadline has already passed
+            if (DateTime.UtcNow > post.DateDeadline)
+            {
+                return false;
+            }
+
             // Check current approved participant count
             var approvedCount = await _dbContext.Participants
                 .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
@@ -347,10 +361,17 @@ namespace where_we_go.Service
         public async Task<bool> DeletePostAsync(Guid id, string userId)
         {
             var post = await _dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == id && p.UserId == userId);
+
             if (post == null)
             {
                 return false;
             }
+
+            if (DateTime.UtcNow > post.DateDeadline)
+            {
+                return false;
+            }
+
 
             post.Status = PostStatus.Cancelled; // Changed from Delete to Cancelled
             _dbContext.Posts.Update(post);

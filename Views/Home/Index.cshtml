@@ -187,9 +187,10 @@
 
                         <div class="post-content-2">
                             <p class="post-date">📅 @post.DateDeadlineFormatted</p>
-                            <p class="event-date">🎉@post.EventDateFormatted</p>
-                            <div class="post-participant" style="">
-                                @(post.CurrentParticipants + 1)/@(post.MaxParticipants + 1)
+                            <p class="event-date">🎉 @post.EventDateFormatted</p>
+                            <div class="post-participant">
+                                <span class="post-participant-current">👥 @(post.CurrentParticipants + 1) คน</span>
+                                <span class="post-participant-range">รับ @post.MinParticipants–@(post.MaxParticipants + 1) คน</span>
                             </div>
                         </div>
                     </div>

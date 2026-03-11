@@ -52,7 +52,8 @@ namespace where_we_go.Service
                 .Include(p => p.Participants)
                 .Where(p => (p.DateDeadline <= now
                          && p.Status != PostStatus.Closed
-                         && p.Status != PostStatus.Cancelled)
+                         && p.Status != PostStatus.Cancelled
+                         && p.Status != PostStatus.Completed)
                         || (p.EventDate <= now
                          && p.Status != PostStatus.Cancelled
                          && p.Status != PostStatus.Completed))

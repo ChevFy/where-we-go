@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.Service;
-using where_we_go.Service;
+using where_we_go.Database;
 using Microsoft.AspNetCore.Identity;
 
 namespace where_we_go.Hubs;

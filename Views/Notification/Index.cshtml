@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="~/css/notification.css" asp-append-version="true" />
 }
 
-@section Scripts 
+@section Scripts
 {
     <script src="~/js/notification.js" asp-append-version="true"></script>
 }
@@ -42,6 +42,22 @@
                class="filter-btn @(currentFilter == true ? "active" : "")">
             Read
         </a>
+    </div>
+
+    <div class="bulk-actions">
+        @if (ViewBag.UnReadCount > 0)
+        {
+            <form method="post" asp-action="MarkAllAsRead">
+                <input type="hidden" name="returnFilter"
+                       value="@(currentFilter == false ? "unread" : currentFilter == true ? "read" : "all")" />
+                <button type="submit" class="bulk-action-btn bulk-action-read">✓ Mark All as Read</button>
+            </form>
+        }
+        <form method="post" asp-action="ClearAllRead">
+            <input type="hidden" name="returnFilter"
+                   value="@(currentFilter == false ? "unread" : currentFilter == true ? "read" : "all")" />
+            <button type="submit" class="bulk-action-btn bulk-action-clear">✕ Clear All Read</button>
+        </form>
     </div>
 
     <!-- Notifications List -->
@@ -89,7 +105,7 @@
         <div class="noti-pagination">
             <span class="pagination-info">
                 Showing @((Model.Meta.CurrentPage - 1) * Model.Meta.PageSize + 1)-@Math.Min(Model.Meta.CurrentPage *
-                                                            Model.Meta.PageSize, Model.Meta.Total) of @Model.Meta.Total
+                                                                                            Model.Meta.PageSize, Model.Meta.Total) of @Model.Meta.Total
             </span>
             <div class="pagination-controls">
                 <a href="@Url.Action("Index", new { Page = Model.Meta.PrevPage, IsReadFilter = currentFilter })"
@@ -104,4 +120,3 @@
         </div>
     }
 </div>
-

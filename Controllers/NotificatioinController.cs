@@ -44,6 +44,42 @@ namespace where_we_go.Controllers
 
             return RedirectToAction("Index", query);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkAllAsRead(string? returnFilter)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized();
+
+            await notificationService.MarkAllAsReadAsync(userId);
+
+            var query = new NotificationQueryDto();
+            if (!string.IsNullOrEmpty(returnFilter))
+            {
+                if (returnFilter == "read") query.IsReadFilter = true;
+                else if (returnFilter == "unread") query.IsReadFilter = false;
+            }
+
+            return RedirectToAction("Index", query);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ClearAllRead(string? returnFilter)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized();
+
+            await notificationService.DeleteAllReadAsync(userId);
+
+            var query = new NotificationQueryDto();
+            if (!string.IsNullOrEmpty(returnFilter))
+            {
+                if (returnFilter == "read") query.IsReadFilter = true;
+                else if (returnFilter == "unread") query.IsReadFilter = false;
+            }
+
+            return RedirectToAction("Index", query);
+        }
     }
 
 }

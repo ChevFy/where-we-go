@@ -8,5 +8,7 @@ namespace where_we_go.Service
         Task<(PaginatedResponseDto<NotificationDto>, int)> GetNotificationsByUserIdAsync(string userId, NotificationQueryDto query);
         Task<bool> UpdateNotificationReadStatusAsync(Guid notificationId, string userId, bool isRead);
         Task<int> GetUnreadCountByUserIdAsync(string userId);
+        Task<int> MarkAllAsReadAsync(string userId);
+        Task<int> DeleteAllReadAsync(string userId);
     }
 }

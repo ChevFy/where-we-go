@@ -54,6 +54,8 @@ namespace where_we_go.Service
                 _ => notifications.OrderByDescending(n => n.DateCreated)
             };
 
+            query.PageSize = 5;
+
             // Map to NotificationDto and paginate
             var result = await ToPaginatedResponseAsync(notifications, query, n => new NotificationDto
             {
@@ -92,6 +94,30 @@ namespace where_we_go.Service
             await _dbContext.SaveChangesAsync();
 
             return true;
+        }
+
+        public async Task<int> MarkAllAsReadAsync(string userId)
+        {
+            var unread = await _dbContext.Notifications
+                .Where(n => n.UserId == userId && !n.IsRead)
+                .ToListAsync();
+
+            foreach (var n in unread) n.IsRead = true;
+            await _dbContext.SaveChangesAsync();
+
+            return unread.Count;
+        }
+
+        public async Task<int> DeleteAllReadAsync(string userId)
+        {
+            var read = await _dbContext.Notifications
+                .Where(n => n.UserId == userId && n.IsRead)
+                .ToListAsync();
+
+            _dbContext.Notifications.RemoveRange(read);
+            await _dbContext.SaveChangesAsync();
+
+            return read.Count;
         }
     }
 }

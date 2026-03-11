@@ -92,7 +92,7 @@ namespace where_we_go.Service
             else
             {
                 // Exclude cancelled posts by default
-                posts = posts.Where(p => p.Status != PostStatus.Cancelled);
+                posts = posts.Where(p => p.Status == PostStatus.Open);
             }
 
             // Sort by

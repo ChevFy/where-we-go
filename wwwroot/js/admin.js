@@ -574,7 +574,7 @@ function renderPostDetail(post) {
         actionsDiv.innerHTML = `
             <button type="button" class="btn-cancel" onclick="closePostDetailModal()">Close</button>
             <button type="button" class="btn-edit" onclick="closePostDetailModal();openEditPostModal(window.currentPostForEdit)">Edit Post</button>
-            <button type="button" class="btn-delete" onclick="deletePostFromModal()">Delete Post</button>
+            <button type="button" class="btn-delete" onclick="deletePostFromModal()">Cancel</button>
         `;
     }
 }

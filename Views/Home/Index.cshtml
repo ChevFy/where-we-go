@@ -38,13 +38,13 @@
         </div>
         <div class="sub-text hidden">
             <p>
-                เช็กอินความสุข บุกทุกพิกัดลับ
-                ให้ทุกการเดินทางมีความหมายมากกว่าที่เคยสัมผัส 
-                พร้อมเปิดวาร์ปสถานที่ใหม่ๆ
+                Check in your happiness and discover hidden places.
+                Make every trip more meaningful than ever before,
+                and explore exciting new destinations.
             </p>
         </div>
         <a asp-controller="Auth" asp-action="Login" class="btn-animate hidden">
-            @await Component.InvokeAsync("MainButton", new { targetId = "started", buttonType = "submit", text = "เริ่มต้นใช้งาน" })   
+            @await Component.InvokeAsync("MainButton", new { targetId = "started", buttonType = "submit", text = "Get        Started" })
         </a>
     </div>
 
@@ -59,150 +59,142 @@
     @* Filter Section *@
     @if (isAuthenticated)
     {
-    <div class="filter-container">
-        <form method="get" asp-action="Index" class="filter-form">
-            <div class="filter-row">
-                <div class="wwg-input-group">
-                    <label class="wwg-input-label">ค้นหา</label>
-                    @await Component.InvokeAsync("InputBar", new
+        <div class="filter-container">
+            <form method="get" asp-action="Index" class="filter-form">
+                <div class="filter-row">
+                    <div class="wwg-input-group">
+                        <label class="wwg-input-label">Search</label>
+                        @await Component.InvokeAsync("InputBar", new
+                        {
+                            targetId = "NameFilter",
+                            inputType = "text",
+                            placeHolder = "Search post title...",
+                            value = query.NameFilter
+                        })
+                    </div>
+
+                    @await Component.InvokeAsync("Select", new
                     {
-                        targetId = "NameFilter",
-                        inputType = "text",
-                        placeHolder = "ค้นหาชื่อโพสต์...",
-                        value = query.NameFilter
+                        name = "SortBy",
+                        options = new List<where_we_go.ViewComponents.SelectOption>
+                    {
+                        new() { Value = "", Text = "Sort By..." },
+                        new() { Value = "latest", Text = "Newest Created" },
+                        new() { Value = "soonest", Text = "Soonest event"},
+                    },
+                        selectedValue = query.SortBy,
+                        label = "Sort By"
+                    })
+
+                    @await Component.InvokeAsync("Select", new
+                    {
+                        name = "StatusFilter",
+                        options = new List<where_we_go.ViewComponents.SelectOption>
+                    {
+                        new() { Value = "open", Text = "Open" },
+                        new() { Value = "pending", Text = "Pending" },
+                        new() { Value = "cancelled", Text = "Cancelled" },
+                        new() { Value = "upcoming", Text = "Upcoming" },
+                        new() { Value = "completed", Text = "Completed" }
+                    },
+                        selectedValue = query.StatusFilter,
+                        label = "Status"
                     })
                 </div>
 
-                @await Component.InvokeAsync("Select", new
-                {
-                    name = "SortBy",
-                    options = new List<where_we_go.ViewComponents.SelectOption>
-                    {
-                        new() { Value = "", Text = "เรียงตาม..." },
-                        new() { Value = "latest", Text = "วันที่สร้าง (ใหม่-เก่า)" },
-                        new() { Value = "oldest", Text = "วันที่สร้าง (เก่า-ใหม่)" },
-                        new() { Value = "title", Text = "ชื่อ (A-Z)" },
-                        new() { Value = "title_desc", Text = "ชื่อ (Z-A)" }
-                    },
-                    selectedValue = query.SortBy,
-                    label = "เรียงตาม"
-                })
-
-                @await Component.InvokeAsync("Select", new
-                {
-                    name = "StatusFilter",
-                    options = new List<where_we_go.ViewComponents.SelectOption>
-                    {
-                        new () { Value = "default", Text = "สถานะเริ่มต้น"} ,
-                        new() { Value = "all", Text = "สถานะทั้งหมด" },
-                        new() { Value = "open", Text = "กำลังเปิดรับ" },
-                        new() { Value = "full", Text = "เต็มแล้ว" },
-                        new() { Value = "closed", Text = "ปิดรับแล้ว" },
-                        new() { Value = "completed", Text = "เสร็จสิ้น" },
-                        new() { Value = "cancelled", Text = "ยกเลิก" }
-                    },
-                    selectedValue = query.StatusFilter,
-                    label = "สถานะ"
-                })
-            </div>
-
-            <div class="filter-categories">
-                <label class="wwg-select-label">หมวดหมู่</label>
-                <div class="category-chips">
-                    @foreach (var category in categories)
-                    {
-                        var isSelected = query.Categories?.Contains(category.CategoryId) ?? false;
-                        <label class="category-chip @(isSelected ? "selected" : "")">
-                            <input 
-                                type="checkbox" 
-                                name="Categories" 
-                                value="@category.CategoryId"
-                                checked="@isSelected" />
-                            <span>@category.Name</span>
-                        </label>
-                    }
+                <div class="filter-categories">
+                    <label class="wwg-select-label">Category</label>
+                    <div class="category-chips">
+                        @foreach (var category in categories)
+                        {
+                            var isSelected = query.Categories?.Contains(category.CategoryId) ?? false;
+                            <label class="category-chip @(isSelected ? "selected" : "")">
+                                <input type="checkbox" name="Categories" value="@category.CategoryId" checked="@isSelected" />
+                                <span>@category.Name</span>
+                            </label>
+                        }
+                    </div>
                 </div>
-            </div>
 
-            <div class="filter-actions">
-                @await Component.InvokeAsync("MainButton", new
-                {
-                    targetId = "filter-submit",
-                    buttonType = "submit",
-                    text = "ค้นหา",
-                    width = "auto",
-                    height = "45px"
-                })
-                
-                <a asp-action="Index" style="text-decoration: none;">
+                <div class="filter-actions">
                     @await Component.InvokeAsync("MainButton", new
                     {
-                        targetId = "filter-reset",
-                        buttonType = "button",
-                        text = "ล้างตัวกรอง",
-                        color = "white",
-                        hoverColor = "#CAF0F8",
-                        textColor = "#0077B6",
+                        targetId = "filter-submit",
+                        buttonType = "submit",
+                        text = "Search",
                         width = "auto",
                         height = "45px"
                     })
-                </a>
-            </div>
-        </form>
-    </div>
+
+                    <a asp-action="Index" style="text-decoration: none;">
+                        @await Component.InvokeAsync("MainButton", new
+                        {
+                            targetId = "filter-reset",
+                            buttonType = "button",
+                            text = "Clear Filter",
+                            color = "white",
+                            hoverColor = "#CAF0F8",
+                            textColor = "#0077B6",
+                            width = "auto",
+                            height = "45px"
+                        })
+                    </a>
+                </div>
+            </form>
+        </div>
     }
 
     @* Loop through mock database posts *@
     @if (Model.Data.Count == 0)
     {
         <div class="no-posts-message">
-            <p>ไม่พบโพสต์ที่ตรงกับเงื่อนไขการค้นหา</p>
+            <p>No posts found matching your filters.</p>
         </div>
     }
     else
     {
         @foreach (var post in Model.Data)
         {
-        <a asp-controller="Post" asp-action="PostDetail" asp-route-id="@post.PostId" class="post-link">
-            <div class="post-card hidden">
-                <div class="post-img">
-                    <img src=@post.PostImgURL alt="https://steamcdn-a.akamaihd.net/steam/apps/398970/header.jpg">
-                </div>
-                
-                <div class="post-content">
-                    <div class="post-content-1">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <h2 class="post-title">@post.Title</h2>
-                            <span class="post-status @post.Status?.ToLower()">@post.Status</span>
-                        </div>
-                        <div class="post-category">
-                            @if (post.Categories.Count > 0)
-                            {
-                                @foreach (var category in post.Categories)
-                                {
-                                    <span>@category.Name</span>
-                                }
-                            }
-                            else
-                            {
-                                <span>Uncategorized</span>
-                            }
-                        </div>
-                        <p>
-                            @post.Description
-                        </p>
+            <a asp-controller="Post" asp-action="PostDetail" asp-route-id="@post.PostId" class="post-link">
+                <div class="post-card hidden">
+                    <div class="post-img">
+                        <img src=@post.PostImgURL alt="https://steamcdn-a.akamaihd.net/steam/apps/398970/header.jpg">
                     </div>
 
-                    <div class="post-content-2">
-                        <p class="post-date">📅 @post.DateDeadlineFormatted</p>
-                        <p class="event-date">🎉@post.EventDateFormatted</p>
-                        <div class="post-participant" style=""> 
+                    <div class="post-content">
+                        <div class="post-content-1">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h2 class="post-title">@post.Title</h2>
+                                <span class="post-status @post.Status?.ToLower()">@post.Status</span>
+                            </div>
+                            <div class="post-category">
+                                @if (post.Categories.Count > 0)
+                                {
+                                    @foreach (var category in post.Categories)
+                                    {
+                                        <span>@category.Name</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>Uncategorized</span>
+                                }
+                            </div>
+                            <p>
+                                @post.Description
+                            </p>
+                        </div>
+
+                        <div class="post-content-2">
+                            <p class="post-date">📅 @post.DateDeadlineFormatted</p>
+                            <p class="event-date">🎉@post.EventDateFormatted</p>
+                            <div class="post-participant" style="">
                                 @(post.CurrentParticipants + 1)/@(post.MaxParticipants + 1)
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </a>
+            </a>
         }
     }
     @await Component.InvokeAsync("Pagination", new

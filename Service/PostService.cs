@@ -16,7 +16,7 @@ namespace where_we_go.Service
                 return PostStatus.Cancelled;
 
             if (post.Status == PostStatus.Closed)
-                return PostStatus.Closed; // Owner closed it early
+                return PostStatus.Closed;
 
             var now = DateTime.UtcNow;
 
@@ -36,7 +36,7 @@ namespace where_we_go.Service
             return PostStatus.Open;
         }
 
-        private async Task<PaginatedResponseDto<PostDto>> ApplyFiltersAndGetPaginatedPostsAsync(IQueryable<Post> posts, PostQueryDto query)
+        private async Task<PaginatedResponseDto<PostDto>> ApplyFiltersAndGetPaginatedPostsAsync(IQueryable<Post> posts, PostQueryDto query, string? currentUserId = null)
         {
             // Filter by name
             if (!string.IsNullOrWhiteSpace(query.NameFilter))
@@ -57,18 +57,14 @@ namespace where_we_go.Service
             {
                 posts = query.StatusFilter.ToLower() switch
                 {
-                    "cancelled" => posts.Where(p => p.Status == PostStatus.Cancelled),
-                    "completed" => posts.Where(p => p.Status != PostStatus.Cancelled && now > p.EventDate),
-                    "closed" => posts.Where(p => p.Status != PostStatus.Cancelled && now > p.DateDeadline && now <= p.EventDate),
-                    "full" => posts.Where(p => p.Status != PostStatus.Cancelled &&
-                                              now <= p.DateDeadline &&
-                                              _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) >= p.MaxParticipants),
-                    "open" => posts.Where(p => p.Status != PostStatus.Cancelled &&
-                                                now <= p.DateDeadline &&
-                                                _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) < p.MaxParticipants),
-                    "all" => posts, // No additional filtering
-                    _ => posts.Where(p => p.Status != PostStatus.Cancelled && now <= p.EventDate &&
-                            _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved) < p.MaxParticipants), // Default to showing only active posts
+                    "open" => posts.Where(p => p.Status == PostStatus.Open),
+                    "pending" => posts.Where(p => p.Status != PostStatus.Cancelled && p.Participants.Any(part => part.UserId == currentUserId && part.Status == ParticipantStatus.Pending)),
+                    "cancelled" => posts.Where(p => p.Status == PostStatus.Cancelled && p.UserId == currentUserId), // only owner can view
+                    "completed" => posts.Where(p => p.EventDate <= now && p.Status != PostStatus.Cancelled && (p.UserId == currentUserId
+                    || p.Participants.Any(part => part.UserId == currentUserId && part.Status == ParticipantStatus.Approved))), // owner and participants can view
+                    "upcoming" => posts.Where(p => p.EventDate > now && p.Status != PostStatus.Cancelled && (p.UserId == currentUserId
+                    || p.Participants.Any(part => part.UserId == currentUserId && part.Status == ParticipantStatus.Approved))), // owner and participants can view
+                    _ => posts.Where(p => p.Status == PostStatus.Open)
                 };
             }
             else
@@ -84,6 +80,7 @@ namespace where_we_go.Service
                 "title_desc" => posts.OrderByDescending(p => p.Title),
                 "latest" => posts.OrderByDescending(p => p.DateCreated),
                 "oldest" => posts.OrderBy(p => p.DateCreated),
+                "soonest" => posts.OrderBy(p => p.EventDate),
                 _ => posts.OrderBy(p => p.PostId)
             };
 
@@ -122,12 +119,12 @@ namespace where_we_go.Service
                 .Include(p => p.Categories)
                 .AsNoTracking();
 
-            if (!string.IsNullOrWhiteSpace(userId) && query.StatusFilter == "default")
+            if (!string.IsNullOrWhiteSpace(userId) && query.StatusFilter == "open")
             {
                 posts = posts.Where(p => p.UserId != userId); // Exclude user's own posts from the general listing
             }
 
-            return await ApplyFiltersAndGetPaginatedPostsAsync(posts, query);
+            return await ApplyFiltersAndGetPaginatedPostsAsync(posts, query, userId);
         }
 
         public async Task<PostDetailDto?> GetPostDetailAsync(Guid id, string? currentUserId = null)

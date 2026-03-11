@@ -51,7 +51,7 @@ namespace where_we_go.Service
             {
                 "latest" => notifications.OrderByDescending(n => n.DateCreated),
                 "oldest" => notifications.OrderBy(n => n.DateCreated),
-                _ => notifications.OrderByDescending(n => n.NotificationId)
+                _ => notifications.OrderByDescending(n => n.DateCreated)
             };
 
             // Map to NotificationDto and paginate

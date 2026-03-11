@@ -66,7 +66,8 @@
             <div class="form-group check-category">
                 <label>Select Category</label>
                 <div class="category-grid">
-                    @foreach (CategorySelectDto category in ViewBag.Categories){
+                    @foreach (CategorySelectDto category in ViewBag.Categories)
+                    {
                         <label class="category-item">
                             <input type="checkbox" name="CategoryIds" value="@category.CategoryId" />
                             <span>@category.CategoryName</span>
@@ -93,7 +94,7 @@
             {
                 id = "DateDeadline",
                 name = "DateDeadline",
-                label = "Rigistration Deadline",
+                label = "Registration Deadline",
                 type = "date",
                 required = true,
                 value = Model?.DateDeadline.ToString("yyyy-MM-dd") ?? ""

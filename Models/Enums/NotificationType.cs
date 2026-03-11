@@ -8,6 +8,7 @@ namespace where_we_go.Models.Enums
         ParticipantApproved, // ได้รับเลือกเข้าร่วมกิจกรรม (send to user when status changed to approved)
         ParticipantRejected, // ไม่ได้รับเลือกเข้าร่วมกิจกรรม (send to user when status changed to rejected)
         ParticipantWithdrawn, // ถอนตัวจากกิจกรรม (send to user when status changed to withdrawn)
+        PostCompleted, // กิจกรรมเสร็จสิ้น (send to all participants when post status changed to completed)
 
         // expired and participant full (meet minimum required)
         // send to all participants when post status changed to expired and participant full (meet minimum required)

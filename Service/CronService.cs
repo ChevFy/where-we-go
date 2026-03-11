@@ -49,9 +49,13 @@ namespace where_we_go.Service
             var now = DateTime.UtcNow;
 
             var expiredPosts = await dbContext.Posts
-                .Where(p => p.DateDeadline <= now
+                .Include(p => p.Participants)
+                .Where(p => (p.DateDeadline <= now
                          && p.Status != PostStatus.Closed
                          && p.Status != PostStatus.Cancelled)
+                        || (p.EventDate <= now
+                         && p.Status != PostStatus.Cancelled
+                         && p.Status != PostStatus.Completed))
                 .ToListAsync();
 
             if (expiredPosts.Count == 0) return;
@@ -60,7 +64,30 @@ namespace where_we_go.Service
             {
                 // if participants count meets minimum required, mark as Closed, else mark as Cancelled
                 var participantCount = await dbContext.Participants.CountAsync(p => p.PostId == post.PostId && p.Status == ParticipantStatus.Approved);
-                if (participantCount >= post.MinParticipants)
+                if (post.EventDate <= now)
+                {
+                    post.Status = PostStatus.Completed;
+                    await notificationService.CreateNotificationAsync(new NotificationCreateDto
+                    {
+                        UserId = post.UserId,
+                        PostId = post.PostId,
+                        Content = $"Your activity '{post.Title}' is starting now.",
+                        Link = $"/Post/PostDetail/{post.PostId}",
+                        Type = NotificationType.PostCompleted,
+                    });
+                    foreach (var participant in post.Participants.Where(p => p.Status == ParticipantStatus.Approved))
+                    {
+                        await notificationService.CreateNotificationAsync(new NotificationCreateDto
+                        {
+                            UserId = participant.UserId,
+                            PostId = post.PostId,
+                            Content = $"The activity '{post.Title}' you joined is starting now.",
+                            Link = $"/Post/PostDetail/{post.PostId}",
+                            Type = NotificationType.PostCompleted,
+                        });
+                    }
+                }
+                else if (participantCount >= post.MinParticipants)
                 {
                     post.Status = PostStatus.Closed;
                     await notificationService.CreateNotificationAsync(new NotificationCreateDto
@@ -71,6 +98,17 @@ namespace where_we_go.Service
                         Link = $"/Post/PostDetail/{post.PostId}",
                         Type = NotificationType.PostExpiredFull,
                     });
+                    foreach (var participant in post.Participants.Where(p => p.Status == ParticipantStatus.Approved))
+                    {
+                        await notificationService.CreateNotificationAsync(new NotificationCreateDto
+                        {
+                            UserId = participant.UserId,
+                            PostId = post.PostId,
+                            Content = $"The activity '{post.Title}' you joined has expired and is now closed.",
+                            Link = $"/Post/PostDetail/{post.PostId}",
+                            Type = NotificationType.PostExpiredFull,
+                        });
+                    }
 
                 }
                 else
@@ -84,6 +122,17 @@ namespace where_we_go.Service
                         Link = $"/Post/PostDetail/{post.PostId}",
                         Type = NotificationType.PostExpiredNotFull,
                     });
+                    foreach (var participant in post.Participants.Where(p => p.Status == ParticipantStatus.Approved))
+                    {
+                        await notificationService.CreateNotificationAsync(new NotificationCreateDto
+                        {
+                            UserId = participant.UserId,
+                            PostId = post.PostId,
+                            Content = $"The activity '{post.Title}' you joined has expired and is now cancelled.",
+                            Link = $"/Post/PostDetail/{post.PostId}",
+                            Type = NotificationType.PostExpiredNotFull,
+                        });
+                    }
                 }
             }
 

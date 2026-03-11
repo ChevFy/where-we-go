@@ -25,6 +25,12 @@ public class HomeController(UserManager<User> userManager, IPostService postServ
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         ViewBag.IsAuth = IsAuth;
 
+        // Anonymous users can only view open (joinable) posts.
+        if (!IsAuth)
+        {
+            query.StatusFilter = "open";
+        }
+
         if (IsAuth && User.IsInRole("Admin"))
         {
             return RedirectToAction("Index", "Admin");

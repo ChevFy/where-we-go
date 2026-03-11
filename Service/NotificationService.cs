@@ -51,7 +51,7 @@ namespace where_we_go.Service
             {
                 "latest" => notifications.OrderByDescending(n => n.DateCreated),
                 "oldest" => notifications.OrderBy(n => n.DateCreated),
-                _ => notifications.OrderByDescending(n => n.NotificationId)
+                _ => notifications.OrderByDescending(n => n.DateCreated)
             };
 
             // Map to NotificationDto and paginate
@@ -70,6 +70,11 @@ namespace where_we_go.Service
             var unReadCount = await _dbContext.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
 
             return (result, unReadCount);
+        }
+
+        public Task<int> GetUnreadCountByUserIdAsync(string userId)
+        {
+            return _dbContext.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
         }
 
         public async Task<bool> UpdateNotificationReadStatusAsync(Guid notificationId, string userId, bool isRead)

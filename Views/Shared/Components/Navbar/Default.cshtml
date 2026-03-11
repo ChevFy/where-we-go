@@ -10,11 +10,25 @@
         </a>
         <div class="nav-menu">
             <ul class="nav-list">
-                @if (ViewBag.isAuth)
+                @if (isAuthenticated)
                 {
-                    <li class="nav-item"><a href="/" class="nav-link">กิจกรรม</a></li>
-                    <li class="nav-item"><a href="/" class="nav-link">แชทกลุ่ม</a></li>
-                    <li class="nav-item"><a href="/Notification" class="nav-link">แจ้งเตือน</a></li>
+                    <li class="nav-item">
+                        <a asp-controller="Home" asp-action="Index" class="nav-link">หน้าแรก</a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Post" asp-action="PostCreate" class="nav-link">สร้างกิจกรรม</a>
+                    </li>
+                    <li class="nav-item">
+                        <a asp-controller="Notification"
+                           asp-action="Index"
+                           class="nav-link nav-link-notification">
+                            แจ้งเตือน
+                            @if (ViewBag.UnReadCount is int unRead && unRead > 0)
+                            {
+                                <span class="nav-badge">@unRead</span>
+                            }
+                        </a>
+                    </li>
                 }
             </ul>
         </div>
@@ -24,13 +38,15 @@
                 @await Component.InvokeAsync("HamburgerMenu", new
                 {
                     items = new List<where_we_go.ViewComponents.NavItem> {
-                    new() { Text = "หน้าแรก", Href = "/" },
-                    new() { Text = "กิจกรรม", Href = "/" },
-                    new() { Text = "แชทกลุ่ม", Href = "/" },
-                    new() { Text = "แจ้งเตือน", Href = "/Notification" },
-@* new() { Text = "ออกจากระบบ", Href = "/Auth/Logout" }, *@
-
-                }
+                        new() { Text = "หน้าแรก", Href = "/" },
+                        new() { Text = "สร้างกิจกรรม", Href = "/Post/PostCreate" },
+                        new() {
+                            Text = (ViewBag.UnReadCount is int unRead && unRead > 0)
+                                ? $"แจ้งเตือน ({unRead})"
+                                : "แจ้งเตือน",
+                            Href = "/Notification"
+                        },
+                    }
                 })
             }
         </div>
@@ -41,11 +57,11 @@
         @if (isAuthenticated && userData != null)
         {
             <a asp-controller="User" asp-action="UserProfile" asp-route-username=@userData?.UserName>
-                <div class="login-text"">
+                <div class="login-text">
                     @* <span class="user-name">@userData.Name</span> *@
                     @* <a asp-controller="Auth" asp-action="Logout">ออกจากระบบ</a> *@
                 </div>
-                <img src=" @userData?.ProfileUrl" class="login-icon" />
+                <img src="@userData?.ProfileUrl" class="login-icon" />
             </a>
 
         }

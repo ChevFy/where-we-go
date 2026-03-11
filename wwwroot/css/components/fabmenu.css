@@ -1,0 +1,66 @@
+@import url('/css/site.css');
+
+.fab-container {
+  position: fixed;
+  bottom: 24px;
+  right: 5%;
+  z-index: 1000;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+
+}
+
+.fab-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  background-color: var(--primary-color);
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.fab-home,
+.fab-notification {
+  display: none;
+}
+
+.fab-icon {
+  width: 28px;
+  height: 28px;
+  filter: brightness(0) invert(1);
+}
+
+.fab-link:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+
+@media (max-width: 768px) {
+  .fab-container {
+    bottom: 16px;
+    right: 4%;
+    gap: 8px;
+  }
+
+  .fab-link {
+    width: 46px;
+    height: 46px;
+  }
+
+  .fab-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .fab-home,
+  .fab-notification {
+    display: flex;
+  }
+}
+

@@ -86,7 +86,7 @@ public class AuthController(SignInManager<User> signInManager, UserManager<User>
 
         var user = new User
         {
-            UserName = model.Email,
+            UserName = model.UserName,
             Email = model.Email,
             Name = model.Name
         };

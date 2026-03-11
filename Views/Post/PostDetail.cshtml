@@ -126,7 +126,11 @@ List<where_we_go.DTO.ApplicantDto>();
                                 </div>
 
                                 <div class="row-actions">
-                                    @if (applicant.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
+                                    @if (Model.DateDeadline < DateTime.UtcNow)
+                                    {
+                                        <span class="row-action-disabled">Locked</span>
+                                    }
+                                    else if (applicant.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
                                     {
                                         <form asp-controller="Post" asp-action="ApproveApplicantForm" method="post">
                                             <input type="hidden" name="postId" value="@Model.PostId" />
@@ -260,11 +264,17 @@ List<where_we_go.DTO.ApplicantDto>();
                         Edit Post
                     </a>
                 }
-
-                <form asp-action="PostDelete" asp-controller="Post" asp-route-id="@Model.PostId" method="post"
-                      onsubmit="return confirm('Do you really want to delete this post?');">
-                    <button type="submit" class="btn btn-danger">Delete This Post</button>
-                </form>
+                @if (isDeadlinePassed)
+                {
+                    <a class="btn btn-secondary">Delete This Post</a>
+                }
+                else
+                {
+                    <form asp-action="PostDelete" asp-controller="Post" asp-route-id="@Model.PostId" method="post"
+                          onsubmit="return confirm('Do you really want to delete this post?');">
+                        <button type="submit" class="btn btn-danger">Delete This Post</button>
+                    </form>
+                }
             </div>
         }
     </div>

@@ -147,7 +147,7 @@ namespace where_we_go.Service
             {
                 posts = posts.Where(p => p.UserId != userId); // Exclude user's own posts from the general listing
             }
-            else
+            else if (string.IsNullOrWhiteSpace(query.StatusFilter))
             {
                 query.StatusFilter = "open"; // Default to showing only open posts if no specific filter is provided
             }
@@ -359,10 +359,17 @@ namespace where_we_go.Service
         public async Task<bool> DeletePostAsync(Guid id, string userId)
         {
             var post = await _dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == id && p.UserId == userId);
+
             if (post == null)
             {
                 return false;
             }
+
+            if (DateTime.UtcNow > post.DateDeadline)
+            {
+                return false;
+            }
+
 
             post.Status = PostStatus.Cancelled; // Changed from Delete to Cancelled
             _dbContext.Posts.Update(post);

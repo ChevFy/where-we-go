@@ -43,16 +43,19 @@ List<where_we_go.DTO.ApplicantDto>();
             </a>
         </div>
 
-        <div class="post-date">
-            <p>📅 @Model.DateDeadlineFormatted</p>
-        </div>
-
-        <div class="post-event-date">
-            <p>🎉 @Model.EventDateFormatted</p>
-        </div>
-
-        <div class="post-population">
-            <p>👥 @(Model.CurrentParticipants + 1) / @(Model.MaxParticipants + 1) People</p>
+        <div class="post-meta-row">
+            <div class="post-meta-item">
+                <span class="post-meta-label">กำหนดปิดรับ</span>
+                <span class="post-meta-value">📅 @Model.DateDeadlineFormatted</span>
+            </div>
+            <div class="post-meta-item">
+                <span class="post-meta-label">วันจัดกิจกรรม</span>
+                <span class="post-meta-value">🎉 @Model.EventDateFormatted</span>
+            </div>
+            <div class="post-meta-item">
+                <span class="post-meta-label">จำนวนผู้เข้าร่วม</span>
+                <span class="post-meta-value">👥 @(Model.CurrentParticipants + 1) / @(Model.MaxParticipants + 1)</span>
+            </div>
         </div>
         <div class="post-category">
             <ul>

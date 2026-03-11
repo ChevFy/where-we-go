@@ -22,6 +22,7 @@
 
         <form style="width: 100%; gap : 1.5rem ; display :flex ; align-items : center ; justify-content : center ; flex-direction : column" method="post" asp-action="Register" asp-controller="Auth">
             <div class="register-input">                
+                @await Component.InvokeAsync("InputBar", new { targetId = "UserName", inputType = "text", placeHolder = "Username", width = "75%" })
                 @await Component.InvokeAsync("InputBar", new { targetId = "Name", inputType = "text", placeHolder = "Name", width = "75%" })
                 @await Component.InvokeAsync("InputBar", new { targetId = "Email", inputType = "email", placeHolder = "Email", width = "75%" })
                 @await Component.InvokeAsync("InputBar", new { targetId = "Password", inputType = "password", placeHolder = "Password", width = "75%" })

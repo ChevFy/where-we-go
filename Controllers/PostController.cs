@@ -17,7 +17,7 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
 {
     private IPostService _postService { get; init; } = postService;
     [HttpGet]
-    public async Task<IActionResult> PostDetail(Guid id)
+    public async Task<IActionResult> PostDetail(Guid id, string? status = "pending")
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         var postDto = await _postService.GetPostDetailAsync(id, userId);
@@ -31,6 +31,23 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
             {
                 return NotFound();
             }
+        }
+
+        if (!string.IsNullOrWhiteSpace(userId) && userId == postDto.UserId)
+        {
+            var normalizedStatus = string.IsNullOrWhiteSpace(status) ? "pending" : status.Trim().ToLower();
+            var allowedStatuses = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "pending", "approved", "rejected", "withdrawn"
+            };
+
+            if (!allowedStatuses.Contains(normalizedStatus))
+            {
+                normalizedStatus = "pending";
+            }
+
+            ViewBag.OwnerFilterStatus = normalizedStatus;
+            ViewBag.OwnerApplicants = await _postService.GetPostApplicantsAsync(id, userId, normalizedStatus);
         }
 
         return View(postDto);
@@ -235,12 +252,12 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> GetPostApplicants(Guid id)
+    public async Task<IActionResult> GetPostApplicants(Guid id, string? status = null)
     {
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (currentUserId == null) return Unauthorized();
 
-        var applicants = await _postService.GetPostApplicantsAsync(id, currentUserId);
+        var applicants = await _postService.GetPostApplicantsAsync(id, currentUserId, status);
 
         // Returns a JSON list of applicants (Name, Status, etc.)
         return Ok(applicants);
@@ -248,12 +265,12 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> ApproveApplicant(Guid postId, string applicantId)
+    public async Task<IActionResult> ApproveApplicant(PostApplicantDto dto)
     {
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (currentUserId == null) return Unauthorized();
 
-        var result = await _postService.ApproveJoinAsync(postId, applicantId, currentUserId);
+        var result = await _postService.ApproveJoinAsync(dto.PostId, dto.ApplicantIds, currentUserId);
 
         if (result == "Success")
         {
@@ -265,12 +282,12 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> RejectApplicant(Guid postId, string applicantId)
+    public async Task<IActionResult> RejectApplicant(PostApplicantDto dto)
     {
         var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (currentUserId == null) return Unauthorized();
 
-        var result = await _postService.RejectJoinAsync(postId, applicantId, currentUserId);
+        var result = await _postService.RejectJoinAsync(dto.PostId, dto.ApplicantIds, currentUserId);
 
         if (result == "Success")
         {
@@ -280,5 +297,61 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
         return BadRequest(new { success = false, message = result });
     }
 
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> ApproveApplicantForm(Guid postId, string applicantId, string status = "pending")
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId == null) return Unauthorized();
+
+        if (string.IsNullOrWhiteSpace(applicantId))
+        {
+            TempData["AlertMessage"] = "Invalid participant.";
+            return RedirectToAction("PostDetail", new { id = postId, status });
+        }
+
+        var result = await _postService.ApproveJoinAsync(postId, [applicantId], currentUserId);
+        TempData["AlertMessage"] = result == "Success" ? "Participant approved successfully." : result;
+
+        return RedirectToAction("PostDetail", new { id = postId, status });
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> RejectApplicantForm(Guid postId, string applicantId, string status = "pending")
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId == null) return Unauthorized();
+
+        if (string.IsNullOrWhiteSpace(applicantId))
+        {
+            TempData["AlertMessage"] = "Invalid participant.";
+            return RedirectToAction("PostDetail", new { id = postId, status });
+        }
+
+        var result = await _postService.RejectJoinAsync(postId, [applicantId], currentUserId);
+        TempData["AlertMessage"] = result == "Success" ? "Participant updated successfully." : result;
+
+        return RedirectToAction("PostDetail", new { id = postId, status });
+    }
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> RemoveParticipantForm(Guid postId, string applicantId, string status = "approved")
+    {
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (currentUserId == null) return Unauthorized();
+
+        if (string.IsNullOrWhiteSpace(applicantId))
+        {
+            TempData["AlertMessage"] = "Invalid participant.";
+            return RedirectToAction("PostDetail", new { id = postId, status });
+        }
+
+        var result = await _postService.RemoveParticipantAsync(postId, applicantId, currentUserId);
+        TempData["AlertMessage"] = result == "Success" ? "Participant removed successfully." : result;
+
+        return RedirectToAction("PostDetail", new { id = postId, status });
+    }
 
 }

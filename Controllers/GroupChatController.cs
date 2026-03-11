@@ -28,6 +28,37 @@ namespace where_we_go.Controllers;
             _fileService = fileService;
         }
 
+    public async Task<IActionResult> MyChats()
+    {
+        var current_user = await _userManager.GetUserAsync(User);
+        if (current_user == null)
+            return Unauthorized();
+
+        var userId = current_user.Id;
+
+        var chats = await _context.GroupChats
+            .Include(gc => gc.Post)
+            .Where(gc =>
+                gc.Post.UserId == userId ||
+                _context.Participants.Any(p =>
+                    p.PostId == gc.PostId &&
+                    p.UserId == userId &&
+                    p.Status == Models.Enums.ParticipantStatus.Approved))
+            .Select(gc => new GroupChatListItemDto
+            {
+                group_chat_id = gc.GroupChatId,
+                name = gc.GroupChatName,
+                post_id = gc.PostId,
+                post_title = gc.Post.Title,
+                is_owner = gc.Post.UserId == userId
+            })
+            .OrderByDescending(c => c.is_owner)
+            .ThenBy(c => c.post_title)
+            .ToListAsync();
+
+        return View(chats);
+    }
+
     public async Task<IActionResult> Chat(Guid group_chat_id)
     {
         var current_user = await _userManager.GetUserAsync(User);

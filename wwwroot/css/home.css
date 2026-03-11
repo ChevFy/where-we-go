@@ -19,7 +19,19 @@
   font-size: var(--font-size-big);
   color: var(--tertiary-color);
   filter: drop-shadow(0px 0px 10px var(--primary-color));
+  transition: all 1.0s ease;
+}
 
+.main-text.hidden
+{
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.main-text.show
+{
+  opacity: 1;
+  transform: translateX(0); 
 }
 
 .home-bg-container .sub-text {
@@ -27,7 +39,36 @@
   font-size: var(--font-size-medium);
   width: 65%;
   color: var(--tertiary-color);
+  transition: all 0.6s ease;
 }
+
+.sub-text.hidden
+{
+  opacity: 0;
+  transform: translateY(50%);
+}
+
+.sub-text.show
+{
+  opacity: 1;
+  transform: translateX(0); 
+}
+
+.home-bg-container a.btn-animate {
+  display: inline-block; 
+  transition: all 2.0s ease;
+}
+
+.home-bg-container a.btn-animate.hidden {
+  opacity: 0;
+  transform: translateY(50%);
+}
+
+.home-bg-container a.btn-animate.show {
+  opacity: 1;
+  transform: translateY(0); 
+}
+
 
 .home-post-container {
   display: flex;
@@ -91,6 +132,17 @@
   grid-template-columns: 280px 1fr;
   overflow: hidden;
   cursor: pointer;
+  transition: all 1.0s ease;
+}
+
+.post-card.hidden{
+  opacity: 0;
+  transform: translateX(-100%);
+}
+
+.post-card.show{
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .post-card:hover {

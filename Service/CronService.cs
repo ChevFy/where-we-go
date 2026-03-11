@@ -46,13 +46,14 @@ namespace where_we_go.Service
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
 
             var expiredPosts = await dbContext.Posts
                 .Include(p => p.Participants)
                 .Where(p => (p.DateDeadline <= now
                          && p.Status != PostStatus.Closed
-                         && p.Status != PostStatus.Cancelled)
+                         && p.Status != PostStatus.Cancelled
+                         && p.Status != PostStatus.Completed)
                         || (p.EventDate <= now
                          && p.Status != PostStatus.Cancelled
                          && p.Status != PostStatus.Completed))

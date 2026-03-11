@@ -266,7 +266,8 @@ namespace where_we_go.Service
                 DateDeadline = dateDeadline,
                 EventDate = eventDate,
 
-                MinParticipants = dto.MinParticipants,
+                // Store as participant slots (excluding owner); create/edit forms use totals including owner
+                MinParticipants = Math.Max(0, dto.MinParticipants - 1),
                 MaxParticipants = Math.Max(1, dto.MaxParticipants - 1), // -1 because owner counts; stored value = participant slots
 
                 DateCreated = DateTime.UtcNow,
@@ -315,8 +316,11 @@ namespace where_we_go.Service
             var approvedCount = await _dbContext.Participants
                 .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
 
-            // Validate max participants against current approved count (stored max = dto.MaxParticipants - 1 because owner counts)
+            // Convert totals (including owner) from form into stored slots (excluding owner)
+            var storedMin = Math.Max(0, dto.MinParticipants - 1);
             var storedMax = Math.Max(1, dto.MaxParticipants - 1);
+
+            // Validate max participants against current approved count
             if (storedMax < approvedCount)
             {
                 throw new InvalidOperationException($"Cannot set maximum participants below current approved count ({approvedCount}).");
@@ -335,7 +339,7 @@ namespace where_we_go.Service
             post.PostImageKey = string.IsNullOrWhiteSpace(dto.PostImgkey) ? post.PostImageKey : dto.PostImgkey;
             post.DateDeadline = dateDeadline;
             post.EventDate = eventDate;
-            post.MinParticipants = dto.MinParticipants;
+            post.MinParticipants = storedMin;
             post.MaxParticipants = storedMax; // -1 because owner counts
 
             // Update categories

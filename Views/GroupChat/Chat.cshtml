@@ -7,15 +7,27 @@
 @section Styles
 {
 <link rel="stylesheet" href="~/css/GroupChat.css" />
-}
+@* Import component css *@
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/pagination.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/inputbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/Select.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/Filter.css" asp-append-version="true" />}
+
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
 
 
 <div class="chat-page">
 
 
-    <div class="chat-header">
-        <h2>@Model.name</h2>
-    </div>
+    @* <div class="chat-header">
+        <h2>@Model.name Chat</h2> 
+    </div> *@
 
 
     <div class="chat-messages">
@@ -27,9 +39,9 @@
                 <div class="message-row me">
                     <div class="message-bubble">
                         <div class="message-text">@m.message</div>
-                        <div class="message-time">
+                        @* <div class="message-time">
                             @m.sent_at.ToString("HH:mm")
-                        </div>
+                        </div> *@
                     </div>
                 </div>
             }
@@ -37,11 +49,13 @@
             {
 
                 <div class="message-row other">
-                    <div class="sender">@m.sender_name</div>
-                    <div class="message-bubble">
-                        <div class="message-text">@m.message</div>
-                        <div class="message-time">
-                            @m.sent_at.ToString("HH:mm")
+                    <img class="chat-avatar" src="@m.sender_avatar" alt="@m.sender_name" />
+                    <div class="message-content">
+                        <div class="sender">@m.sender_name</div>
+                        <div class="message-bubble">
+                            <div class="message-text">@m.message</div>
+                            <div class="message-time" data-utc="@m.sent_at.ToString("o")">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -60,19 +74,30 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js" integrity="sha512-Dtjxk0+7qGpH2Zj6Kau0jo5F5N+vFj8vmF5Uy1wHnQVotlJwjBMIBohvdHLeB/pY8jciLFn+YTVgW0S/OP3wkw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js" integrity="sha512-ZqjBuyHOJ5inr58y0trfRo8TgD0zC0WJROOUmgjAIA6iiqXxobgj3ZocloB2Wp9ov2+LB9UM09aiwI3MDpm5HA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         (function() {
             const chatId = '@Model.group_chat_id';
+            const currentUserId = '@Model.current_user_id';
             const messagesDiv = document.querySelector('.chat-messages');
             const form = document.querySelector('.chat-input form');
             const input = form.querySelector('input[name="message"]');
 
+            // convert server-rendered UTC times to local
+            document.querySelectorAll('.message-time[data-utc]').forEach(function(el) {
+                el.textContent = new Date(el.dataset.utc).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            });
+
+            // scroll to bottom on load
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
             const connection = new signalR.HubConnectionBuilder()
                 .withUrl('/chathub')
+                .withAutomaticReconnect()
                 .build();
 
             connection.on('ReceiveMessage', function(message) {
+                message.is_me = (message.user_id === currentUserId);
                 appendMessage(message);
             });
 
@@ -95,27 +120,42 @@
             function appendMessage(m) {
                 const row = document.createElement('div');
                 row.className = 'message-row ' + (m.is_me ? 'me' : 'other');
-                let html;
-                if (m.is_me) {
-                    html = `<div class="message-bubble">
-                                <div class="message-text"></div>
-                                <div class="message-time"></div>
-                            </div>`;
-                } else {
-                    html = `<div class="sender"></div>
-                            <div class="message-bubble">
-                                <div class="message-text"></div>
-                                <div class="message-time"></div>
-                            </div>`;
-                }
-                row.innerHTML = html;
-                if (!m.is_me) {
-                    row.querySelector('.sender').textContent = m.sender_name;
-                }
-                row.querySelector('.message-text').textContent = m.message;
-                row.querySelector('.message-time').textContent = new Date(m.sent_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                messagesDiv.appendChild(row);
 
+                const bubble = document.createElement('div');
+                bubble.className = 'message-bubble';
+
+                const textDiv = document.createElement('div');
+                textDiv.className = 'message-text';
+                textDiv.textContent = m.message;
+
+                bubble.appendChild(textDiv);
+
+                if (m.is_me) {
+                    row.appendChild(bubble);
+                } else {
+                    const avatar = document.createElement('img');
+                    avatar.className = 'chat-avatar';
+                    avatar.src = m.sender_avatar || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+                    avatar.alt = m.sender_name;
+
+                    const timeDiv = document.createElement('div');
+                    timeDiv.className = 'message-time';
+                    const utc = m.sent_at.endsWith('Z') ? m.sent_at : m.sent_at + 'Z';
+                    timeDiv.textContent = new Date(utc).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    bubble.appendChild(timeDiv);
+
+                    const content = document.createElement('div');
+                    content.className = 'message-content';
+                    const senderDiv = document.createElement('div');
+                    senderDiv.className = 'sender';
+                    senderDiv.textContent = m.sender_name;
+                    content.appendChild(senderDiv);
+                    content.appendChild(bubble);
+                    row.appendChild(avatar);
+                    row.appendChild(content);
+                }
+
+                messagesDiv.appendChild(row);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }
         })();

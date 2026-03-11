@@ -15,6 +15,7 @@ public class PostDto
     public DateTime EventDate { get; set; }
     public string? Status { get; set; }
 
+    public int MinParticipants { get; set; }
     public int MaxParticipants { get; set; }
     public int CurrentParticipants { get; set; }
 

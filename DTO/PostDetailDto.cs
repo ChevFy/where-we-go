@@ -60,6 +60,9 @@ namespace where_we_go.DTO
         [Display(Name = "Current Participants")]
         public int CurrentParticipants { get; set; }
 
+        [Display(Name = "Min Participants")]
+        public int MinParticipants { get; set; }
+
         [Required]
         [Range(2, 100, ErrorMessage = "Max participants must be between 2 and 100.")]
         [Display(Name = "Max Participants")]

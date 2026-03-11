@@ -41,25 +41,29 @@ List<where_we_go.DTO.ApplicantDto>();
         <h2 class="post-title">@Model.Title</h2>
         <p class="post-status @Model.Status?.ToLower()">@Model.Status</p>
 
-        <div class="post-location">
-            <a target="_blank"
-                   href="https://www.google.com/maps/search/?api=1&query=@Model.Locationlat,@Model.Locationlon">
-                @Model.LocationName
-            </a>
-        </div>
+        <a class="post-location-link" target="_blank" rel="noopener noreferrer"
+           href="https://www.google.com/maps/search/?api=1&query=@Model.Locationlat,@Model.Locationlon">
+            <span class="post-location-icon">📍</span>
+            <span class="post-location-text">@Model.LocationName</span>
+            <span class="post-location-hint">Open Map →</span>
+        </a>
 
         <div class="post-meta-row">
             <div class="post-meta-item">
-                <span class="post-meta-label">กำหนดปิดรับ</span>
+                <span class="post-meta-label">Registration deadline</span>
                 <span class="post-meta-value">📅 @Model.DateDeadlineFormatted</span>
             </div>
             <div class="post-meta-item">
-                <span class="post-meta-label">วันจัดกิจกรรม</span>
+                <span class="post-meta-label">Event date</span>
                 <span class="post-meta-value">🎉 @Model.EventDateFormatted</span>
             </div>
             <div class="post-meta-item">
-                <span class="post-meta-label">จำนวนผู้เข้าร่วม</span>
-                <span class="post-meta-value">👥 @(Model.CurrentParticipants + 1) / @(Model.MaxParticipants + 1)</span>
+                <span class="post-meta-label">Current participants</span>
+                <span class="post-meta-value">👥 @(Model.CurrentParticipants + 1) people</span>
+            </div>
+            <div class="post-meta-item">
+                <span class="post-meta-label">Participant range</span>
+                <span class="post-meta-value">📋 @(Model.MinParticipants) - @(Model.MaxParticipants + 1) people</span>
             </div>
         </div>
         <div class="post-category">

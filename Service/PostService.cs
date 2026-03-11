@@ -119,6 +119,7 @@ namespace where_we_go.Service
                 EventDate = p.EventDate,
                 PostImgURL = p.PostImageKey,
                 Status = GetPostStatus(p).ToString(),
+                MinParticipants = p.MinParticipants,
                 MaxParticipants = p.MaxParticipants,
                 CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved),
                 Categories = [.. p.Categories.Select(c => new CategorySimpleDto
@@ -198,6 +199,7 @@ namespace where_we_go.Service
                 Locationlat = post.LocationLat ?? 0f,
                 Locationlon = post.LocationLon ?? 0f,
                 CurrentParticipants = approvedParticipants.Count,
+                MinParticipants = post.MinParticipants,
                 MaxParticipants = post.MaxParticipants,
                 CurrentParticipantsDetail = participantDetails,
                 Categories = post.Categories.Select(c => new CategoryDetailDto

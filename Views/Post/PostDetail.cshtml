@@ -15,6 +15,7 @@
 List<where_we_go.DTO.ApplicantDto>();
 }
 
+
 @section Styles {
     <link rel="stylesheet" href="~/css/postdetail.css" asp-append-version="true" />
 
@@ -23,12 +24,16 @@ List<where_we_go.DTO.ApplicantDto>();
     <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/components/fabmenu.css" asp-append-version="true" />
+
 }
+
 
 <header>
     @await Component.InvokeAsync("Navbar")
 </header>
 
+@await Component.InvokeAsync("FabMenu")
 <div class="post-bg-container">
     <div class="post-container">
         <img class="post-thumbnail" src=@Model.PostImgURL alt="Thumbnail">

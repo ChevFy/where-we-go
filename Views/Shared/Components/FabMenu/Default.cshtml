@@ -1,0 +1,19 @@
+@{
+    var isAuthenticated = ViewBag.IsAuth ?? false;
+}
+
+@if (isAuthenticated)
+{
+    <div class="fab-container">
+        <a asp-controller="Home" asp-action="Index" class="fab-link fab-home">
+            <img src="~/images/home.svg" alt="Home" class="fab-icon" />
+        </a>
+        <a asp-controller="Post" asp-action="PostCreate" class="fab-link fab-add">
+            <img src="~/images/add.svg" alt="Add Post" class="fab-icon" />
+        </a>
+        <a asp-controller="Notification" asp-action="Index" class="fab-link fab-notification">
+            <img src="~/images/notification.svg" style="width: 50px; height: 50px;" alt="Notifications" class="fab-icon" />
+        </a>
+    </div>
+}
+

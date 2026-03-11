@@ -138,6 +138,32 @@
     transition: ease-out 0.2s;
 }
 
+.nav-link-notification {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+}
+
+.nav-badge {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background-color: #ff4d4f;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-badge-label {
+    font-size: 0.75rem;
+    color: #ffffff;
+}
+
 .login-container {
     display: flex;
     align-items: center;

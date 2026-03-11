@@ -193,6 +193,16 @@
     color: #8a4100;
 }
 
+.notification-type-owner {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.notification-type-member {
+    background-color: rgba(3, 4, 94, 0.12);
+    color: var(--option-color);
+}
+
 .notification-date {
     font-size: var(--font-size-small);
     color: #888;

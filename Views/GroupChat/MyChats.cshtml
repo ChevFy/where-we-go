@@ -1,0 +1,75 @@
+@model List<where_we_go.DTO.GroupChatListItemDto>
+
+@{
+    ViewData["Title"] = "My Chats";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <style>
+        .notification-link, .notification-link:hover { text-decoration: none; }
+    </style>
+    <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/fabmenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/notification.css" asp-append-version="true" />
+}
+
+@section Scripts
+{
+    <script src="~/js/notification.js" asp-append-version="true"></script>
+}
+
+<header>
+    @await Component.InvokeAsync("Navbar")
+</header>
+
+@await Component.InvokeAsync("FabMenu")
+
+<div class="noti-container">
+    <h1 style="color: var(--primary-color); margin-bottom: 20px;">Chats Joined</h1>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="no-notifications">
+            <p>You haven't joined any chats yet</p>
+            <a asp-controller="Home" asp-action="Index" class="page-nav-btn">Browse activities</a>
+        </div>
+    }
+    else
+    {
+        <div class="notifications-list">
+            @foreach (var chat in Model)
+            {
+                <div class="notification-item unread hidden" data-type="Chat">
+                    <div class="notification-content">
+                        <div class="notification-header">
+                            <span class="notification-type @(chat.is_owner ? "notification-type-owner" : "notification-type-member")">
+                                @(chat.is_owner ? "Activity owner" : "Participant")
+                            </span>
+                        </div>
+                        <p class="notification-text">Chat: @chat.name</p>
+                        <a asp-controller="Post"
+                           asp-action="PostDetail"
+                           asp-route-id="@chat.post_id"
+                           class="notification-link"
+                           style="text-decoration: none;"
+                           >
+                            View activity details →
+                        </a>
+                    </div>
+
+                    <a asp-controller="GroupChat"
+                       asp-action="Chat"
+                       asp-route-group_chat_id="@chat.group_chat_id"
+                       class="mark-read-btn"
+                       style="text-decoration: none;"
+                       >
+                        Enter chat
+                    </a>
+                </div>
+            }
+        </div>
+    }
+</div>
+

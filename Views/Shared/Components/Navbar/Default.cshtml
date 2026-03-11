@@ -19,6 +19,13 @@
                         <a asp-controller="Post" asp-action="PostCreate" class="nav-link">สร้างกิจกรรม</a>
                     </li>
                     <li class="nav-item">
+                        <a asp-controller="GroupChat"
+                           asp-action="MyChats"
+                           class="nav-link">
+                            แชทของฉัน
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a asp-controller="Notification"
                            asp-action="Index"
                            class="nav-link nav-link-notification">
@@ -40,6 +47,7 @@
                     items = new List<where_we_go.ViewComponents.NavItem> {
                         new() { Text = "หน้าแรก", Href = "/" },
                         new() { Text = "สร้างกิจกรรม", Href = "/Post/PostCreate" },
+                        new() { Text = "แชทของฉัน", Href = "/GroupChat/MyChats" },
                         new() {
                             Text = (ViewBag.UnReadCount is int unRead && unRead > 0)
                                 ? $"แจ้งเตือน ({unRead})"

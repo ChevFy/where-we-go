@@ -107,6 +107,12 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
             return Unauthorized();
         }
 
+        if (DateTime.UtcNow > post.DateDeadline)
+        {
+            TempData["AlertMessage"] = "Error: Cannot edit a post after its deadline has passed.";
+            return RedirectToAction("PostDetail", "Post", new { id = id });
+        }
+
         ViewBag.Categories = dbContext.Categories
             .Select(c => new CategorySelectDto
             {

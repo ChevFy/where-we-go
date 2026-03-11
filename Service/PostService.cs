@@ -297,6 +297,12 @@ namespace where_we_go.Service
                 return false; // Post not found or user is not the owner
             }
 
+            // Block update if deadline has already passed
+            if (DateTime.UtcNow > post.DateDeadline)
+            {
+                return false;
+            }
+
             // Check current approved participant count
             var approvedCount = await _dbContext.Participants
                 .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);

@@ -16,6 +16,7 @@
 
     @* Import component css *@
     <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/fabmenu.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
@@ -51,11 +52,7 @@
 
 @if (isAuthenticated)
 {
-    <div class="fab-container">
-        <a asp-controller="Post" asp-action="PostCreate" class="fab-link">
-            <img src="~/images/add.svg" alt="Add Post" class="fab-icon" />
-        </a>
-    </div>
+    @await Component.InvokeAsync("FabMenu")
 }
 
 <div class="home-post-container" style="@(isAuthenticated ? "padding-top: 5rem;" : "")">
@@ -189,8 +186,8 @@
                         </div>
 
                         <div class="post-content-2">
-                            <p class="post-date">@post.DateDeadlineFormatted</p>
-                            <p class="event-date">@post.EventDateFormatted</p>
+                            <p class="post-date">📅 @post.DateDeadlineFormatted</p>
+                            <p class="event-date">🎉@post.EventDateFormatted</p>
                             <div class="post-participant" style="">
                                 @(post.CurrentParticipants + 1)/@(post.MaxParticipants + 1)
                             </div>

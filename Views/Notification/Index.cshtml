@@ -11,6 +11,7 @@
     @* Import component css *@
     <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/fabmenu.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/notification.css" asp-append-version="true" />
 }
 
@@ -22,6 +23,8 @@
 <header>
     @await Component.InvokeAsync("Navbar")
 </header>
+
+@await Component.InvokeAsync("FabMenu")
 
 <div class="noti-container">
     <h1 style="color: var(--primary-color); margin-bottom: 20px;">Notifications</h1>
@@ -101,3 +104,4 @@
         </div>
     }
 </div>
+

@@ -196,8 +196,8 @@ namespace where_we_go.Service
                     .FirstOrDefaultAsync()
             };
 
-            // if the current user is joined but there is no chat yet, create one lazily
-            if (result.IsJoined && result.ChatId == null)
+            // if the current user is joined OR is the owner, but there is no chat yet, create one lazily
+            if ((result.IsJoined || (currentUserId != null && currentUserId == post.UserId)) && result.ChatId == null)
             {
                 var newChat = new GroupChat
                 {

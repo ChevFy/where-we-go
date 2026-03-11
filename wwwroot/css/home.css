@@ -247,36 +247,6 @@
 .auth-padding {
   padding-top: 5rem;
 }
-
-.fab-container {
-  position: fixed;
-  bottom: 40px;
-  right: 5%;
-  z-index: 1000;
-}
-
-.fab-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 60px;
-  height: 60px;
-  background-color: var(--primary-color);
-  border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s;
-}
-
-.fab-icon {
-  width: 30px;
-  height: 30px;
-  filter: brightness(0) invert(1);
-}
-
-.fab-link:hover {
-  transform: scale(1.1);
-}
-
 .no-posts-message {
   text-align: center;
   padding: 4rem 2rem;

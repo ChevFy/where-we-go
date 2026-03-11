@@ -72,6 +72,11 @@ namespace where_we_go.Service
             return (result, unReadCount);
         }
 
+        public Task<int> GetUnreadCountByUserIdAsync(string userId)
+        {
+            return _dbContext.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
+        }
+
         public async Task<bool> UpdateNotificationReadStatusAsync(Guid notificationId, string userId, bool isRead)
         {
             var notification = await _dbContext.Notifications

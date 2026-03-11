@@ -12,18 +12,19 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
 
-  minio:
-    image: minio/minio:latest
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
-      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
-    volumes:
-      - minio_data:/data
-    command: server --address ":9001" --console-address ":9000" /data
+  # MinIO service is disabled because MinIO is not used in this environment.
+  # minio:
+  #   image: minio/minio:latest
+  #   ports:
+  #     - "9000:9000"
+  #     - "9001:9001"
+  #   environment:
+  #     MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+  #     MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+  #   volumes:
+  #     - minio_data:/data
+  #   command: server --address ":9001" --console-address ":9000" /data
 
 volumes:
   postgres_data:
-  minio_data:
+  # minio_data:

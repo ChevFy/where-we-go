@@ -44,7 +44,7 @@ public static class SeedData
     {
         if (userManager.Users.Any()) return;
 
-        foreach (var (userName, email, name, password, role) in SeedDataModels.Users.Data)
+        foreach (var (userName, email, name, password, role, profileImageKey) in SeedDataModels.Users.Data)
         {
             var user = new User
             {
@@ -52,6 +52,7 @@ public static class SeedData
                 Email = email,
                 Name = name,
                 EmailConfirmed = true,
+                ProfileImageKey = profileImageKey,
                 DateCreated = DateTime.UtcNow,
                 DateUpdated = DateTime.UtcNow
             };
@@ -94,7 +95,7 @@ public static class SeedData
 
         var categories = context.Categories.ToList();
 
-        foreach (var (title, description, location, daysDeadline, minPart, maxPart, inviteCode, categoryNames, ownerEmail, daysAgo) in SeedDataModels.Posts.Data)
+        foreach (var (title, description, location, daysDeadline, minPart, maxPart, inviteCode, categoryNames, ownerEmail, daysAgo, lat, lon, picture, minutesDeadline) in SeedDataModels.Posts.Data)
         {
             // Find the specific owner by email
             var author = users.FirstOrDefault(u => u.Email == ownerEmail);
@@ -103,7 +104,9 @@ public static class SeedData
             var postCategories = categories.Where(c => categoryNames.Contains(c.Name)).ToList();
 
             var dateCreated = DateTime.UtcNow.AddDays(-daysAgo);
-            var dateDeadline = dateCreated.AddDays(daysDeadline);
+            var dateDeadline = minutesDeadline.HasValue
+                ? dateCreated.AddMinutes(minutesDeadline.Value)
+                : dateCreated.AddDays(daysDeadline);
             var eventDate = dateDeadline.AddDays(1);
 
             context.Posts.Add(new Post
@@ -120,7 +123,10 @@ public static class SeedData
                 MaxParticipants = maxPart,
                 Status = PostStatus.Open,
                 InviteCode = inviteCode,
-                Categories = postCategories
+                Categories = postCategories,
+                LocationLat = (float)lat,
+                LocationLon = (float)lon,
+                PostImageKey = picture
             });
         }
 
@@ -131,14 +137,14 @@ public static class SeedData
     {
         if (context.Participants.Any()) return;
 
-        var posts = context.Posts.OrderBy(p => p.DateCreated).ToList();
+        var posts = context.Posts.ToList();
         var users = context.Users.ToList();
 
-        foreach (var (postIndex, userEmail, status, daysAgo) in SeedDataModels.Participants.Data)
+        foreach (var (inviteCode, userEmail, status) in SeedDataModels.Participants.Data)
         {
-            if (postIndex >= posts.Count) continue;
+            var post = posts.FirstOrDefault(p => p.InviteCode == inviteCode);
+            if (post == null) continue;
 
-            var post = posts[postIndex];
             var user = users.FirstOrDefault(u => u.Email == userEmail);
             if (user == null) continue;
 
@@ -148,7 +154,7 @@ public static class SeedData
                 PostId = post.PostId,
                 UserId = user.Id,
                 Status = status,
-                DateJoin = DateTime.UtcNow.AddDays(-daysAgo)
+                DateJoin = DateTime.UtcNow
             });
         }
 

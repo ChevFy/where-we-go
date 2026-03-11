@@ -179,9 +179,14 @@ namespace where_we_go.Service
 
             if (string.IsNullOrWhiteSpace(key))
             {
-                key =  "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
+                key = "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
             }
-            if (Uri.IsWellFormedUriString(key, UriKind.Absolute)) 
+
+            // Handle local paths (starting with /)
+            if (key.StartsWith("/"))
+                return key;
+
+            if (Uri.IsWellFormedUriString(key, UriKind.Absolute))
                 return key;
 
             return await this.GetPresignedUrlAsync(
@@ -198,9 +203,14 @@ namespace where_we_go.Service
 
             if (string.IsNullOrWhiteSpace(key))
             {
-                key =  "https://nftcalendar.io/storage/uploads/2021/11/30/screenshot_-_30_11_2021___15_14_00_1130202114142561a631c12a4aa.jpg";
+                key = "https://nftcalendar.io/storage/uploads/2021/11/30/screenshot_-_30_11_2021___15_14_00_1130202114142561a631c12a4aa.jpg";
             }
-            if (Uri.IsWellFormedUriString(key, UriKind.Absolute)) 
+
+            // Handle local paths (starting with /)
+            if (key.StartsWith("/"))
+                return key;
+
+            if (Uri.IsWellFormedUriString(key, UriKind.Absolute))
                 return key;
 
             return await this.GetPresignedUrlAsync(

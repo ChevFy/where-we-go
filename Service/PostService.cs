@@ -11,7 +11,7 @@ namespace where_we_go.Service
     {
         private PostStatus GetPostStatus(Post post)
         {
-            // 1. Check for manual/explicit states first
+            // 1. Check for manual/explicit Cancelled
             if (post.Status == PostStatus.Cancelled)
                 return PostStatus.Cancelled;
 
@@ -20,19 +20,41 @@ namespace where_we_go.Service
 
             var now = DateTime.UtcNow;
 
-            // 2. Check time-based states
+            // 2. Check EventDate - Closed and Full become Completed
             if (now > post.EventDate)
                 return PostStatus.Completed;
 
+            // 3. Check DateDeadline logic
             if (now > post.DateDeadline)
-                return PostStatus.Closed;
+            {
+                // If Open: close immediately, then cancel 1+ hour after deadline
+                if (post.Status == PostStatus.Open)
+                {
+                    var timeSinceDeadline = now - post.DateDeadline;
+                    if (timeSinceDeadline.TotalHours >= 1)
+                        return PostStatus.Cancelled;
+                    else
+                        return PostStatus.Closed;
+                }
 
-            // 3. Check capacity-based states
-            var participantCount = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved);
-            if (participantCount >= post.MaxParticipants)
-                return PostStatus.Full;
+                // If already Closed, stay Closed (will become Completed when EventDate passes)
+                if (post.Status == PostStatus.Closed)
+                    return PostStatus.Closed;
 
-            // 4. Default state
+                // Ignore Full status
+                if (post.Status == PostStatus.Full)
+                    return PostStatus.Full;
+            }
+
+            // 4. Check capacity-based states (before deadline)
+            if (now <= post.DateDeadline)
+            {
+                var participantCount = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved);
+                if (participantCount >= post.MaxParticipants)
+                    return PostStatus.Full;
+            }
+
+            // 5. Default state
             return PostStatus.Open;
         }
 

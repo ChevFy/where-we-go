@@ -12,21 +12,21 @@ using where_we_go.Service;
 namespace where_we_go.Controllers;
 
 [Authorize]
-public class GroupChatController : Controller
-{
-    private readonly AppDbContext _context;
-    private readonly UserManager<User> _userManager;
-    private readonly IFileService _fileService;
-
-    public GroupChatController(
-        AppDbContext context,
-        UserManager<User> userManager,
-        IFileService fileService)
+    public class GroupChatController : Controller
     {
-        _context = context;
-        _userManager = userManager;
-        _fileService = fileService;
-    }
+        private readonly AppDbContext _context;
+        private readonly UserManager<User> _userManager;
+        private readonly IFileService _fileService;
+
+        public GroupChatController(
+            AppDbContext context,
+            UserManager<User> userManager,
+            IFileService fileService)
+        {
+            _context = context;
+            _userManager = userManager;
+            _fileService = fileService;
+        }
 
     public async Task<IActionResult> Chat(Guid group_chat_id)
     {
@@ -42,12 +42,20 @@ public class GroupChatController : Controller
         if (groupchat == null)
             return NotFound();
 
-        var isMember = await _context.Participants
-            .AnyAsync(p => p.PostId == groupchat.PostId
-                           && p.UserId == current_user.Id
-                           && p.Status == Models.Enums.ParticipantStatus.Approved);
-        if (!isMember)
-            return Forbid();
+        // Owner of the post should always be able to see the chat,
+        // even if they are not in Participants table.
+        var post = await _context.Posts.FindAsync(groupchat.PostId);
+        var isOwner = post != null && post.UserId == current_user.Id;
+
+        if (!isOwner)
+        {
+            var isMember = await _context.Participants
+                .AnyAsync(p => p.PostId == groupchat.PostId
+                               && p.UserId == current_user.Id
+                               && p.Status == Models.Enums.ParticipantStatus.Approved);
+            if (!isMember)
+                return Forbid();
+        }
 
         var messages = new List<MessageDto>();
         foreach (var m in groupchat.ChatMessages.OrderBy(m => m.SentAt))
@@ -76,9 +84,54 @@ public class GroupChatController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize]
-    public Task<IActionResult> SendMessage(Guid group_chat_id, string message)
+    public async Task<IActionResult> SendMessage(Guid group_chat_id, string message)
     {
-        return Task.FromResult<IActionResult>(RedirectToAction("Chat", new { group_chat_id }));
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return RedirectToAction("Chat", new { group_chat_id });
+        }
+
+        var current_user = await _userManager.GetUserAsync(User);
+        if (current_user == null)
+        {
+            return Unauthorized();
+        }
+
+        var groupchat = await _context.GroupChats.FindAsync(group_chat_id);
+        if (groupchat == null)
+        {
+            return NotFound();
+        }
+
+        var post = await _context.Posts.FindAsync(groupchat.PostId);
+        var isOwner = post != null && post.UserId == current_user.Id;
+
+        if (!isOwner)
+        {
+            var isMember = await _context.Participants
+                .AnyAsync(p => p.PostId == groupchat.PostId
+                               && p.UserId == current_user.Id
+                               && p.Status == Models.Enums.ParticipantStatus.Approved);
+            if (!isMember)
+            {
+                return Forbid();
+            }
+        }
+
+        var msg = new ChatMessage
+        {
+            MessageId = Guid.NewGuid(),
+            GroupChatId = group_chat_id,
+            UserId = current_user.Id,
+            Message = message,
+            SentAt = DateTime.UtcNow
+        };
+
+        _context.ChatMessages.Add(msg);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction("Chat", new { group_chat_id });
     }
 }

@@ -2,7 +2,9 @@
 .chat-page {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    padding-top: 3.5em;
+    height:100vh;
+    box-sizing: border-box;
     /*max-width: 800px; */
     border: 1px solid #ddd;
 }

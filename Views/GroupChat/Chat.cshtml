@@ -23,8 +23,6 @@
 
 
 <div class="chat-page">
-
-
     @* <div class="chat-header">
         <h2>@Model.name Chat</h2> 
     </div> *@
@@ -65,6 +63,7 @@
 
     <div class="chat-input">
         <form asp-action="SendMessage" asp-controller="GroupChat" method="post" style="display:flex; width:100%">
+            @Html.AntiForgeryToken()
             <input type="hidden" name="group_chat_id" value="@Model.group_chat_id" />
             <input type="text" name="message" placeholder="Type your message..." required style="flex:1;" />
             <button type="submit" class="btn" style="margin-left:.5rem;">Send</button>
@@ -74,88 +73,17 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.0/signalr.min.js" integrity="sha512-ZqjBuyHOJ5inr58y0trfRo8TgD0zC0WJROOUmgjAIA6iiqXxobgj3ZocloB2Wp9ov2+LB9UM09aiwI3MDpm5HA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         (function() {
-            const chatId = '@Model.group_chat_id';
-            const currentUserId = '@Model.current_user_id';
             const messagesDiv = document.querySelector('.chat-messages');
-            const form = document.querySelector('.chat-input form');
-            const input = form.querySelector('input[name="message"]');
 
             // convert server-rendered UTC times to local
             document.querySelectorAll('.message-time[data-utc]').forEach(function(el) {
-                el.textContent = new Date(el.dataset.utc).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                el.textContent = new Date(el.dataset.utc).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
             });
 
             // scroll to bottom on load
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-
-            const connection = new signalR.HubConnectionBuilder()
-                .withUrl('/chathub')
-                .withAutomaticReconnect()
-                .build();
-
-            connection.on('ReceiveMessage', function(message) {
-                message.is_me = (message.user_id === currentUserId);
-                appendMessage(message);
-            });
-
-            connection.start().then(function() {
-                return connection.invoke('JoinGroup', chatId);
-            }).catch(function(err) {
-                console.error(err.toString());
-            });
-
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const msg = input.value.trim();
-                if (!msg) return;
-                connection.invoke('SendMessage', chatId, msg).catch(function(err) {
-                    console.error(err.toString());
-                });
-                input.value = '';
-            });
-
-            function appendMessage(m) {
-                const row = document.createElement('div');
-                row.className = 'message-row ' + (m.is_me ? 'me' : 'other');
-
-                const bubble = document.createElement('div');
-                bubble.className = 'message-bubble';
-
-                const textDiv = document.createElement('div');
-                textDiv.className = 'message-text';
-                textDiv.textContent = m.message;
-
-                bubble.appendChild(textDiv);
-
-                if (m.is_me) {
-                    row.appendChild(bubble);
-                } else {
-                    const avatar = document.createElement('img');
-                    avatar.className = 'chat-avatar';
-                    avatar.src = m.sender_avatar || 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
-                    avatar.alt = m.sender_name;
-
-                    const timeDiv = document.createElement('div');
-                    timeDiv.className = 'message-time';
-                    const utc = m.sent_at.endsWith('Z') ? m.sent_at : m.sent_at + 'Z';
-                    timeDiv.textContent = new Date(utc).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    bubble.appendChild(timeDiv);
-
-                    const content = document.createElement('div');
-                    content.className = 'message-content';
-                    const senderDiv = document.createElement('div');
-                    senderDiv.className = 'sender';
-                    senderDiv.textContent = m.sender_name;
-                    content.appendChild(senderDiv);
-                    content.appendChild(bubble);
-                    row.appendChild(avatar);
-                    row.appendChild(content);
-                }
-
-                messagesDiv.appendChild(row);
+            if (messagesDiv) {
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
             }
         })();

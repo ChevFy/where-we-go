@@ -47,10 +47,8 @@ namespace where_we_go
 
             builder.Services.AddScoped<INotificationService, NotificationService>();
 
-            // add SignalR for real-time chat
-            builder.Services.AddSignalR();
-
-            builder.Services.AddHostedService<MinioInitializationService>();
+            // MinIO initialization is disabled because MinIO is not used.
+            // builder.Services.AddHostedService<MinioInitializationService>();
 
             builder.Services.AddHostedService<CronService>();
 
@@ -86,9 +84,6 @@ namespace where_we_go
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
-
-            // map SignalR hub
-            app.MapHub<where_we_go.Hubs.ChatHub>("/chathub");
 
             app.Run();
         }

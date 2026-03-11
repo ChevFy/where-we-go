@@ -46,7 +46,7 @@ namespace where_we_go.Service
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
-            var now = DateTime.UtcNow;
+            var now = DateTime.Now;
 
             var expiredPosts = await dbContext.Posts
                 .Include(p => p.Participants)

@@ -580,7 +580,7 @@ function renderPostDetail(post) {
 }
 
 function deletePostFromModal() {
-    if (!state.currentPostDetailId || !confirm('Are you sure you want to delete this post?')) return;
+    if (!state.currentPostDetailId || !confirm('Are you sure you want to cancel this post?')) return;
 
     fetch(`/admin/posts/${state.currentPostDetailId}/delete`, {
         method: 'POST',
@@ -590,7 +590,7 @@ function deletePostFromModal() {
         if (response.ok) {
             closePostDetailModal();
             loadPosts(state.currentPostPage, state.currentPostPageSize);
-            alert('Post deleted successfully!');
+            alert('Post cancelled successfully!');
         } else {
             response.text().then(text => alert('Error: ' + text));
         }

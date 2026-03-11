@@ -9,6 +9,7 @@
 
     @* Import component css *@
     <link rel="stylesheet" href="~/css/components/navbar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/fabmenu.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/mainbutton.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/hamburgermenu.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components/footer.css" asp-append-version="true" />
@@ -17,6 +18,8 @@
 <header>
     @await Component.InvokeAsync("Navbar")
 </header>
+
+@await Component.InvokeAsync("FabMenu")
 
 <div class="profile-layout">
     @await Html.PartialAsync("_UserProfileSidebar", Model)

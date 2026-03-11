@@ -1,6 +1,4 @@
 
-using System.Security.Claims;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,11 +8,15 @@ using where_we_go.Service;
 
 namespace where_we_go.ViewComponents
 {
-    public class NavbarViewComponent(UserManager<User> userManager, IFileService fileService) : ViewComponent
+    public class NavbarViewComponent(
+        UserManager<User> userManager,
+        IFileService fileService,
+        INotificationService notificationService) : ViewComponent
     {
 
         private UserManager<User> _userManager { get; init; } = userManager;
         private IFileService _fileService { get; init; } = fileService;
+        private INotificationService _notificationService { get; init; } = notificationService;
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
@@ -26,6 +28,9 @@ namespace where_we_go.ViewComponents
             var user = await _userManager.GetUserAsync(userPrincipal);
             if (user == null)
                 return View(null);
+
+            var unReadCount = await _notificationService.GetUnreadCountByUserIdAsync(user.Id);
+            ViewBag.UnReadCount = unReadCount;
 
             var role = (await _userManager.GetRolesAsync(user)).ToArray();
 

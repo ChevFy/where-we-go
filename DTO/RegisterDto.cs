@@ -4,6 +4,10 @@ namespace where_we_go.DTO
 {
     public class RegisterDto
     {
+        [Required(ErrorMessage = "Username is required")]
+        [StringLength(50, MinimumLength = 3, ErrorMessage = "Username must be between 3 and 50 characters")]
+        public string UserName { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "Name is required")]
         [StringLength(100, MinimumLength = 1, ErrorMessage = "Name must be between 1 and 100 characters")]
         public string Name { get; set; } = string.Empty;

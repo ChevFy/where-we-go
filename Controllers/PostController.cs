@@ -127,7 +127,7 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
             EventDate = post.EventDate.Date,
             EventTime = TimeOnly.FromDateTime(post.EventDate),
             MinParticipants = post.MinParticipants,
-            MaxParticipants = post.MaxParticipants,
+            MaxParticipants = post.MaxParticipants + 1, // display as max total people (owner + participants)
             PostImgkey = post.PostImageKey,
             CategoryIds = post.Categories.Select(c => c.CategoryId).ToList(),
             Categories = post.Categories.Select(c => new CategoryDetailDto { CategoryId = c.CategoryId, Name = c.Name }).ToList()

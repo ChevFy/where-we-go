@@ -140,32 +140,15 @@ namespace where_we_go.Service
             if (post == null)
                 return null;
 
-            List<Participant> participants;
-
-            if (!string.IsNullOrEmpty(currentUserId))
-            {
-
-                participants = await _dbContext.Participants
-                   .Include(part => part.User)
-                   .Where(part => part.PostId == post.PostId && (
-                    part.Status == ParticipantStatus.Approved ||
-                    part.Status == ParticipantStatus.Pending ||
-                    part.Status == ParticipantStatus.Withdrawn ||
-                    part.Status == ParticipantStatus.Rejected))
-                   .ToListAsync();
-            }
-            else
-            {
-                participants = await _dbContext.Participants
-                   .Include(part => part.User)
-                   .Where(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved)
-                   .ToListAsync();
-
-            }
-
+            // For public display, "current participants" should mean APPROVED participants only.
+            // Owner-side management uses GetPostApplicantsAsync for other statuses.
+            var approvedParticipants = await _dbContext.Participants
+                .Include(part => part.User)
+                .Where(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved)
+                .ToListAsync();
 
             var participantDetails = new List<ParticipantDetailDto>();
-            foreach (var part in participants)
+            foreach (var part in approvedParticipants)
             {
                 participantDetails.Add(new ParticipantDetailDto
                 {
@@ -189,7 +172,7 @@ namespace where_we_go.Service
                 Status = GetPostStatus(post).ToString(),
                 Locationlat = post.LocationLat ?? 0f,
                 Locationlon = post.LocationLon ?? 0f,
-                CurrentParticipants = participants.Count,
+                CurrentParticipants = approvedParticipants.Count,
                 MaxParticipants = post.MaxParticipants,
                 CurrentParticipantsDetail = participantDetails,
                 Categories = post.Categories.Select(c => new CategoryDetailDto
@@ -207,8 +190,30 @@ namespace where_we_go.Service
                     ProfileImgURL = owner != null ? await _fileService.GeneratePresignedProfileUrlAsync(owner.ProfileImageKey) : null
                 },
                 IsJoined = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Approved),
-                IsPending = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Pending)
+                IsPending = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Pending),
+                IsRejected = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Rejected),
+                IsWithdrawn = currentUserId != null && _dbContext.Participants.Any(part => part.PostId == post.PostId && part.UserId == currentUserId && part.Status == ParticipantStatus.Withdrawn),
+                ChatId = await _dbContext.GroupChats
+                    .Where(g => g.PostId == post.PostId)
+                    .Select(g => (Guid?)g.GroupChatId)
+                    .FirstOrDefaultAsync()
             };
+
+            // if the current user is joined but there is no chat yet, create one lazily
+            if (result.IsJoined && result.ChatId == null)
+            {
+                var newChat = new GroupChat
+                {
+                    GroupChatId = Guid.NewGuid(),
+                    PostId = post.PostId,
+                    GroupChatName = post.Title
+                };
+                _dbContext.GroupChats.Add(newChat);
+                await _dbContext.SaveChangesAsync();
+                result.ChatId = newChat.GroupChatId;
+            }
+
+            return result;
         }
 
         public async Task CreatePostAsync(PostCreateDto dto, string userId)
@@ -235,7 +240,7 @@ namespace where_we_go.Service
                 EventDate = eventDate,
 
                 MinParticipants = dto.MinParticipants,
-                MaxParticipants = dto.MaxParticipants,
+                MaxParticipants = Math.Max(1, dto.MaxParticipants - 1), // -1 because owner counts; stored value = participant slots
 
                 DateCreated = DateTime.UtcNow,
 
@@ -280,9 +285,9 @@ namespace where_we_go.Service
             var approvedCount = await _dbContext.Participants
                 .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
 
-            // Validate max participants against current approved count
-
-            if (dto.MaxParticipants < approvedCount)
+            // Validate max participants against current approved count (stored max = dto.MaxParticipants - 1 because owner counts)
+            var storedMax = Math.Max(1, dto.MaxParticipants - 1);
+            if (storedMax < approvedCount)
             {
                 throw new InvalidOperationException($"Cannot set maximum participants below current approved count ({approvedCount}).");
             }
@@ -301,7 +306,7 @@ namespace where_we_go.Service
             post.DateDeadline = dateDeadline;
             post.EventDate = eventDate;
             post.MinParticipants = dto.MinParticipants;
-            post.MaxParticipants = dto.MaxParticipants;
+            post.MaxParticipants = storedMax; // -1 because owner counts
 
             // Update categories
             post.Categories.Clear();
@@ -379,25 +384,7 @@ namespace where_we_go.Service
                 if (existingParticipant.Status == ParticipantStatus.Approved) return "You have already joined this activity.";
                 if (existingParticipant.Status == ParticipantStatus.Pending) return "Your request is already pending.";
                 if (existingParticipant.Status == ParticipantStatus.Rejected) return "Your previous request was rejected.";
-
-                if (existingParticipant.Status == ParticipantStatus.Withdrawn) // Changed from Left to Withdrawn
-                {
-                    existingParticipant.Status = ParticipantStatus.Pending;
-                    existingParticipant.DateJoin = DateTime.UtcNow;
-                    await _dbContext.SaveChangesAsync();
-
-                    // TODO: Notify owner here
-                    await _notificationService.CreateNotificationAsync(new NotificationCreateDto
-                    {
-                        UserId = post.UserId,
-                        PostId = post.PostId,
-                        Content = $"{user.UserName ?? user.Name ?? "A user"} has requested to join your activity.",
-                        Link = $"/Post/PostDetail/{post.PostId}",
-                        Type = NotificationType.ParticipantRequested
-                    });
-
-                    return "Pending";
-                }
+                if (existingParticipant.Status == ParticipantStatus.Withdrawn) return "You cannot rejoin this activity after withdrawing.";
             }
 
             // New participant ALWAYS goes to pending
@@ -447,25 +434,31 @@ namespace where_we_go.Service
         public async Task<string> LeavePostAsync(Guid postId, string userId)
         {
             var participant = await _dbContext.Participants
+                .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.PostId == postId &&
                                           p.UserId == userId &&
-                                          p.Status == ParticipantStatus.Approved);
+                                          (p.Status == ParticipantStatus.Approved || p.Status == ParticipantStatus.Pending));
 
             if (participant == null) return "You are not a member of this activity.";
 
-            participant.Status = ParticipantStatus.Withdrawn; // Changed from Left to Withdrawn
+            var wasApproved = participant.Status == ParticipantStatus.Approved;
+            participant.Status = ParticipantStatus.Withdrawn;
 
             await _dbContext.SaveChangesAsync();
 
-            // TODO: Notify owner here
             var post = await _dbContext.Posts.FindAsync(postId);
             if (post != null)
             {
+                var displayName = participant.User?.Name ?? participant.User?.UserName ?? "A user";
+                var content = wasApproved
+                    ? $"{displayName} left your activity."
+                    : $"{displayName} withdrew their request to join.";
+
                 await _notificationService.CreateNotificationAsync(new NotificationCreateDto
                 {
                     UserId = post.UserId,
                     PostId = post.PostId,
-                    Content = $"{participant.User.Name} left your activity.",
+                    Content = content,
                     Link = $"/Post/PostDetail/{post.PostId}",
                     Type = NotificationType.ParticipantWithdrawn
                 });
@@ -601,8 +594,8 @@ namespace where_we_go.Service
                 return "Participant not found or not approved.";
             }
 
-            // Set status to Withdrawn
-            participant.Status = ParticipantStatus.Withdrawn;
+            // Set status to Rejected (user was removed by owner, not voluntary withdrawal)
+            participant.Status = ParticipantStatus.Rejected;
             await _dbContext.SaveChangesAsync();
 
             // Notify the removed participant
@@ -612,7 +605,7 @@ namespace where_we_go.Service
                 PostId = postId,
                 Content = $"You have been removed from the activity '{post.Title}'.",
                 Link = $"/Post/PostDetail/{post.PostId}",
-                Type = NotificationType.ParticipantWithdrawn
+                Type = NotificationType.ParticipantRejected
             });
 
             return "Success";

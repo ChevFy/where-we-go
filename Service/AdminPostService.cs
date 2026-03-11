@@ -204,7 +204,8 @@ namespace where_we_go.Service
                 return (false, "Participant not found");
             }
 
-            _dbContext.Participants.Remove(participant);
+            // Set status to Rejected (user was removed by admin, not voluntary withdrawal)
+            participant.Status = ParticipantStatus.Rejected;
             await _dbContext.SaveChangesAsync();
             return (true, null);
         }

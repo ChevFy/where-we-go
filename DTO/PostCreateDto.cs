@@ -43,7 +43,7 @@ namespace where_we_go.DTO
         public required int MinParticipants { get; set; }
 
         [Required]
-        [Range(1, int.MaxValue)]
+        [Range(2, int.MaxValue, ErrorMessage = "Max people must be at least 2 (including you as owner).")]
         [MinMaxValidation("MinParticipants", "MaxParticipants")]
         public required int MaxParticipants { get; set; }
 

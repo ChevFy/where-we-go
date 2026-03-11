@@ -78,6 +78,8 @@ namespace where_we_go.DTO
         public required ParticipantDetailDto Owner { get; set; }
         public bool IsJoined { get; set; }
         public bool IsPending { get; set; }
+        public bool IsRejected { get; set; }
+        public bool IsWithdrawn { get; set; }
 
         // group chat associated with this activity (nullable until created)
         public Guid? ChatId { get; set; }

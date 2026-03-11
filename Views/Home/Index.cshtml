@@ -1,4 +1,4 @@
-﻿@model where_we_go.DTO.PaginatedResponseDto<where_we_go.Models.PostDto>
+@model where_we_go.DTO.PaginatedResponseDto<where_we_go.Models.PostDto>
 
 @{
     ViewData["Title"] = "Home Page";
@@ -199,7 +199,7 @@
                     <div class="post-content-2">
                         <p class="post-date">@post.DateDeadlineFormatted</p>
                         <div class="post-participant" style=""> 
-                                @post.CurrentParticipants/@post.MaxParticipants
+                                @(post.CurrentParticipants + 1)/@(post.MaxParticipants + 1)
                         </div>
                         <p class="event-date">@post.EventDateFormatted</p>
                     </div>

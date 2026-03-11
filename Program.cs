@@ -50,7 +50,7 @@ namespace where_we_go
             // add SignalR for real-time chat
             builder.Services.AddSignalR();
 
-            builder.Services.AddHostedService<MinioInitializationService>();
+            //builder.Services.AddHostedService<MinioInitializationService>();
 
             builder.Services.AddHostedService<CronService>();
 

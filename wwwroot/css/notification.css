@@ -1,23 +1,45 @@
+@import url("site.css");
+
 .noti-container {
-    padding-top: 60px;
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
-    padding: 80px 20px 20px;
+    padding: 5rem 20px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.noti-container h1 {
+    align-self: flex-start;
+    width: 100%;
 }
 
 .filter-container {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    width: 100%;
 }
 
 .filter-btn {
     padding: 10px 20px;
-    background-color: white;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
+    background-color: var(--tertiary-color);
+    color: var(--option-color);
+    border: none;
+    border-radius: 25px;
     text-decoration: none;
     cursor: pointer;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background-color: var(--secondary-color);
+    color: white;
+    transform: translateY(-2px);
 }
 
 .filter-btn.active {
@@ -27,23 +49,44 @@
 
 .no-notifications {
     text-align: center;
-    padding: 40px;
+    padding: 4rem 2rem;
     color: var(--option-color);
+    font-size: 1.2rem;
 }
 
 .notifications-list {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    width: 100%;
 }
 
 .notification-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
-    background-color: white;
+    padding: 20px;
+    background-color: var(--tertiary-color);
     border-left: 4px solid var(--secondary-color);
+    border-radius: 15px;
+    transition: all 1.0s ease;
+}
+
+.notification-item.hidden
+{
+    opacity: 0;
+    transform: translateX(-100%);
+}
+
+.notification-item.show
+{
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification-item:hover {
+    transform: translateY(-2px);
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.15));
 }
 
 .notification-item.unread {
@@ -53,42 +96,36 @@
 
 .notification-item.read {
     border-left-color: #ccc;
+    background-color: white;
 }
 
 /* Color-coded notification types */
 .notification-item[data-type="ActivityCancelled"] {
     border-left-color: #dc3545;
-    /* Red for cancelled */
 }
 
 .notification-item[data-type="ParticipantRequested"] {
     border-left-color: #ffc107;
-    /* Amber for requests */
 }
 
 .notification-item[data-type="ParticipantApproved"] {
     border-left-color: #28a745;
-    /* Green for approved */
 }
 
 .notification-item[data-type="ParticipantRejected"] {
     border-left-color: #dc3545;
-    /* Red for rejected */
 }
 
 .notification-item[data-type="ParticipantWithdrawn"] {
     border-left-color: #6c757d;
-    /* Gray for withdrawn */
 }
 
 .notification-item[data-type="PostExpiredFull"] {
     border-left-color: #28a745;
-    /* Green for successful event */
 }
 
 .notification-item[data-type="PostExpiredNotFull"] {
     border-left-color: #fd7e14;
-    /* Orange for unsuccessful event */
 }
 
 .notification-content {
@@ -112,8 +149,8 @@
 
 .notification-type {
     font-size: var(--font-size-small);
-    padding: 4px 12px;
-    border-radius: 12px;
+    padding: 5px 12px;
+    border-radius: 25px;
     font-weight: 600;
     display: inline-block;
 }
@@ -173,12 +210,20 @@
 }
 
 .mark-read-btn {
-    padding: 8px 15px;
+    padding: 8px 18px;
     background-color: var(--secondary-color);
     color: white;
     border: none;
+    border-radius: 25px;
     cursor: pointer;
     font-family: 'Itim', cursive;
+    font-size: var(--font-size-small);
+    transition: all 0.2s ease;
+}
+
+.mark-read-btn:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-2px);
 }
 
 .read-label {
@@ -193,7 +238,8 @@
     align-items: center;
     margin-top: 30px;
     padding: 15px 0;
-    border-top: 1px solid var(--tertiary-color);
+    border-top: 2px solid var(--tertiary-color);
+    width: 100%;
 }
 
 .pagination-info {
@@ -208,15 +254,20 @@
 
 .page-nav-btn {
     padding: 8px 16px;
-    background-color: white;
+    background-color: var(--tertiary-color);
     color: var(--primary-color);
-    border: 1px solid var(--primary-color);
+    border: none;
+    border-radius: 25px;
     text-decoration: none;
     font-size: var(--font-size-small);
+    font-weight: 600;
+    transition: all 0.2s ease;
 }
 
 .page-nav-btn:hover {
-    background-color: var(--tertiary-color);
+    background-color: var(--secondary-color);
+    color: white;
+    transform: translateY(-2px);
 }
 
 .page-nav-btn.disabled {
@@ -225,10 +276,19 @@
 }
 
 @media (max-width: 768px) {
+    .noti-container {
+        padding: 4rem 15px 20px;
+    }
+
+    .filter-container {
+        flex-wrap: wrap;
+    }
+
     .notification-item {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
+        padding: 15px;
     }
 
     .mark-read-btn {

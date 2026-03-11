@@ -136,11 +136,11 @@ List<where_we_go.DTO.ApplicantDto>();
                                     }
                                     else if (applicant.Status.Equals("Approved", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        <form asp-controller="Post" asp-action="RemoveParticipantForm" method="post">
+                                        <form asp-controller="Post" asp-action="RejectApplicantForm" method="post">
                                             <input type="hidden" name="postId" value="@Model.PostId" />
                                             <input type="hidden" name="applicantId" value="@applicant.UserId" />
                                             <input type="hidden" name="status" value="@ownerFilterStatus" />
-                                            <button type="submit" class="row-action-btn remove">Remove</button>
+                                            <button type="submit" class="row-action-btn remove">Reject</button>
                                         </form>
                                     }
                                     else

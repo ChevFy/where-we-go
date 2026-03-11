@@ -52,7 +52,7 @@ List<where_we_go.DTO.ApplicantDto>();
         </div>
 
         <div class="post-population">
-            <p>👥 @Model.CurrentParticipants / @Model.MaxParticipants People</p>
+            <p>👥 @(Model.CurrentParticipants + 1) / @(Model.MaxParticipants + 1) People</p>
         </div>
         <div class="post-category">
             <ul>
@@ -215,7 +215,18 @@ List<where_we_go.DTO.ApplicantDto>();
                 }
                 else if (Model.IsPending)
                 {
-                    <button type="button" class="btn btn-secondary" disabled>Pending Approval</button>
+                    <form asp-action="LeavePost" asp-controller="Post" asp-route-id="@Model.PostId" method="post"
+                            onsubmit="return confirm('Withdraw your request to join this activity?');">
+                        <button type="submit" class="btn btn-danger">Withdraw Request</button>
+                    </form>
+                }
+                else if (Model.IsRejected)
+                {
+                    <button type="button" class="btn btn-secondary" disabled>Request Was Rejected</button>
+                }
+                else if (Model.IsWithdrawn)
+                {
+                    <button type="button" class="btn btn-secondary" disabled>Cannot Rejoin After Withdrawing</button>
                 }
                 else
                 {

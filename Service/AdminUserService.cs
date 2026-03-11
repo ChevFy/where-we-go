@@ -5,6 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 using where_we_go.Database;
 using where_we_go.DTO;
 using where_we_go.Models;
+using where_we_go.Models.Enums;
 
 namespace where_we_go.Service
 {
@@ -89,6 +90,21 @@ namespace where_we_go.Service
             user.BannedBy = bannedBy;
 
             await _userManager.UpdateAsync(user);
+
+            // Cancel all posts created by the banned user
+            var userPosts = await _dbContext.Posts
+                .Where(p => p.UserId == userId && p.Status != PostStatus.Cancelled)
+                .ToListAsync();
+
+            foreach (var post in userPosts)
+            {
+                post.Status = PostStatus.Cancelled;
+            }
+
+            if (userPosts.Any())
+            {
+                await _dbContext.SaveChangesAsync();
+            }
 
             _cache.Remove($"user_ban_status_{userId}");
 

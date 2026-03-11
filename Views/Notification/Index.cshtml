@@ -14,6 +14,11 @@
     <link rel="stylesheet" href="~/css/notification.css" asp-append-version="true" />
 }
 
+@section Scripts 
+{
+    <script src="~/js/notification.js" asp-append-version="true"></script>
+}
+
 <header>
     @await Component.InvokeAsync("Navbar")
 </header>
@@ -48,7 +53,7 @@
         <div class="notifications-list">
             @foreach (var noti in Model.Data)
             {
-                <div class="notification-item @(noti.IsRead ? "read" : "unread")" data-type="@noti.Type">
+                <div class="notification-item @(noti.IsRead ? "read" : "unread") hidden" data-type="@noti.Type">
                     <div class="notification-content">
                         <div class="notification-header">
                             <span class="notification-type notification-type-@noti.Type">@noti.Type</span>

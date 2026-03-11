@@ -32,17 +32,17 @@
 @if (!isAuthenticated)
 {
     <div class="home-bg-container">
-        <div class="main-text">
+        <div class="main-text hidden">
             Where We Go
         </div>
-        <div class="sub-text">
+        <div class="sub-text hidden">
             <p>
                 เช็กอินความสุข บุกทุกพิกัดลับ
                 ให้ทุกการเดินทางมีความหมายมากกว่าที่เคยสัมผัส 
                 พร้อมเปิดวาร์ปสถานที่ใหม่ๆ
             </p>
         </div>
-        <a asp-controller="Auth" asp-action="Login">
+        <a asp-controller="Auth" asp-action="Login" class="btn-animate hidden">
             @await Component.InvokeAsync("MainButton", new { targetId = "started", buttonType = "submit", text = "เริ่มต้นใช้งาน" })   
         </a>
     </div>
@@ -167,7 +167,7 @@
         @foreach (var post in Model.Data)
         {
         <a asp-controller="Post" asp-action="PostDetail" asp-route-id="@post.PostId" class="post-link">
-            <div class="post-card">
+            <div class="post-card hidden">
                 <div class="post-img">
                     <img src=@post.PostImgURL alt="https://steamcdn-a.akamaihd.net/steam/apps/398970/header.jpg">
                 </div>
@@ -223,4 +223,6 @@
 
 @section Scripts {
     <script src="~/js/filter.js" asp-append-version="true"></script>
+    <script src="~/js/home.js" asp-append-version="true"></script>
+
 }

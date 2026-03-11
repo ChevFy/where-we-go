@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using where_we_go.DTO;
 using where_we_go.Models;
 using where_we_go.Service;
+using where_we_go.Service;
 using Microsoft.AspNetCore.Identity;
 
 namespace where_we_go.Hubs;
@@ -9,25 +10,12 @@ namespace where_we_go.Hubs;
 public class ChatHub : Hub
 {
     private readonly UserManager<User> _userManager;
-    private readonly IChatService _chatService;
+    private readonly IFileService _fileService;
 
-    public ChatHub(UserManager<User> userManager, IChatService chatService)
+    public ChatHub(AppDbContext db, UserManager<User> userManager, IFileService fileService)
     {
         _userManager = userManager;
-        _chatService = chatService;
-    }
-
-    // helpful debug logging so you can watch what the hub sees
-    public override Task OnConnectedAsync()
-    {
-        Console.WriteLine($"[ChatHub] Client connected: {Context.ConnectionId}");
-        return base.OnConnectedAsync();
-    }
-
-    public override Task OnDisconnectedAsync(Exception? exception)
-    {
-        Console.WriteLine($"[ChatHub] Client disconnected: {Context.ConnectionId} (exc={exception})");
-        return base.OnDisconnectedAsync(exception);
+        _fileService = fileService;
     }
 
     public async Task JoinGroup(Guid groupChatId)
@@ -54,18 +42,30 @@ public class ChatHub : Hub
         var isMember = await _chatService.IsUserMemberAsync(groupChatId, user.Id);
         if (!isMember) return;
 
-        var msg = await _chatService.CreateMessageAsync(groupChatId, user.Id, message);
+        var msg = new ChatMessage
+        {
+            MessageId = Guid.NewGuid(),
+            GroupChatId = groupChatId,
+            UserId = user.Id,
+            Message = message,
+            SentAt = DateTime.UtcNow
+        };
+        _db.ChatMessages.Add(msg);
+        await _db.SaveChangesAsync();
+
+        var avatarUrl = await _fileService.GeneratePresignedProfileUrlAsync(user.ProfileImageKey);
+
         var dto = new MessageDto
         {
             message_id = msg.MessageId,
             user_id = msg.UserId,
             sender_name = user.Name,
+            sender_avatar = avatarUrl,
             message = msg.Message,
             sent_at = msg.SentAt,
-            is_me = true
+            is_me = false
         };
 
-        
         await Clients.Group(groupChatId.ToString()).SendAsync("ReceiveMessage", dto);
     }
 }

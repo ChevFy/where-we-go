@@ -91,8 +91,10 @@ namespace where_we_go.Service
             }
             else
             {
-                // Exclude cancelled posts by default
-                posts = posts.Where(p => p.Status == PostStatus.Open);
+                if (!string.IsNullOrWhiteSpace(currentUserId))
+                {
+                    posts = posts.Where(p => p.Status != PostStatus.Cancelled || p.UserId == currentUserId);
+                }
             }
 
             // Sort by
@@ -144,6 +146,10 @@ namespace where_we_go.Service
             if (!string.IsNullOrWhiteSpace(userId) && query.StatusFilter == "open")
             {
                 posts = posts.Where(p => p.UserId != userId); // Exclude user's own posts from the general listing
+            }
+            else
+            {
+                query.StatusFilter = "open"; // Default to showing only open posts if no specific filter is provided
             }
 
             return await ApplyFiltersAndGetPaginatedPostsAsync(posts, query, userId);

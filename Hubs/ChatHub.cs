@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 using where_we_go.DTO;
 using where_we_go.Database;
 using where_we_go.Models;
+using where_we_go.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,11 +12,13 @@ public class ChatHub : Hub
 {
     private readonly AppDbContext _db;
     private readonly UserManager<User> _userManager;
+    private readonly IFileService _fileService;
 
-    public ChatHub(AppDbContext db, UserManager<User> userManager)
+    public ChatHub(AppDbContext db, UserManager<User> userManager, IFileService fileService)
     {
         _db = db;
         _userManager = userManager;
+        _fileService = fileService;
     }
 
     public async Task JoinGroup(Guid groupChatId)
@@ -55,17 +58,19 @@ public class ChatHub : Hub
         _db.ChatMessages.Add(msg);
         await _db.SaveChangesAsync();
 
+        var avatarUrl = await _fileService.GeneratePresignedProfileUrlAsync(user.ProfileImageKey);
+
         var dto = new MessageDto
         {
             message_id = msg.MessageId,
             user_id = msg.UserId,
             sender_name = user.Name,
+            sender_avatar = avatarUrl,
             message = msg.Message,
             sent_at = msg.SentAt,
-            is_me = true
+            is_me = false
         };
 
-        
         await Clients.Group(groupChatId.ToString()).SendAsync("ReceiveMessage", dto);
     }
 }

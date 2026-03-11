@@ -59,21 +59,21 @@ public static class SeedDataModels
         // (InviteCode, UserEmail, Status)
         public static readonly (string InviteCode, string UserEmail, ParticipantStatus Status)[] Data =
         [
-            // Post 0: Mountain Trip (InviteCode: TRIP01)
+            // Post 0: Mountain Trip (InviteCode: TRIP01) owner: opor
             ("TRIP01", "arnon@example.com", ParticipantStatus.Pending),
             ("TRIP01", "paaw@example.com", ParticipantStatus.Approved),
             ("TRIP01", "owen@example.com", ParticipantStatus.Approved),
             ("TRIP01", "zard@example.com", ParticipantStatus.Rejected),
             ("TRIP01", "wai@example.com", ParticipantStatus.Pending),
             
-            // Post 1: Cafe Hopping (InviteCode: CAFE02)
+            // Post 1: Cafe Hopping (InviteCode: CAFE02) owner: arnon
             ("CAFE02", "owen@example.com", ParticipantStatus.Approved),
             ("CAFE02", "zard@example.com", ParticipantStatus.Approved),
             ("CAFE02", "paaw@example.com", ParticipantStatus.Approved),
             ("CAFE02", "min@example.com", ParticipantStatus.Rejected),
             ("CAFE02", "sho@example.com", ParticipantStatus.Withdrawn),
             
-            // Post 2: Beach Day (InviteCode: BEACH3)
+            // Post 2: Beach Day (InviteCode: BEACH3) owner: paaw
             ("BEACH3", "wai@example.com", ParticipantStatus.Approved),
             ("BEACH3", "min@example.com", ParticipantStatus.Approved),
             ("BEACH3", "opor@example.com", ParticipantStatus.Approved),
@@ -83,7 +83,7 @@ public static class SeedDataModels
             ("BEACH3", "pluem@example.com", ParticipantStatus.Pending),
 
             
-            // Post 3: Concert Night (InviteCode: MUSIC4)
+            // Post 3: Concert Night (InviteCode: MUSIC4) owner: owen
             ("MUSIC4", "opor2@example.com", ParticipantStatus.Pending),
             ("MUSIC4", "opor@example.com", ParticipantStatus.Pending),
             ("MUSIC4", "arnon@example.com", ParticipantStatus.Pending),
@@ -93,7 +93,7 @@ public static class SeedDataModels
             ("MUSIC4", "min@example.com", ParticipantStatus.Pending),
             ("MUSIC4", "chevfy@example.com", ParticipantStatus.Pending),
             
-            // Post 4: Shopping Spree (InviteCode: SHOP05)
+            // Post 4: Shopping Spree (InviteCode: SHOP05) owner: zard
             ("SHOP05", "chevfy@example.com", ParticipantStatus.Pending),
             ("SHOP05", "opor@example.com", ParticipantStatus.Pending),
             ("SHOP05", "arnon@example.com", ParticipantStatus.Pending),
@@ -101,12 +101,12 @@ public static class SeedDataModels
             ("SHOP05", "owen@example.com", ParticipantStatus.Pending),
             ("SHOP05", "wai@example.com", ParticipantStatus.Pending),
             
-            // Post 5: Street Food Tour (InviteCode: FOOD06)
+            // Post 5: Street Food Tour (InviteCode: FOOD06) owner: wai
             ("FOOD06", "opor@example.com", ParticipantStatus.Approved),
             ("FOOD06", "arnon@example.com", ParticipantStatus.Approved),
             ("FOOD06", "paaw@example.com", ParticipantStatus.Approved),
             ("FOOD06", "owen@example.com", ParticipantStatus.Approved),
-            // Post 6: Waterfall Trekking (InviteCode: TREK07)
+            // Post 6: Waterfall Trekking (InviteCode: TREK07) owner: min
             
             // Post 7: Movie Marathon (InviteCode: MOVIE8)
             

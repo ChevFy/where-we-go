@@ -11,55 +11,62 @@ namespace where_we_go.Service
     {
         private PostStatus GetPostStatus(Post post)
         {
-            // 1. Check for manual/explicit Cancelled
+            // 1. If manually cancelled by host, keep it cancelled
             if (post.Status == PostStatus.Cancelled)
                 return PostStatus.Cancelled;
 
-            if (post.Status == PostStatus.Closed)
-                return PostStatus.Closed;
-
             var now = DateTime.UtcNow;
+            var participantCount = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved);
 
-            // 2. Check EventDate - Closed and Full become Completed
+            // 2. Check EventDate - Completed if passed
             if (now > post.EventDate)
                 return PostStatus.Completed;
 
-            // 3. Check DateDeadline logic
+            // 3. Check DateDeadline passed
             if (now > post.DateDeadline)
             {
-                // If Open: close immediately, then cancel 1+ hour after deadline
-                if (post.Status == PostStatus.Open)
-                {
-                    var timeSinceDeadline = now - post.DateDeadline;
-                    if (timeSinceDeadline.TotalHours >= 1)
-                        return PostStatus.Cancelled;
-                    else
-                        return PostStatus.Closed;
-                }
+                // Auto-cancel if insufficient participants (< MinParticipants) or 1+ hour past deadline
+                var timeSinceDeadline = now - post.DateDeadline;
+                if (participantCount < post.MinParticipants || timeSinceDeadline.TotalHours >= 1)
+                    return PostStatus.Cancelled;
 
-                // If already Closed, stay Closed (will become Completed when EventDate passes)
-                if (post.Status == PostStatus.Closed)
-                    return PostStatus.Closed;
-
-                // Ignore Full status
-                if (post.Status == PostStatus.Full)
-                    return PostStatus.Full;
+                // Otherwise, it's Closed (deadline passed but still within grace period and has enough participants)
+                return PostStatus.Closed;
             }
 
-            // 4. Check capacity-based states (before deadline)
-            if (now <= post.DateDeadline)
-            {
-                var participantCount = _dbContext.Participants.Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved);
-                if (participantCount >= post.MaxParticipants)
-                    return PostStatus.Full;
-            }
+            // 4. Before deadline: check capacity
+            if (participantCount >= post.MaxParticipants)
+                return PostStatus.Full;
 
             // 5. Default state
             return PostStatus.Open;
         }
-
+        private async Task UpdatePostStatusAsync(Post post)
+        {
+            var computedStatus = GetPostStatus(post);
+            if (post.Status != computedStatus)
+            {
+                // Update only the Status column to avoid category relationship issues
+                await _dbContext.Posts
+                    .Where(p => p.PostId == post.PostId)
+                    .ExecuteUpdateAsync(s => s.SetProperty(p => p.Status, computedStatus));
+            }
+        }
         private async Task<PaginatedResponseDto<PostDto>> ApplyFiltersAndGetPaginatedPostsAsync(IQueryable<Post> posts, PostQueryDto query, string? currentUserId = null)
         {
+            // Sync post statuses based on current time
+            var postsToSync = await posts.ToListAsync();
+            foreach (var post in postsToSync)
+            {
+                await UpdatePostStatusAsync(post);
+            }
+
+            // Re-query with updated statuses
+            var postIds = postsToSync.Select(p => p.PostId).ToList();
+            posts = _dbContext.Posts
+                .Include(p => p.Categories)
+                .Where(p => postIds.Contains(p.PostId));
+
             // Filter by name
             if (!string.IsNullOrWhiteSpace(query.NameFilter))
             {
@@ -116,7 +123,7 @@ namespace where_we_go.Service
                 DateDeadline = p.DateDeadline,
                 EventDate = p.EventDate,
                 PostImgURL = p.PostImageKey,
-                Status = GetPostStatus(p).ToString(),
+                Status = p.Status.ToString(),
                 MaxParticipants = p.MaxParticipants,
                 CurrentParticipants = _dbContext.Participants.Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved),
                 Categories = [.. p.Categories.Select(c => new CategorySimpleDto
@@ -159,6 +166,9 @@ namespace where_we_go.Service
             if (post == null)
                 return null;
 
+            // Update post status based on current time before returning
+            await UpdatePostStatusAsync(post);
+
             // For public display, "current participants" should mean APPROVED participants only.
             // Owner-side management uses GetPostApplicantsAsync for other statuses.
             var approvedParticipants = await _dbContext.Participants
@@ -188,7 +198,7 @@ namespace where_we_go.Service
                 LocationName = post.LocationName,
                 DateDeadline = post.DateDeadline,
                 EventDate = post.EventDate,
-                Status = GetPostStatus(post).ToString(),
+                Status = post.Status.ToString(),
                 Locationlat = post.LocationLat ?? 0f,
                 Locationlon = post.LocationLon ?? 0f,
                 CurrentParticipants = approvedParticipants.Count,

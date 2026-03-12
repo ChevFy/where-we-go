@@ -229,10 +229,15 @@ function performBan() {
 
 function unbanUser(userId) {
     if (!confirm('Are you sure you want to unban this user?')) return;
+    const token = getCsrfToken();
+    if (!token) {
+        alert('Security token not found. Please refresh the page.');
+        return;
+    }
 
     fetch('/admin/users/unban', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
         body: JSON.stringify({ userId })
     })
     .then(response => {
@@ -581,10 +586,15 @@ function renderPostDetail(post) {
 
 function deletePostFromModal() {
     if (!state.currentPostDetailId || !confirm('Are you sure you want to cancel this post?')) return;
+    const token = getCsrfToken();
+    if (!token) {
+        alert('Security token not found. Please refresh the page.');
+        return;
+    }
 
     fetch(`/admin/posts/${state.currentPostDetailId}/cancel`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token }
     })
     .then(response => {
         if (response.ok) {
@@ -600,10 +610,15 @@ function deletePostFromModal() {
 
 function restorePostFromModal() {
     if (!state.currentPostDetailId) return;
+    const token = getCsrfToken();
+    if (!token) {
+        alert('Security token not found. Please refresh the page.');
+        return;
+    }
 
     fetch(`/admin/posts/${state.currentPostDetailId}/restore`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token }
     })
     .then(response => {
         if (response.ok) {
@@ -680,10 +695,15 @@ function closeEditPostModal() {
 
 function removeParticipant(postId, participantId) {
     if (!confirm('Are you sure you want to remove this participant?')) return;
+    const token = getCsrfToken();
+    if (!token) {
+        alert('Security token not found. Please refresh the page.');
+        return;
+    }
 
     fetch(`/admin/posts/${postId}/participants/${participantId}`, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token }
     })
     .then(response => {
         if (response.ok) {

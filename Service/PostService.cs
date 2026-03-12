@@ -79,7 +79,7 @@ namespace where_we_go.Service
             {
                 posts = query.StatusFilter.ToLower() switch
                 {
-                    "open" => posts.Where(p => p.Status == PostStatus.Open),
+                    "open" => posts.Where(p => p.Status == PostStatus.Open && p.Participants.Count(part => part.Status == ParticipantStatus.Approved) < p.MaxParticipants),
                     "pending" => posts.Where(p => p.Status != PostStatus.Cancelled && p.Participants.Any(part => part.UserId == currentUserId && part.Status == ParticipantStatus.Pending)),
                     "cancelled" => posts.Where(p => p.Status == PostStatus.Cancelled && p.UserId == currentUserId), // only owner can view
                     "completed" => posts.Where(p => p.EventDate <= now && p.Status != PostStatus.Cancelled && (p.UserId == currentUserId

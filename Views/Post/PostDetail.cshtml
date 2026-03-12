@@ -215,10 +215,19 @@ List<where_we_go.DTO.ApplicantDto>();
             {
                 @if (Model.IsJoined)
                 {
-                    <form asp-action="LeavePost" asp-controller="Post" asp-route-id="@Model.PostId" method="post"
-                          class="btn btn-primary" style="margin-top: 2rem">
-                        <button type="submit" class="btn" style="background-color: rgb(243, 49, 49)">Leave Activity</button>
-                    </form>
+                    @if (Model.DateDeadline < DateTime.Now)
+                    {
+                        <button class="btn btn-secondary" disabled>Leave Activity</button>
+
+                    }
+                    else
+                    {
+                        <form asp-action="LeavePost" asp-controller="Post" asp-route-id="@Model.PostId" method="post"
+                              class="btn btn-primary" style="margin-top: 2rem">
+                            <button type="submit" class="btn" style="background-color: rgb(243, 49, 49)">Leave Activity</button>
+                        </form>
+
+                    }
                 }
                 else if (Model.IsPending)
                 {

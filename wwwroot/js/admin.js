@@ -570,16 +570,21 @@ function renderPostDetail(post) {
 
     window.currentPostForEdit = post;
 
-    // Check if event date has passed
-    const eventDateObj = new Date(post.eventDate);
+    // Check if deadline has passed
+    const deadlineDateObj = new Date(post.dateDeadline);
     const now = new Date();
-    const isEventDatePassed = eventDateObj < now;
+    const isDeadlinePassed = deadlineDateObj < now;
 
     if (post.status === 'Cancelled') {
-        const isRestoreDisabled = isEventDatePassed;
+        const isRestoreDisabled = isDeadlinePassed;
         actionsDiv.innerHTML = `
             <button type="button" class="btn-cancel" onclick="closePostDetailModal()">Close</button>
-            <button type="button" class="btn-restore" ${isRestoreDisabled ? 'disabled style="opacity:0.5;cursor:not-allowed" title="Cannot restore: event date has passed"' : ''} onclick="${isRestoreDisabled ? '' : 'restorePostFromModal()'}">Restore Post</button>
+            <button type="button" class="btn-restore" ${isRestoreDisabled ? 'disabled style="opacity:0.5;cursor:not-allowed" title="Cannot restore: deadline has passed"' : ''} onclick="${isRestoreDisabled ? '' : 'restorePostFromModal()'}">Restore Post</button>
+        `;
+    } else if (post.status === 'Completed') {
+        // Completed posts are read-only - no edit/cancel allowed
+        actionsDiv.innerHTML = `
+            <button type="button" class="btn-cancel" onclick="closePostDetailModal()">Close</button>
         `;
     } else {
         actionsDiv.innerHTML = `

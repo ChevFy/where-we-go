@@ -203,6 +203,13 @@ namespace where_we_go.Service
                 return (false, "Post not found");
             }
 
+            // Prevent cancelling Completed posts
+            var computedStatus = GetComputedPostStatus(post);
+            if (computedStatus == PostStatus.Completed)
+            {
+                return (false, "Cannot cancel a completed post");
+            }
+
             post.Status = PostStatus.Cancelled;
             await _dbContext.SaveChangesAsync();
             return (true, null);
@@ -214,6 +221,19 @@ namespace where_we_go.Service
             if (post == null)
             {
                 return (false, "Post not found");
+            }
+
+            // Prevent restoring Completed posts
+            var computedStatus = GetComputedPostStatus(post);
+            if (computedStatus == PostStatus.Completed)
+            {
+                return (false, "Cannot restore a completed post");
+            }
+
+            // Prevent restoring if deadline has passed
+            if (DateTime.UtcNow > post.DateDeadline)
+            {
+                return (false, "Cannot restore: deadline has passed");
             }
 
             post.Status = PostStatus.Open;
@@ -230,6 +250,13 @@ namespace where_we_go.Service
             if (post == null)
             {
                 return (false, "Post not found");
+            }
+
+            // Prevent updating Completed posts
+            var computedStatus = GetComputedPostStatus(post);
+            if (computedStatus == PostStatus.Completed)
+            {
+                return (false, "Cannot update a completed post");
             }
 
             // Update editable fields: Participants, Categories
@@ -256,6 +283,19 @@ namespace where_we_go.Service
 
         public async Task<(bool Success, string? Error)> RemoveParticipantAsync(Guid postId, Guid participantId)
         {
+            var post = await _dbContext.Posts.FindAsync(postId);
+            if (post == null)
+            {
+                return (false, "Post not found");
+            }
+
+            // Prevent removing participants from Completed posts
+            var computedStatus = GetComputedPostStatus(post);
+            if (computedStatus == PostStatus.Completed)
+            {
+                return (false, "Cannot remove participants from a completed post");
+            }
+
             var participant = await _dbContext.Participants
                 .FirstOrDefaultAsync(p => p.ParticipantId == participantId && p.PostId == postId);
 

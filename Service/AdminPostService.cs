@@ -166,15 +166,9 @@ namespace where_we_go.Service
                 return (false, "Post not found");
             }
 
-            // Update editable fields: Status, Participants, Categories
+            // Update editable fields: Participants, Categories
             post.MinParticipants = dto.MinParticipants;
             post.MaxParticipants = dto.MaxParticipants;
-
-            // Parse and update status (only if provided)
-            if (!string.IsNullOrEmpty(dto.Status) && Enum.TryParse<PostStatus>(dto.Status, true, out var status))
-            {
-                post.Status = status;
-            }
 
             // Update categories if provided
             if (dto.CategoryIds != null && dto.CategoryIds.Count > 0)

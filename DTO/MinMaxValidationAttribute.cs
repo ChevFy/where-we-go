@@ -28,9 +28,10 @@ namespace where_we_go.DTO
 
             if (minValue is int min && maxValue is int max)
             {
-                if (min >= max)
+                // Allow equal min and max; only invalid when min > max
+                if (min > max)
                 {
-                    return new ValidationResult($"Minimum participants must be less than maximum participants.");
+                    return new ValidationResult($"Minimum participants cannot be greater than maximum participants.");
                 }
             }
 

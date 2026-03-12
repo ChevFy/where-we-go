@@ -132,7 +132,8 @@ public class PostController(IPostService postService, AppDbContext dbContext) : 
             TimeDeadline = TimeOnly.FromDateTime(post.DateDeadline),
             EventDate = post.EventDate.Date,
             EventTime = TimeOnly.FromDateTime(post.EventDate),
-            MinParticipants = post.MinParticipants,
+            // Expose totals including owner to the edit form
+            MinParticipants = post.MinParticipants + 1,
             MaxParticipants = post.MaxParticipants + 1, // display as max total people (owner + participants)
             PostImgkey = post.PostImageKey,
             CategoryIds = post.Categories.Select(c => c.CategoryId).ToList(),

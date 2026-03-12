@@ -42,7 +42,7 @@ List<where_we_go.DTO.ApplicantDto>();
         <p class="post-status @Model.Status?.ToLower()">@Model.Status</p>
 
         <a class="post-location-link" target="_blank" rel="noopener noreferrer"
-           href="https://www.google.com/maps/search/?api=1&query=@Model.Locationlat,@Model.Locationlon">
+               href="https://www.google.com/maps/search/?api=1&query=@Model.Locationlat,@Model.Locationlon">
             <span class="post-location-icon">📍</span>
             <span class="post-location-text">@Model.LocationName</span>
             <span class="post-location-hint">Open Map →</span>
@@ -63,7 +63,8 @@ List<where_we_go.DTO.ApplicantDto>();
             </div>
             <div class="post-meta-item">
                 <span class="post-meta-label">Participant range</span>
-                <span class="post-meta-value">📋 @(Model.MinParticipants) - @(Model.MaxParticipants + 1) people</span>
+                <span class="post-meta-value">📋 @(Model.MinParticipants + 1) - @(Model.MaxParticipants + 1) people
+                </span>
             </div>
         </div>
         <div class="post-category">

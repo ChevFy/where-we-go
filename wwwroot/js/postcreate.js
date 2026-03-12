@@ -53,7 +53,9 @@ const validateForm = () => {
     if (!eventTime) errors.push({ field: "EventTime", message: "Event time is required." });
     if (dateDeadline && timeDeadline && new Date(dateDeadline + "T" + timeDeadline) <= new Date()) errors.push({ field: "TimeDeadline", message: "Registration deadline must be in the future." });
     if (dateDeadline && timeDeadline && eventDate && eventTime && new Date(eventDate + "T" + eventTime) <= new Date(dateDeadline + "T" + timeDeadline)) errors.push({ field: "EventTime", message: "Event date and time must be after the deadline." });
-    if (minPart < 1 || maxPart < 1 || minPart >= maxPart) errors.push({ field: "MinParticipants", message: "Min participants must be less than max participants (both at least 1)." });
+    if (minPart < 2) errors.push({ field: "MinParticipants", message: "Min participants must be at least 2 (including you)." });
+    if (maxPart < 2) errors.push({ field: "MaxParticipants", message: "Max participants must be at least 2 (including you)." });
+    if (minPart >= 2 && maxPart >= 2 && minPart > maxPart) errors.push({ field: "MinParticipants", message: "Min participants cannot be greater than max participants." });
     if (categories.length === 0) errors.push({ field: "check-category", message: "Please select at least one category." });
 
     return { valid: errors.length === 0, errors };
@@ -94,9 +96,7 @@ const LocationValidate = async (lat, lon) => {
             return { success: false, error: 'Please Select location on the map' };
         }
 
-
-
-        return { success: true, data: result };
+        return { success: true, data: "ok" };
     }
     catch (e) {
         console.error('LocationSave error:', e);

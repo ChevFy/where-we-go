@@ -16,7 +16,7 @@
 <div class="login-bg-container">
     <div class="login-card">
         <div class="login-main-text">
-            ลงชื่อเข้าใช้
+            Sign In
         </div>
 
         <form
@@ -43,7 +43,7 @@
                 {
                     targetId = "submit-login",
                     buttonType = "submit",
-                    text = "ลงชื่อเข้าใช้",
+                    text = "Sign In",
                     width = "75%"
                 })
             </div>
@@ -59,14 +59,14 @@
                     imageUrl = "/images/google.svg",
                     buttonType = "submit",
                     width = "100%",
-                    text = "เข้าสู่ระบบด้วย Google",
+                    text = "Sign in with Google",
                     color = "var(--tertiary-color)",
                     textColor = "var(--option-color)"
                 })
             </form>
         </div>
         <div>
-            ยังไม่มีบัญชีใช่ไหม? <a asp-controller="Auth" asp-action="Register">ลงทะเบียน</a> เลย!
+            Don't have an account? <a asp-controller="Auth" asp-action="Register">Register</a> now!
         </div>
     </div>
 </div>

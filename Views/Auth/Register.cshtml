@@ -17,7 +17,7 @@
 <div class="register-bg-container">
     <div class="register-card">
         <div class="register-main-text">
-            ลงทะเบียน
+            Register
         </div>
 
         <form style="width: 100%; gap : 1.5rem ; display :flex ; align-items : center ; justify-content : center ; flex-direction : column" method="post" asp-action="Register" asp-controller="Auth">
@@ -29,13 +29,13 @@
                 @await Component.InvokeAsync("InputBar", new { targetId = "ConfirmPassword", inputType = "password", placeHolder = "Confirm Password", width = "75%" })
                 @* @await Component.InvokeAsync("SelectDropdown", new { 
                     targetId = "Gender", 
-                    mainText = "เพศ", 
+                    mainText = "Gender", 
                     width = "75%", 
                     height = "30px",
                     items = new List<SelectDropdownItem>{
-                        new SelectDropdownItem {Text = "ชาย" , Value="male"},
-                        new SelectDropdownItem {Text = "หญิง" , Value="female"},
-                        new SelectDropdownItem {Text = "อื่นๆ" , Value="other"}
+                        new SelectDropdownItem {Text = "Male" , Value="male"},
+                        new SelectDropdownItem {Text = "Female" , Value="female"},
+                        new SelectDropdownItem {Text = "Other" , Value="other"}
                     }
                 }) *@
             </div>
@@ -47,13 +47,13 @@
                     .Select(e => "• " + e.ErrorMessage));
 
                 <script type="text/javascript">
-                    alert("เกิดข้อผิดพลาด:\n @Html.Raw(allErrors)");
+                    alert("An error occurred:\n @Html.Raw(allErrors)");
                 </script>
             }
 
             <div class="register-button">
                 <a asp-controller="Auth" asp-action="Login"></a>
-                @await Component.InvokeAsync("MainButton", new { width = "75%" ,targetId = "register-submit", buttonType = "submit", text = "ลงทะเบียน", color = "var(--option-color)" })
+                @await Component.InvokeAsync("MainButton", new { width = "75%" ,targetId = "register-submit", buttonType = "submit", text = "Register", color = "var(--option-color)" })
             </div>
         </form>
     </div>

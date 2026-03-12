@@ -17,7 +17,7 @@
 <div class="register-bg-container">
     <div class="register-card">
         <div class="register-main-text">
-            ลงทะเบียน
+            Complete Registration
         </div>
 
         <form style="width: 100%; gap : 1.5rem ; display :flex ; align-items : center ; justify-content : center ; flex-direction : column" method="post" asp-action="OauthRegister" asp-controller="Auth">
@@ -37,14 +37,14 @@
                     .Select(e => "• " + e.ErrorMessage));
 
                 <script type="text/javascript">
-                    alert("เกิดข้อผิดพลาด:\n @Html.Raw(allErrors)");
+                    alert("An error occurred:\n @Html.Raw(allErrors)");
                 </script>
             }
 
             <div class="register-button">
                 <a asp-controller="Auth" asp-action="Login">
                 </a>
-                @await Component.InvokeAsync("MainButton", new { width = "75%" ,targetId = "register-submit", buttonType = "submit", text = "เสร็จสิ้น", color = "var(--secondary-color)" })
+                @await Component.InvokeAsync("MainButton", new { width = "75%" ,targetId = "register-submit", buttonType = "submit", text = "Complete", color = "var(--secondary-color)" })
             </div>
         </form>
     </div>

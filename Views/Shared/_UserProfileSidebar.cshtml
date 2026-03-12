@@ -18,19 +18,19 @@
         <a asp-controller="User" asp-action="UserProfile" asp-route-username="@username"
                class="sidebar-link @(currentAction == "UserProfile" ? "active" : "")">
             <span class="sidebar-icon">👤</span>
-            <span>โปรไฟล์</span>
+            <span>Profile</span>
         </a>
 
         <a asp-controller="User" asp-action="UserPostsCreated" asp-route-username="@username"
                class="sidebar-link @(currentAction == "UserPostsCreated" ? "active" : "")">
             <span class="sidebar-icon">📝</span>
-            <span>โพสต์ที่สร้าง</span>
+            <span>Posts Created</span>
         </a>
 
         <a asp-controller="User" asp-action="UserPostsJoined" asp-route-username="@username"
                class="sidebar-link @(currentAction == "UserPostsJoined" ? "active" : "")">
             <span class="sidebar-icon">👥</span>
-            <span>โพสต์ที่เข้าร่วม</span>
+            <span>Posts Joined</span>
         </a>
     </nav>
 </div>

@@ -1,7 +1,7 @@
 @model where_we_go.DTO.PaginatedResponseDto<where_we_go.Models.PostDto>
 
 @{
-    ViewData["Title"] = "โพสต์ที่เข้าร่วม";
+    ViewData["Title"] = "Posts Joined";
     var userResponse = ViewBag.UserResponse as where_we_go.DTO.UserResponseDto;
     var query = new where_we_go.DTO.PostQueryDto
     {
@@ -37,14 +37,14 @@
 
     <div class="profile-main-content">
         <div class="posts-header">
-            <h1>โพสต์ที่เข้าร่วม</h1>
-            <p class="posts-count">ทั้งหมด @Model.Meta.Total โพสต์</p>
+            <h1>Posts Joined</h1>
+            <p class="posts-count">Total @Model.Meta.Total posts</p>
         </div>
 
         @if (Model.Data.Count == 0)
         {
             <div class="no-posts-message">
-                <p>ยังไม่มีโพสต์ที่เข้าร่วม</p>
+                <p>No posts joined yet</p>
             </div>
         }
         else

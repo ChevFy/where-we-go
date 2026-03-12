@@ -307,25 +307,31 @@
     padding: 0.25rem 0.75rem;
     border-radius: 4px;
     font-size: 0.875rem;
+    font-weight: 500;
 }
 
-.post-status.active {
-    background: #28a745;
+.post-status.open {
+    background: #009607;
     color: white;
 }
 
 .post-status.full {
-    background: #ffc107;
+    background: #0079b1;
     color: #333;
 }
 
-.post-status.ended {
-    background: #6c757d;
+.post-status.closed {
+    background: #d8a600;
     color: white;
 }
 
-.post-status.delete {
-    background: #dc3545;
+.post-status.completed {
+    background: #8b0000;
+    color: white;
+}
+
+.post-status.cancelled {
+    background: #6c757d;
     color: white;
 }
 

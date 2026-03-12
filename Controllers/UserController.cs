@@ -11,7 +11,7 @@ using where_we_go.Service;
 
 namespace where_we_go.Controllers;
 
-public class UserController(UserManager<User> userManager, IUserService userService, IFileService fileService, IPostService postService) : Controller
+public class UserController(UserManager<User> userManager, IFileService fileService, IPostService postService) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> UserProfile(string? username)
@@ -111,13 +111,6 @@ public class UserController(UserManager<User> userManager, IUserService userServ
         }
 
         return BadRequest(new { message = ModelState });
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Test([FromQuery] UserQueryDto query)
-    {
-        var user = await userService.GetUsersAsync(query);
-        return View(user);
     }
 
     [HttpGet]

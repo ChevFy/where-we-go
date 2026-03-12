@@ -62,14 +62,6 @@
     white-space: nowrap;
 }
 
-/* .user-post-status {
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: var(--font-size-small);
-    font-weight: 600;
-    white-space: nowrap;
-} */
-
 .user-post-status {
     color: white;
     padding: 5px 10px;

@@ -337,7 +337,6 @@
         margin-bottom: 15px;
     }
 
-    /* Filter buttons */
     .filter-container {
         flex-wrap: wrap;
         gap: 8px;
@@ -351,7 +350,6 @@
         min-width: 0;
     }
 
-    /* Notification cards */
     .notifications-list {
         gap: 10px;
     }
@@ -404,7 +402,6 @@
         text-align: center;
     }
 
-    /* Pagination */
     .noti-pagination {
         flex-direction: column;
         gap: 12px;

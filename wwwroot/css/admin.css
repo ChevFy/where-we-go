@@ -311,17 +311,17 @@
 }
 
 .post-status.open {
-    background: #007bff;
+    background: #009607;
     color: white;
 }
 
 .post-status.full {
-    background: #ffc107;
+    background: #0079b1;
     color: #333;
 }
 
 .post-status.closed {
-    background: #dc3545;
+    background: #d8a600;
     color: white;
 }
 

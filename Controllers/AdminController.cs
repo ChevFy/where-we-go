@@ -163,10 +163,10 @@ public class AdminController(
         return Json(post);
     }
 
-    [HttpPost("posts/{id:guid}/delete")]
-    public async Task<IActionResult> DeletePost([FromRoute] Guid id)
+    [HttpPost("posts/{id:guid}/cancel")]
+    public async Task<IActionResult> CancelPost([FromRoute] Guid id)
     {
-        var (success, error) = await _adminPostService.DeletePostAsync(id);
+        var (success, error) = await _adminPostService.CancelPostAsync(id);
         if (!success)
         {
             return NotFound(new { details = error });

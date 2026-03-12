@@ -582,7 +582,7 @@ function renderPostDetail(post) {
 function deletePostFromModal() {
     if (!state.currentPostDetailId || !confirm('Are you sure you want to cancel this post?')) return;
 
-    fetch(`/admin/posts/${state.currentPostDetailId}/delete`, {
+    fetch(`/admin/posts/${state.currentPostDetailId}/cancel`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
     })

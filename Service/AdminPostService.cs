@@ -129,7 +129,7 @@ namespace where_we_go.Service
             };
         }
 
-        public async Task<(bool Success, string? Error)> DeletePostAsync(Guid id)
+        public async Task<(bool Success, string? Error)> CancelPostAsync(Guid id)
         {
             var post = await _dbContext.Posts.FindAsync(id);
             if (post == null)

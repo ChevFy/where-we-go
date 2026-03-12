@@ -16,6 +16,56 @@ namespace where_we_go.Service
             _dbContext = dbContext;
         }
 
+        // Computed status logic matching PostService.GetPostStatus()
+        private PostStatus GetComputedPostStatus(Post post)
+        {
+            var now = DateTime.UtcNow;
+
+            // Check for explicit Cancelled or Closed
+            if (post.Status == PostStatus.Cancelled)
+                return PostStatus.Cancelled;
+            if (post.Status == PostStatus.Closed)
+                return PostStatus.Closed;
+
+            // Check EventDate - if passed, mark as Completed
+            if (now > post.EventDate)
+                return PostStatus.Completed;
+
+            // Check DateDeadline logic
+            if (now > post.DateDeadline)
+            {
+                // If Open: closed immediately, then cancelled after 1 hour
+                if (post.Status == PostStatus.Open)
+                {
+                    var timeSinceDeadline = now - post.DateDeadline;
+                    if (timeSinceDeadline.TotalHours >= 1)
+                        return PostStatus.Cancelled;
+                    else
+                        return PostStatus.Closed;
+                }
+
+                // If already Closed, stay Closed
+                if (post.Status == PostStatus.Closed)
+                    return PostStatus.Closed;
+
+                // Full stays Full
+                if (post.Status == PostStatus.Full)
+                    return PostStatus.Full;
+            }
+
+            // Check capacity-based status (before deadline)
+            if (now <= post.DateDeadline)
+            {
+                var participantCount = _dbContext.Participants
+                    .Count(part => part.PostId == post.PostId && part.Status == ParticipantStatus.Approved);
+                if (participantCount >= post.MaxParticipants)
+                    return PostStatus.Full;
+            }
+
+            // Default state
+            return PostStatus.Open;
+        }
+
         public async Task<PaginatedResponseDto<AdminPostDto>> GetPostsAsync(PostQueryDto query)
         {
             var postsQuery = _dbContext.Posts
@@ -30,55 +80,71 @@ namespace where_we_go.Service
                     EF.Functions.Like(p.Title.ToLower(), $"%{keyword}%"));
             }
 
-            // Filter by status
+            // Parse status filter (for computed status filtering)
+            PostStatus? targetStatus = null;
             if (!string.IsNullOrWhiteSpace(query.StatusFilter))
             {
-                var status = query.StatusFilter.ToLower() switch
+                targetStatus = query.StatusFilter.ToLower() switch
                 {
                     "open" => PostStatus.Open,
                     "full" => PostStatus.Full,
+                    "closed" => PostStatus.Closed,
                     "completed" => PostStatus.Completed,
                     "cancelled" => PostStatus.Cancelled,
                     _ => PostStatus.Open
                 };
-                postsQuery = postsQuery.Where(p => p.Status == status);
             }
 
-            var totalCount = await postsQuery.CountAsync();
-
-            // Sorting
-            postsQuery = (query.SortBy ?? "").ToLower() switch
-            {
-                "title" => postsQuery.OrderBy(p => p.Title),
-                "title_desc" => postsQuery.OrderByDescending(p => p.Title),
-                "latest" => postsQuery.OrderByDescending(p => p.DateCreated),
-                "oldest" => postsQuery.OrderBy(p => p.DateCreated),
-                _ => postsQuery.OrderByDescending(p => p.DateCreated)
-            };
-
-            // Pagination
-            var posts = await postsQuery
-                .Skip((query.PageSave - 1) * query.PageSizeSave)
-                .Take(query.PageSizeSave)
-                .Select(p => new AdminPostDto
+            // Load posts with required data for computed status
+            var allPosts = await postsQuery
+                .Include(p => p.Participants)
+                .Select(p => new
                 {
-                    PostId = p.PostId,
-                    Title = p.Title,
-                    Description = p.Description,
-                    OwnerEmail = p.User.Email ?? string.Empty,
-                    OwnerName = p.User.Name ?? string.Empty,
-                    Status = p.Status.ToString(),
-                    CurrentParticipants = _dbContext.Participants
-                        .Count(part => part.PostId == p.PostId && part.Status == ParticipantStatus.Approved),
-                    MaxParticipants = p.MaxParticipants,
-                    DateDeadline = p.DateDeadline,
-                    EventDate = p.EventDate,
-                    DateCreated = p.DateCreated,
-                    LocationName = p.LocationName
+                    Post = p,
+                    ApprovedParticipantCount = p.Participants.Count(part => part.Status == ParticipantStatus.Approved)
                 })
                 .ToListAsync();
 
-            return new PaginatedResponseDto<AdminPostDto>(posts, query.PageSizeSave, query.PageSave, totalCount);
+            // Apply computed status filter
+            if (targetStatus.HasValue)
+            {
+                allPosts = allPosts.Where(x => GetComputedPostStatus(x.Post) == targetStatus.Value).ToList();
+            }
+
+            var totalCount = allPosts.Count;
+
+            // Sorting
+            allPosts = (query.SortBy ?? "").ToLower() switch
+            {
+                "title" => allPosts.OrderBy(x => x.Post.Title).ToList(),
+                "title_desc" => allPosts.OrderByDescending(x => x.Post.Title).ToList(),
+                "latest" => allPosts.OrderByDescending(x => x.Post.DateCreated).ToList(),
+                "oldest" => allPosts.OrderBy(x => x.Post.DateCreated).ToList(),
+                _ => allPosts.OrderByDescending(x => x.Post.DateCreated).ToList()
+            };
+
+            // Pagination
+            var pagedPosts = allPosts
+                .Skip((query.PageSave - 1) * query.PageSizeSave)
+                .Take(query.PageSizeSave)
+                .Select(x => new AdminPostDto
+                {
+                    PostId = x.Post.PostId,
+                    Title = x.Post.Title,
+                    Description = x.Post.Description,
+                    OwnerEmail = x.Post.User.Email ?? string.Empty,
+                    OwnerName = x.Post.User.Name ?? string.Empty,
+                    Status = GetComputedPostStatus(x.Post).ToString(),
+                    CurrentParticipants = x.ApprovedParticipantCount,
+                    MaxParticipants = x.Post.MaxParticipants,
+                    DateDeadline = x.Post.DateDeadline,
+                    EventDate = x.Post.EventDate,
+                    DateCreated = x.Post.DateCreated,
+                    LocationName = x.Post.LocationName
+                })
+                .ToList();
+
+            return new PaginatedResponseDto<AdminPostDto>(pagedPosts, query.PageSizeSave, query.PageSave, totalCount);
         }
 
         public async Task<AdminPostDetailDto?> GetPostDetailAsync(Guid id)
@@ -100,7 +166,7 @@ namespace where_we_go.Service
                 OwnerId = post.UserId,
                 OwnerEmail = post.User.Email ?? string.Empty,
                 OwnerName = post.User.Name ?? string.Empty,
-                Status = post.Status.ToString(),
+                Status = GetComputedPostStatus(post).ToString(),
                 CurrentParticipants = post.Participants.Count(p => p.Status == ParticipantStatus.Approved),
                 MaxParticipants = post.MaxParticipants,
                 MinParticipants = post.MinParticipants,

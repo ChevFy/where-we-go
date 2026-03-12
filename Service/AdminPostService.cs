@@ -16,7 +16,6 @@ namespace where_we_go.Service
             _dbContext = dbContext;
         }
 
-        // Computed status logic matching PostService.GetPostStatus()
         private PostStatus GetComputedPostStatus(Post post)
         {
             var now = DateTime.UtcNow;
@@ -77,7 +76,7 @@ namespace where_we_go.Service
             {
                 var keyword = query.NameFilter.Trim().ToLower();
                 postsQuery = postsQuery.Where(p =>
-                    EF.Functions.Like(p.Title.ToLower(), $"%{keyword}%"));
+                    EF.Functions.ILike(p.Title, $"%{keyword}%"));
             }
 
             // Parse status filter (for computed status filtering)
@@ -105,7 +104,6 @@ namespace where_we_go.Service
                 })
                 .ToListAsync();
 
-            // Apply computed status filter
             if (targetStatus.HasValue)
             {
                 allPosts = allPosts.Where(x => GetComputedPostStatus(x.Post) == targetStatus.Value).ToList();
@@ -123,7 +121,6 @@ namespace where_we_go.Service
                 _ => allPosts.OrderByDescending(x => x.Post.DateCreated).ToList()
             };
 
-            // Pagination
             var pagedPosts = allPosts
                 .Skip((query.PageSave - 1) * query.PageSizeSave)
                 .Take(query.PageSizeSave)

@@ -565,7 +565,7 @@ function renderPostDetail(post) {
 
     window.currentPostForEdit = post;
 
-    if (post.status === 'Delete') {
+    if (post.status === 'Cancelled') {
         actionsDiv.innerHTML = `
             <button type="button" class="btn-cancel" onclick="closePostDetailModal()">Close</button>
             <button type="button" class="btn-restore" onclick="restorePostFromModal()">Restore Post</button>

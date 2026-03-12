@@ -48,7 +48,7 @@ namespace where_we_go
             builder.Services.AddScoped<INotificationService, NotificationService>();
 
             // MinIO initialization is disabled because MinIO is not used.
-            builder.Services.AddHostedService<MinioInitializationService>();
+            //builder.Services.AddHostedService<MinioInitializationService>();
 
             builder.Services.AddHostedService<CronService>();
 

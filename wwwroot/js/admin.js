@@ -570,10 +570,16 @@ function renderPostDetail(post) {
 
     window.currentPostForEdit = post;
 
+    // Check if event date has passed
+    const eventDateObj = new Date(post.eventDate);
+    const now = new Date();
+    const isEventDatePassed = eventDateObj < now;
+
     if (post.status === 'Cancelled') {
+        const isRestoreDisabled = isEventDatePassed;
         actionsDiv.innerHTML = `
             <button type="button" class="btn-cancel" onclick="closePostDetailModal()">Close</button>
-            <button type="button" class="btn-restore" onclick="restorePostFromModal()">Restore Post</button>
+            <button type="button" class="btn-restore" ${isRestoreDisabled ? 'disabled style="opacity:0.5;cursor:not-allowed" title="Cannot restore: event date has passed"' : ''} onclick="${isRestoreDisabled ? '' : 'restorePostFromModal()'}">Restore Post</button>
         `;
     } else {
         actionsDiv.innerHTML = `

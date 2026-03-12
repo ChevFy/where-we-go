@@ -12,6 +12,6 @@ public class BanUserDto
     public string Reason { get; set; } = string.Empty;
 
     [Required]
-    [Range(1, 365)]
+    [Range(1, 36500)]
     public int DurationDays { get; set; }
 }

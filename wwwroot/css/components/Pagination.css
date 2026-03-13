@@ -58,7 +58,6 @@
         border-radius: 10px;
     }
 
-    /* Hide middle page numbers on mobile, keep first, last, current, and nearby */
     .wwg-page-btn:not(.is-active):not(:first-child):not(:last-child):not(:nth-last-child(2)):not(:nth-child(2)) {
         display: none;
     }

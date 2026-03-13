@@ -16,15 +16,6 @@ namespace where_we_go.Config
         public const string GoogleClientId = "GOOGLE_CLIENT_ID";
         public const string GoogleClientSecret = "GOOGLE_CLIENT_SECRET";
 
-        // Mail config
-        public const string MailHost = "MAIL_HOST";
-        public const string MailPort = "MAIL_PORT";
-        public const string MailUsername = "MAIL_USERNAME";
-        public const string MailPassword = "MAIL_PASSWORD";
-        public const string MailFromEmail = "MAIL_FROM_EMAIL";
-        public const string MailFromName = "MAIL_FROM_NAME";
-        public const string MailEnableSsl = "MAIL_ENABLE_SSL";
-
         // MinIO config
         public const string MinioEndpoint = "MINIO_ENDPOINT";
         public const string MinioAccessKey = "MINIO_ACCESS_KEY";

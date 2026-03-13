@@ -64,7 +64,7 @@ namespace where_we_go.Service
             if (!string.IsNullOrWhiteSpace(query.NameFilter))
             {
                 var keyword = query.NameFilter.Trim();
-                posts = posts.Where(p => EF.Functions.Like(p.Title.ToLower(), $"%{keyword}%"));
+                posts = posts.Where(p => EF.Functions.ILike(p.Title, $"%{keyword}%"));
             }
 
             // Filter by categories
@@ -245,7 +245,6 @@ namespace where_we_go.Service
 
         public async Task CreatePostAsync(PostCreateDto dto, string userId)
         {
-            // Combine date and time into a single DateTime
             var combinedDateTime = dto.DateDeadline.Add(dto.TimeDeadline.ToTimeSpan());
             var combinedEventDateTime = dto.EventDate.Add(dto.EventTime.ToTimeSpan());
 
@@ -266,13 +265,12 @@ namespace where_we_go.Service
                 DateDeadline = dateDeadline,
                 EventDate = eventDate,
 
-                // Store as participant slots (excluding owner); create/edit forms use totals including owner
                 MinParticipants = Math.Max(0, dto.MinParticipants - 1),
-                MaxParticipants = Math.Max(1, dto.MaxParticipants - 1), // -1 because owner counts; stored value = participant slots
+                MaxParticipants = Math.Max(1, dto.MaxParticipants - 1),
 
                 DateCreated = DateTime.UtcNow,
 
-                Status = PostStatus.Open, // Changed from Active to Open
+                Status = PostStatus.Open,
                 InviteCode = Guid.NewGuid().ToString().Substring(0, 8).ToUpper()
             };
 
@@ -377,10 +375,9 @@ namespace where_we_go.Service
             }
 
 
-            post.Status = PostStatus.Cancelled; // Changed from Delete to Cancelled
+            post.Status = PostStatus.Cancelled;
             _dbContext.Posts.Update(post);
 
-            // TODO: Notify every participant (except status == reject, withdrawn)
             var participantsToNotify = await _dbContext.Participants
                .Where(p => p.PostId == id &&
                            p.Status != ParticipantStatus.Rejected &&
@@ -428,7 +425,6 @@ namespace where_we_go.Service
                 if (existingParticipant.Status == ParticipantStatus.Withdrawn) return "You cannot rejoin this activity after withdrawing.";
             }
 
-            // New participant ALWAYS goes to pending
             var participant = new Participant
             {
                 ParticipantId = Guid.NewGuid(),
@@ -441,7 +437,6 @@ namespace where_we_go.Service
             _dbContext.Participants.Add(participant);
             await _dbContext.SaveChangesAsync();
 
-            // TODO: Notify owner here
             await _notificationService.CreateNotificationAsync(new NotificationCreateDto
             {
                 UserId = post.UserId,
@@ -451,7 +446,6 @@ namespace where_we_go.Service
                 Type = NotificationType.ParticipantRequested
             });
 
-            // if approved and there is no group chat yet, create one now
             if (participant.Status == ParticipantStatus.Approved)
             {
                 var existingChat = await _dbContext.GroupChats
@@ -532,7 +526,6 @@ namespace where_we_go.Service
 
             if (pendingParticipants.Count == 0) return "Participant request not found.";
 
-            // Approve as many pending users as remaining capacity allows.
             var approvedCount = await _dbContext.Participants
                 .CountAsync(p => p.PostId == postId && p.Status == ParticipantStatus.Approved);
 
@@ -616,14 +609,12 @@ namespace where_we_go.Service
 
         public async Task<string> RemoveParticipantAsync(Guid postId, string participantUserId, string currentUserId)
         {
-            // Verify post exists and current user is the owner
             var post = await _dbContext.Posts.FindAsync(postId);
             if (post == null || post.UserId != currentUserId)
             {
                 return "Unauthorized or Post Not Found.";
             }
 
-            // Find the approved participant
             var participant = await _dbContext.Participants
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(p => p.PostId == postId &&
@@ -635,11 +626,9 @@ namespace where_we_go.Service
                 return "Participant not found or not approved.";
             }
 
-            // Set status to Rejected (user was removed by owner, not voluntary withdrawal)
             participant.Status = ParticipantStatus.Rejected;
             await _dbContext.SaveChangesAsync();
 
-            // Notify the removed participant
             await _notificationService.CreateNotificationAsync(new NotificationCreateDto
             {
                 UserId = participantUserId,
@@ -654,11 +643,10 @@ namespace where_we_go.Service
 
         public async Task<List<ApplicantDto>> GetPostApplicantsAsync(Guid postId, string currentUserId, string? statusFilter = null)
         {
-            // 1. Verify the post exists and the current user is actually the owner
             var post = await _dbContext.Posts.FirstOrDefaultAsync(p => p.PostId == postId);
             if (post == null || post.UserId != currentUserId)
             {
-                return new List<ApplicantDto>(); // Return empty if unauthorized
+                return new List<ApplicantDto>();
             }
 
             var participantsQuery = _dbContext.Participants
@@ -676,12 +664,10 @@ namespace where_we_go.Service
                 participantsQuery = participantsQuery.Where(p => p.Status == parsedStatus);
             }
 
-            // 2. Fetch the raw entities from the database FIRST (this prevents the EF translation error)
             var participants = await participantsQuery
                 .OrderBy(p => p.DateJoin)
                 .ToListAsync();
 
-            // 3. Map to DTO in memory (just like your old GetPostDetailAsync code)
             var applicants = new List<ApplicantDto>();
             foreach (var p in participants)
             {

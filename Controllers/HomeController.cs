@@ -46,19 +46,6 @@ public class HomeController(UserManager<User> userManager, IPostService postServ
         return View(posts);
     }
 
-    [Authorize]
-    public async Task<IActionResult> Privacy()
-    {
-        bool IsAuth = User.Identity?.IsAuthenticated ?? false;
-        return View();
-    }
-
-    [Authorize(Roles = "Admin")]
-    public string Admin()
-    {
-        return "THIS IS ADMIN PAGE";
-    }
-
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
